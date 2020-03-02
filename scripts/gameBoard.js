@@ -55,7 +55,7 @@ const gameBoard = {
     },
 
     isOnMap(position) {
-        if (position && position.length === 2) {
+        if (position && position.length >= 2) {
             return position[0] >= 0 && position[1] >= 0 && position[0] < this.dimensions[0] && position[1] < this.dimensions[1];
         }
         return false;
@@ -120,13 +120,29 @@ const gameBoard = {
 
     // Set vision position
     setViewPosition(position) {
-        if (position && position.length === 2) {
+        if (position && position.length >= 2) {
             const translation = position.map((x,index) => {
                 return -100 * ((x+0.5) / this.dimensions[index]);
             });
             this.gridElement.style.transform = `translate(${translation[0]}%,${translation[1]}%)`
         }
     },
+
+    jumpToPosition(position) {
+        this.toggleAnimateView(false);
+        this.setViewPosition(position);
+        this.toggleAnimateView(true);
+    },
+
+    toggleAnimateView(animate=true) {
+        if (animate) {
+            // Delay this slightly to ensure the transition "none" goes through
+            setTimeout(()=>this.gridElement.style.transition = 'transform 0.1s',100);
+        }
+        else {
+            this.gridElement.style.transition = 'none';
+        }
+    }
 
 };
 

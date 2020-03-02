@@ -3,8 +3,9 @@ import gameBoard from './gameBoard.js';
 
 // const player = new entity([15,15],'@');
 class Player extends Entity {
-    constructor() {
-        super([15,15],'@');
+    constructor(startPosition) {
+        super(startPosition,'@');
+        gameBoard.jumpToPosition(startPosition);
         document.addEventListener('keydown',(event)=>this.handleEvent(event));
     }
     handleEvent(event) {

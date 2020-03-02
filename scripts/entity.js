@@ -25,7 +25,7 @@ class Entity {
 
     setPosition(position) {
         this.position = position;
-        if (position && position.length === 2) {
+        if (position && position.length >= 2) {
             this.element.style.transform = `translate(${position[0]}00%,${position[1]}00%)`;
         }
     }
