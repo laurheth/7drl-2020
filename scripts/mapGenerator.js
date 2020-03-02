@@ -1,9 +1,11 @@
 const mapGenerator = {
     board: null,
     dimensions: null,
+    // Initialize the map generator
     init(gameBoardReference) {
         this.board = gameBoardReference;
     },
+    // Run the generator, given some dimensions
     generate(dimensions) {
         this.dimensions = dimensions;
         this.board.setDimensions(dimensions);

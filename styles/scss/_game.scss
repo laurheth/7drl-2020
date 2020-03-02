@@ -13,11 +13,17 @@ body {
     min-height: 100vmin;
     outline: 2px solid red;
     font-family: 'Goblin One', monospace;
+    position: relative;
+    overflow: hidden;
 }
 
 .grid {
     display: grid;
     grid-template-columns: repeat(30, 1rem);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     .tile {
         position: relative;
         padding-bottom: 100%;

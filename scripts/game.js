@@ -7,3 +7,5 @@ gameBoard.init();
 mapGenerator.init(gameBoard);
 
 mapGenerator.generate([30,30]);
+
+gameBoard.setViewPosition([15,15]);

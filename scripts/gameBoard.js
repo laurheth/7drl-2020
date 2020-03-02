@@ -116,6 +116,16 @@ const gameBoard = {
             tileElement.classList.remove('hidden');
             tileElement.classList.add('memory');
         }
+    },
+
+    // Set vision position
+    setViewPosition(position) {
+        if (position && position.length === 2) {
+            const translation = position.map((x,index) => {
+                return -100 * ( (x / this.dimensions[index]));
+            });
+            this.gridElement.style.transform = `translate(${translation[0]}%,${translation[1]}%)`
+        }
     }
 
 };
