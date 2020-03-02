@@ -207,13 +207,26 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  transition: transform 0.1s;
 }
 .grid .tile {
   position: relative;
   padding-bottom: 100%;
   width: 100%;
 }
-.grid .tile .tileArt {
+
+.entity {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translate(0, 0);
+  width: 1rem;
+  height: 1rem;
+  z-index: 10;
+  transition: transform 0.1s;
+}
+
+.tile .art, .entity .art {
   position: absolute;
   display: block;
   top: 50%;
@@ -221,12 +234,12 @@ body {
   transform: translate(-50%, -50%);
   font-size: 1rem;
 }
-.grid .tile.hidden {
+.tile.hidden, .entity.hidden {
   opacity: 0;
 }
-.grid .tile.hidden .tileArt {
+.tile.hidden .art, .entity.hidden .art {
   visibility: hidden;
 }
-.grid .tile.memory {
+.tile.memory, .entity.memory {
   filter: grayscale(100%);
 }

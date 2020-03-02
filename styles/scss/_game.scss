@@ -24,26 +24,41 @@ body {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    transition: transform 0.1s;
     .tile {
         position: relative;
         padding-bottom: 100%;
         width: 100%;
-        .tileArt {
-            position: absolute;
-            display: block;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 1rem;
+    }
+}
+
+.entity {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform: translate(0,0);
+    width: 1rem;
+    height: 1rem;
+    z-index: 10;
+    transition: transform 0.1s;
+}
+
+.tile, .entity {
+    .art {
+        position: absolute;
+        display: block;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 1rem;
+    }
+    &.hidden {
+        opacity: 0;
+        .art {
+            visibility: hidden;
         }
-        &.hidden {
-            opacity: 0;
-            .tileArt {
-                visibility: hidden;
-            }
-        }
-        &.memory {
-            filter: grayscale(100%);
-        }
+    }
+    &.memory {
+        filter: grayscale(100%);
     }
 }

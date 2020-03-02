@@ -34,7 +34,7 @@ const gameBoard = {
 
             // The "art"
             const newTileArt = document.createElement('div');
-            newTileArt.classList.add('tileArt');
+            newTileArt.classList.add('art');
             newTileArt.textContent = '#';
 
             // Put them where they need to be
@@ -46,11 +46,11 @@ const gameBoard = {
         }
     },
 
-    // Empty the grid. Dump that sucker into the trash!
+    // Empty the grid of all tiles
     emptyGrid() {
-        while(this.gridElement.firstChild) {
-            this.gridElement.removeChild(this.gridElement.lastChild);
-        }
+        this.tiles.forEach((tile)=>{
+            tile.remove();
+        })
         this.tiles = [];
     },
 
@@ -122,11 +122,11 @@ const gameBoard = {
     setViewPosition(position) {
         if (position && position.length === 2) {
             const translation = position.map((x,index) => {
-                return -100 * ( (x / this.dimensions[index]));
+                return -100 * ((x+0.5) / this.dimensions[index]);
             });
             this.gridElement.style.transform = `translate(${translation[0]}%,${translation[1]}%)`
         }
-    }
+    },
 
 };
 
