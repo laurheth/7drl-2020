@@ -27,12 +27,12 @@ const gameBoard = {
         for (let i=0; i<numberOfTiles;i++) {
             // The element representing the tile
             const newTileElement = document.createElement('div');
-            newTileElement.classList.add('tile');
+            newTileElement.classList.add('tile', 'hidden'); // Tile defaults to hidden until seen
 
             // The "art"
             const newTileArt = document.createElement('div');
             newTileArt.classList.add('tileArt');
-            newTileArt.textContent = ' ';
+            newTileArt.textContent = '#';
 
             // Put them where they need to be
             newTileElement.appendChild(newTileArt);
@@ -85,6 +85,36 @@ const gameBoard = {
             }
         }
     },
+
+    // See tile
+    seeTile(position) {
+        const index = this.getIndex(position);
+        if (index >= 0) {
+            const tileElement = this.tiles[index];
+            tileElement.classList.remove('hidden', 'memory');
+        }
+    },
+
+    // Unsee tile
+    unseeTile(position) {
+        const index = this.getIndex(position);
+        if (index >= 0) {
+            const tileElement = this.tiles[index];
+            // Tile becomes a memory, but does not become hidden
+            tileElement.classList.add('memory');
+        }
+    },
+
+    // Set as a memory, for when we return to a map later
+    setMemory(position) {
+        const index = this.getIndex(position);
+        if (index >= 0) {
+            const tileElement = this.tiles[index];
+            tileElement.classList.remove('hidden');
+            tileElement.classList.add('memory');
+        }
+    }
+
 };
 
 export default gameBoard;
