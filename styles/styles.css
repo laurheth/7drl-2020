@@ -181,6 +181,10 @@ legend, button::-moz-focus-inner, input::-moz-focus-inner {
   overflow: hidden;
 }
 
+html {
+  font-size: 125%;
+}
+
 body {
   background: black;
   color: white;
@@ -196,7 +200,7 @@ body {
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(30, 1fr);
+  grid-template-columns: repeat(30, 1rem);
 }
 .grid .tile {
   position: relative;
@@ -209,7 +213,7 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 3.3vmin;
+  font-size: 1rem;
 }
 .grid .tile.hidden {
   opacity: 0;

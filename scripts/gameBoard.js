@@ -12,6 +12,9 @@ const gameBoard = {
     // Set new dimensions for the map
     setDimensions(newDimensions) {
         this.dimensions = [...newDimensions];
+        // grid-template-columns: repeat(30, 1rem);
+
+        this.gridElement.style['grid-template-columns'] = `repeat(${newDimensions[0]},1rem)`
         this.allocateTiles();
     },
 
