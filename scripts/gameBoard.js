@@ -51,10 +51,40 @@ const gameBoard = {
         this.tiles = [];
     },
 
+    isOnMap(position) {
+        if (position && position.length === 2) {
+            return position[0] >= 0 && position[1] >= 0 && position[0] < this.dimensions[0] && position[1] < this.dimensions[1];
+        }
+        return false;
+    },
+
+    // Get index from a position
+    getIndex(position) {
+        if (this.isOnMap(position)) {
+            return position[1] * this.dimensions[0] + position[0]; 
+        }
+        return -1;
+    },
+
     // Set tile properties
-    setTile() {
-        
-    }
+    setTile(position,character='',background='',foreground='') {
+        const index = this.getIndex(position);
+        if (index >= 0) {
+            // Get the tile element
+            const tileElement = this.tiles[index];
+            // It's only child is the "art" element. So get that and set it's inner text.
+            if (character) {
+                tileElement.firstChild.innerText = character;
+            }
+
+            if (background || foreground) {
+                background = (background) ? background : '#000000';
+                foreground = (foreground) ? foreground : '#FFFFFF';
+                tileElement.style.background = background;
+                tileElement.style.color = foreground;
+            }
+        }
+    },
 };
 
 export default gameBoard;

@@ -26,5 +26,14 @@ body {
             transform: translate(-50%, -50%);
             font-size: 3.3vmin;
         }
+        &.hidden {
+            opacity: 0;
+            .tileArt {
+                visibility: hidden;
+            }
+        }
+        &.memory {
+            filter: grayscale(100%);
+        }
     }
 }
