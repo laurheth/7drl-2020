@@ -3,6 +3,7 @@ const gameBoard = {
     dimensions: [30,30],
     tiles: [],
     gridElement: null,
+    currentLevel: 0,
     // Initialize
     init() {
         this.gridElement = document.getElementById('grid');

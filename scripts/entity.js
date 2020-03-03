@@ -30,8 +30,8 @@ class Entity {
         }
     }
 
-    step(dx, dy) {
-        const step = [Math.round(dx),Math.round(dy)];
+    step(dx, dy, dz) {
+        const step = [Math.round(dx),Math.round(dy),Math.round(dz)];
         this.setPosition(this.position.map((p,i)=>p+step[i]));
     }
 }

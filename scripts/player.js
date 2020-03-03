@@ -1,5 +1,6 @@
 import Entity from './entity.js';
 import gameBoard from './gameBoard.js';
+import map from './map.js';
 
 // const player = new entity([15,15],'@');
 class Player extends Entity {
@@ -13,16 +14,22 @@ class Player extends Entity {
         let eventCaptured = true;
         switch(event.key) {
             case 'ArrowRight':
-                this.step(1,0);
+                this.step(1,0,0);
                 break;
             case 'ArrowLeft':
-                this.step(-1,0);
+                this.step(-1,0,0);
                 break;
             case 'ArrowUp':
-                this.step(0,-1);
+                this.step(0,-1,0);
                 break;
             case 'ArrowDown':
-                this.step(0,1);
+                this.step(0,1,0);
+                break;
+            case '>':
+                this.step(0,0,-1);
+                break;
+            case '<':
+                this.step(0,0,1);
                 break;
             default:
                 // Don't change anything
@@ -34,6 +41,10 @@ class Player extends Entity {
         }
     }
     setPosition(position) {
+        if (position[2] !== gameBoard.currentLevel) {
+            gameBoard.currentLevel = position[2];
+            map.display(position[2]);
+        }
         super.setPosition(position);
         gameBoard.setViewPosition(position);
     }
