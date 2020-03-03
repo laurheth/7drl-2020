@@ -10,6 +10,7 @@ class Tile {
         this.exterior=true;
         this.door=false;
         this.noOverwrite=false;
+        this.id=-1;
     }
     isPassable() {
         return this.passable;
@@ -52,6 +53,26 @@ class Tile {
     }
     isExterior() {
         return this.exterior;
+    }
+    makeStairs(up=true) {
+        if (!this.noOverwrite) {
+            if (up) {
+                this.setProperties('<','black','white',true);
+            }
+            else {
+                this.setProperties('>','black','white',true);
+            }
+            this.noOverwrite = true
+            return true;
+        }
+        return false;
+    }
+    canOverwrite() {
+        return !this.noOverwrite;
+    }
+    // Sets the id for which tower this belows to
+    setTowerId(id){
+        this.id=id;
     }
 }
 

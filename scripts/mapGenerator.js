@@ -10,29 +10,39 @@ const mapGenerator = {
     towerHeight: 26, // traditional roguelike depth
     numberOfTiles: 0,
     targetTiles: 15000,
+    towerNumber: -1,
+    possibleStairs: [],
+    connectedTowers: [],
     // Run the generator, given some dimensions
     generate() {
         // Allocate a giant, empty map
         const fullMap=[];
         for (let z=0;z<this.towerHeight;z++) {
             fullMap.push(this.emptyLevel());
+            this.possibleStairs.push({});
+            this.connectedTowers.push({});
         }
         // Build the shell of the structure
         this.buildExterior(fullMap);
+        console.log(this.connectedTowers);
+        console.log(this.possibleStairs);
 
         // Add some fancier rooms on top of the existing labyrinthe
         this.addFancyRooms(fullMap);
 
         // Add some cool hallways
-        this.addHallways(fullMap);
+        // this.addHallways(fullMap);
 
         // Add a pile of subdivisions
         this.subdivideEverything(fullMap);
 
 
+        // Add stairs!
+        this.addStairs(fullMap);
+
         // Todo
         // touchups, add floors above things a floor down
-        
+
         // Store the generated map
         map.levels=fullMap;
     },
@@ -62,13 +72,29 @@ const mapGenerator = {
     // Start with a rectangle at the top
     // Descend, and as you descend, get bigger periodically
     tower(fullLevel, startZ, growProb=0.5) {
+        this.towerNumber++;
+        const connectedTowers=[this.towerNumber];
         // Start at top and go down
         const startSize = random.range(5,7);
         let minCorner = this.forceInBorder(this.randomPosition(),startSize).map((x)=>x-startSize);
         let maxCorner = this.forceInBorder(minCorner.map((x)=>x+startSize));
 
         for (let z=startZ-1; z>=0; z--) {
-            this.rectangle(fullLevel[z],[minCorner[0], maxCorner[0]],[minCorner[1],maxCorner[1]],random.range(10,100));
+            this.rectangle(fullLevel[z],[minCorner[0], maxCorner[0]],[minCorner[1],maxCorner[1]],connectedTowers,random.range(10,100));
+            this.possibleStairs[z][this.towerNumber]=[];
+
+            if (this.towerNumber !== Math.min(...connectedTowers)) {
+                while (Math.min(...connectedTowers) in this.connectedTowers[z] && Math.min(...connectedTowers) !== this.connectedTowers[z][Math.min(...connectedTowers)]) {
+                    connectedTowers.push(this.connectedTowers[z][Math.min(...connectedTowers)]);
+                }
+            }
+            for (let i=0;i<connectedTowers.length;i++) {
+                this.connectedTowers[z][connectedTowers[i]] = Math.min(...connectedTowers);
+            }
+
+            this.possibleStairs[z][this.towerNumber].push([minCorner, maxCorner]);
+
+
             if (random.random()<growProb) {
                 if (random.random()>0.5) {
                     minCorner = this.forceInBorder(minCorner.map(x=>x-1));
@@ -82,15 +108,19 @@ const mapGenerator = {
 
     // Rectangle
     // Generate a rectangular section of the tower
-    rectangle(level, columns, rows, subdivisionSize=5000) {
+    rectangle(level, columns, rows, connectedTowers, subdivisionSize=5000) {
         for (let i=columns[0];i<=columns[1];i++) {
             for (let j=rows[0];j<=rows[1];j++) {
+                if (level[j][i].id >= 0 && level[j][i].id !== this.towerNumber && connectedTowers.indexOf(level[j][i].id)<0) {
+                    connectedTowers.push(level[j][i].id);
+                }
                 if (i===columns[0] || i===columns[1] || j===rows[0] || j===rows[1]) {
                     if (level[j][i].isExterior()) {
                         level[j][i].makeExterior();
                     }
                     else {
                         level[j][i].makeFloor();
+                        level[j][i].setTowerId(this.towerNumber);
                     }
                 }
                 else {
@@ -98,6 +128,7 @@ const mapGenerator = {
                         this.numberOfTiles++;
                     }
                     level[j][i].makeFloor();
+                    level[j][i].setTowerId(this.towerNumber);
                 }
             }
         }
@@ -203,6 +234,7 @@ const mapGenerator = {
     },
 
     // Originally intended as hallways but honestly closer to bridges
+    // Currently turned off until a better algorithm is written for it
     addHallways(fullMap) {
         for (let z=0; z<this.towerHeight; z++) {
             let hallways=3;
@@ -213,6 +245,52 @@ const mapGenerator = {
                 let end = this.forceInBorder(this.randomPosition(),3);
                 if (roomBuilder.hallWay(fullMap[z],start,end)) {
                     hallways--;
+                }
+            }
+        }
+    },
+
+    addStairs(fullMap) {
+        // Resolve connections
+        const connections=[];
+        for (let z=0;z<this.connectedTowers.length;z++) {
+            const connectionObj={};
+            const keys=Object.keys(this.connectedTowers[z]);
+            if (keys.length>0) {
+                for (let i=0;i<keys.length;i++) {
+                    if (this.connectedTowers[z][keys[i]] in connectionObj) {
+                        connectionObj[this.connectedTowers[z][keys[i]]].push(keys[i]);
+                    }
+                    else {
+                        connectionObj[this.connectedTowers[z][keys[i]]]=[keys[i]];
+                    }
+                }
+            }
+            connections.push(connectionObj);
+        }
+
+        // // Add stairs
+        for (let z=this.possibleStairs.length-1;z>0;z--) {
+            const keys=Object.keys(connections[z]);
+            // Any stairs to build?
+            if (keys.length>0) {
+                for (let i=0; i<keys.length;i++) {
+                    let breaker=0;
+                    let success=false;
+                    while (breaker<20 && !success) {
+                        breaker++;
+                        const towerChosen = random.selection(connections[z][keys[i]]);
+                        const stairRange = this.possibleStairs[z][towerChosen][0];
+                        console.log('stair range',stairRange);
+                        const stairPos = [random.range(stairRange[0][0]+1, stairRange[1][0]-1), random.range(stairRange[0][1]+1, stairRange[1][1]-1)];
+                        console.log(stairPos);
+                        if (fullMap[z][stairPos[1]][stairPos[0]].canOverwrite() && fullMap[z-1][stairPos[1]][stairPos[0]].canOverwrite()) {
+                            fullMap[z][stairPos[1]][stairPos[0]].makeStairs(false);
+                            fullMap[z-1][stairPos[1]][stairPos[0]].makeStairs(true);
+                            success=true;
+                            console.log('placed stairs')
+                        }
+                    }
                 }
             }
         }
