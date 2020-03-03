@@ -16,7 +16,7 @@ const map = {
         gameBoard.setDimensions([level[0].length, level.length]);
         level.forEach((row,j) => {
             row.forEach((tile,i) => {
-                gameBoard.setTile([i,j],tile.character);
+                gameBoard.setTile([i,j],tile.character,tile.background,tile.foreground);
                 gameBoard.seeTile([i,j]);
             });
         });

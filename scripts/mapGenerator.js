@@ -14,7 +14,12 @@ const mapGenerator = {
         for (let z=0;z<this.towerHeight;z++) {
             fullMap.push(this.emptyLevel());
         }
-        this.tower(fullMap,25,0.9);
+        this.tower(fullMap,this.towerHeight-1,0.9);
+        let bonusTowers = random.range(3,10);
+        for (let i=bonusTowers-1;i>=0;i--) {
+            let z = Math.floor((1+i) * this.towerHeight / bonusTowers);
+            this.tower(fullMap,z,random.random());
+        }
         map.levels=fullMap;
     },
 
@@ -58,18 +63,20 @@ const mapGenerator = {
     rectangle(level, columns, rows, subdivisionSize=5000) {
         for (let i=columns[0];i<=columns[1];i++) {
             for (let j=rows[0];j<=rows[1];j++) {
-                if (i===columns[0] || i===columns[1] || j===rows[0] || j===rows[1]) {
-                    level[j][i].makeWall();
-                }
-                else {
-                    level[j][i].makeFloor();
+                if (level[j][i].numberOfChanges()===0) {
+                    if (i===columns[0] || i===columns[1] || j===rows[0] || j===rows[1]) {
+                        level[j][i].makeWall();
+                    }
+                    else {
+                        level[j][i].makeFloor();
+                    }
                 }
             }
         }
         const subdivisions = Math.floor(((columns[1]-columns[0]) * (rows[1] - rows[0])) / subdivisionSize);
         if (subdivisions > 0) {
             for (let i=0;i<subdivisions;i++) {
-                this.subdivide(level,random.range(columns[0]+2, columns[1]-2), random.range(rows[0]+2, rows[1]-2))
+                this.subdivide(level,random.range(columns[0]+3, columns[1]-3), random.range(rows[0]+3, rows[1]-3))
             }
         }
     },
@@ -97,18 +104,26 @@ const mapGenerator = {
 
     subdivide(level, column, row) {
         const direction=[0,0];
+        // Define a direction, and also, offset them so that walls wont intersect doors
         if (random.random()>0.5) {
             direction[0]=1;
+            column = 2*Math.floor(column/2);
+            row = 2*Math.floor(row/2);
         }
         else {
             direction[1]=1;
+            column = 2*Math.floor(column/2)+1;
+            row = 2*Math.floor(row/2)+1;
         }
-        for (let i=-1;i<2;i+=2) {
-            const position = [column + i * direction[0], row + i * direction[1]];
-            while (this.withinMap(position) && level[position[1]][position[0]].isPassable()) {
-                level[position[1]][position[0]].makeWall();
-                position[0] += i * direction[0];
-                position[1] += i * direction[1];
+        if (level[row][column].isPassable() && level[row][column].numberOfChanges()<=1) {
+            level[row][column].makeDoor();
+            for (let i=-1;i<2;i+=2) {
+                const position = [column + i * direction[0], row + i * direction[1]];
+                while (this.withinMap(position) && level[position[1]][position[0]].isPassable()) {
+                    level[position[1]][position[0]].makeWall();
+                    position[0] += i * direction[0];
+                    position[1] += i * direction[1];
+                }
             }
         }
     },

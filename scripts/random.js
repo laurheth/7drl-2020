@@ -14,9 +14,7 @@ const random = {
     },
     range(min,max) {
         if (min > max) {
-            let scratch=min;
-            min=max;
-            max=scratch;
+            return min;
         }
         let result = Math.floor(this.random() * (1 + max - min)) + min;
         console.log('range: ', min, result, max);

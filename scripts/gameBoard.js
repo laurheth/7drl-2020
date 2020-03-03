@@ -138,7 +138,7 @@ const gameBoard = {
     toggleAnimateView(animate=true) {
         if (animate) {
             // Delay this slightly to ensure the transition "none" goes through
-            setTimeout(()=>this.gridElement.style.transition = 'transform 0.1s',100);
+            // setTimeout(()=>this.gridElement.style.transition = 'transform 0.1s',100);
         }
         else {
             this.gridElement.style.transition = 'none';
