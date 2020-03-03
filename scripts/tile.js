@@ -9,6 +9,7 @@ class Tile {
         this.default=true;
         this.exterior=true;
         this.door=false;
+        this.noOverwrite=false;
     }
     isPassable() {
         return this.passable;
@@ -28,14 +29,19 @@ class Tile {
         this.exterior=false;
     }
     makeWall() {
-        this.setProperties('#','black','white',false);
+        if (!this.noOverwrite) {
+            this.setProperties('#','black','white',false);
+        }
     }
     makeExterior() {
-        this.setProperties('#','white','black',false);
-        this.exterior=true;
+        if (!this.noOverwrite) {
+            this.setProperties('#','white','black',false);
+            this.exterior=true;
+        }
     }
-    makeFloor() {
+    makeFloor(preserveFloor=false) {
         this.setProperties('.','black','white',true);
+        this.noOverwrite = preserveFloor;
     }
     makeDoor() {
         this.setProperties('+','black','burlywood',false);

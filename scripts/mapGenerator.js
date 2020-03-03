@@ -2,6 +2,7 @@ import gameBoard from './gameBoard.js';
 import map from './map.js';
 import Tile from './tile.js';
 import random from './random.js';
+import roomBuilder from './roomBuilder.js';
 
 const mapGenerator = {
     dimensions: [50,50],
@@ -19,11 +20,19 @@ const mapGenerator = {
         // Build the shell of the structure
         this.buildExterior(fullMap);
 
+        // Add some fancier rooms on top of the existing labyrinthe
+        this.addFancyRooms(fullMap);
+
+        // Add some cool hallways
+        this.addHallways(fullMap);
+
         // Add a pile of subdivisions
         this.subdivideEverything(fullMap);
 
-        // Add some fancier rooms on top of the existing labyrinthe
 
+        // Todo
+        // touchups, add floors above things a floor down
+        
         // Store the generated map
         map.levels=fullMap;
     },
@@ -150,11 +159,15 @@ const mapGenerator = {
         if (!isValid) {
             return;
         }
-        // Second check is: does the wall at either end reach a wall or a door?
+        // Second check is: would the wall block any doors?
         for (let i=-1;i<2;i+=2) {
             const position = [column + i * direction[0], row + i * direction[1]];
             while (this.withinMap(position) && level[position[1]][position[0]].isPassable()) {
-                isValid &= !level[position[1]][position[0]].isDoor();
+                for (let dx=-1;dx<2;dx++) {
+                    for (let dy=-1;dy<2;dy++) {
+                        isValid &= !level[position[1]+dy][position[0]+dx].isDoor();
+                    }
+                }
                 position[0] += i * direction[0];
                 position[1] += i * direction[1];
             }
@@ -176,6 +189,33 @@ const mapGenerator = {
 
     withinMap(position) {
         return position[0]>=0 && position[0]<this.dimensions[0] && position[1] >= 0 && position[1] < this.dimensions[1];
+    },
+
+    addFancyRooms(fullMap) {
+        for (let z=0; z<this.towerHeight; z++) {
+            for (let i=0; i<5;i++) {
+                const roomSize = [random.range(7,15), random.range(7,15)];
+                let minCorner = this.forceInBorder(this.randomPosition(),Math.max(...roomSize)).map((x)=>x-Math.max(...roomSize));
+                let maxCorner = this.forceInBorder(minCorner.map((x,i)=>x+roomSize[i]));
+                roomBuilder.rectangle(fullMap[z],minCorner,maxCorner);
+            }
+        }
+    },
+
+    // Originally intended as hallways but honestly closer to bridges
+    addHallways(fullMap) {
+        for (let z=0; z<this.towerHeight; z++) {
+            let hallways=3;
+            let breaker=0;
+            while (breaker < 10 && hallways>0) {
+                breaker++;
+                let start = this.forceInBorder(this.randomPosition(),3);
+                let end = this.forceInBorder(this.randomPosition(),3);
+                if (roomBuilder.hallWay(fullMap[z],start,end)) {
+                    hallways--;
+                }
+            }
+        }
     }
 }
 
