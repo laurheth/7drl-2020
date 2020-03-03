@@ -8,8 +8,12 @@ const map = {
     addLevel(level) {
         this.levels.push(level);
     },
+    prependLevel(level) {
+        this.levels.unshift(level);
+    },
     display(levelIndex) {
         const level = (levelIndex >= 0 && levelIndex < this.levels.length) ? this.levels[levelIndex] : mapGenerator.emptyLevel();
+        gameBoard.setDimensions([level[0].length, level.length]);
         level.forEach((row,j) => {
             row.forEach((tile,i) => {
                 gameBoard.setTile([i,j],tile.character);

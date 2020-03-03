@@ -15,6 +15,12 @@ class Tile {
         this.foreground = foreground;
         this.passable = passable;
     }
+    makeWall() {
+        this.setProperties('#','black','white',false);
+    }
+    makeFloor() {
+        this.setProperties('.','black','white',true);
+    }
 }
 
 export default Tile;
