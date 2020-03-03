@@ -7,6 +7,8 @@ const mapGenerator = {
     dimensions: [50,50],
     border: 3, // stay this far away from the map edge
     towerHeight: 26, // traditional roguelike depth
+    numberOfTiles: 0,
+    targetTiles: 15000,
     // Run the generator, given some dimensions
     generate() {
         // Allocate a giant, empty map
@@ -14,12 +16,15 @@ const mapGenerator = {
         for (let z=0;z<this.towerHeight;z++) {
             fullMap.push(this.emptyLevel());
         }
-        this.tower(fullMap,this.towerHeight-1,0.9);
-        let bonusTowers = random.range(3,10);
-        for (let i=bonusTowers-1;i>=0;i--) {
-            let z = Math.floor((1+i) * this.towerHeight / bonusTowers);
-            this.tower(fullMap,z,random.random());
-        }
+        // Build the shell of the structure
+        this.buildExterior(fullMap);
+
+        // Add a pile of subdivisions
+        this.subdivideEverything(fullMap);
+
+        // Add some fancier rooms on top of the existing labyrinthe
+
+        // Store the generated map
         map.levels=fullMap;
     },
 
@@ -34,6 +39,14 @@ const mapGenerator = {
             level.push(row);
         }
         return level;
+    },
+
+    // Build exterior. Maxes a shell of a map by placing a bunch of towers and mashing them together
+    buildExterior(fullMap) {
+        this.tower(fullMap,this.towerHeight-1,0.9);
+        while (this.numberOfTiles < this.targetTiles) {
+            this.tower(fullMap,random.range(0,this.towerHeight-1),random.random());
+        }
     },
 
     // Tower
@@ -59,31 +72,30 @@ const mapGenerator = {
     },
 
     // Rectangle
-    // Generate a rectangular area, with some chance of subdividing
+    // Generate a rectangular section of the tower
     rectangle(level, columns, rows, subdivisionSize=5000) {
         for (let i=columns[0];i<=columns[1];i++) {
             for (let j=rows[0];j<=rows[1];j++) {
-                if (level[j][i].numberOfChanges()===0) {
-                    if (i===columns[0] || i===columns[1] || j===rows[0] || j===rows[1]) {
-                        level[j][i].makeWall();
+                if (i===columns[0] || i===columns[1] || j===rows[0] || j===rows[1]) {
+                    if (level[j][i].isExterior()) {
+                        level[j][i].makeExterior();
                     }
                     else {
                         level[j][i].makeFloor();
                     }
                 }
-            }
-        }
-        const subdivisions = Math.floor(((columns[1]-columns[0]) * (rows[1] - rows[0])) / subdivisionSize);
-        if (subdivisions > 0) {
-            for (let i=0;i<subdivisions;i++) {
-                this.subdivide(level,random.range(columns[0]+3, columns[1]-3), random.range(rows[0]+3, rows[1]-3))
+                else {
+                    if (level[j][i].isDefault()) {
+                        this.numberOfTiles++;
+                    }
+                    level[j][i].makeFloor();
+                }
             }
         }
     },
 
     // Force to be within the desired border
     forceInBorder(position, padding=0) {
-        console.log(position);
         const border = this.border + padding;
         return position.map((x,i)=>{
             if (x < border) {
@@ -102,28 +114,62 @@ const mapGenerator = {
         return [random.range(0,this.dimensions[0]), random.range(0,this.dimensions[1])];
     },
 
+    subdivideEverything(fullMap) {
+        const floorNum = (this.dimensions[0]-2*this.border) * (this.dimensions[1]-2*this.border);
+        for (let z=0; z<this.towerHeight; z++) {
+            let subdivisions = Math.floor(floorNum / random.range(10,100));
+            for (let i=0; i<subdivisions;i++) {
+                const position = this.forceInBorder(this.randomPosition());
+                if (!fullMap[z][position[1]][position[0]].isExterior()) {
+                    this.subdivide(fullMap[z],position[0],position[1]);
+                }
+            }
+        }
+    },
+
     subdivide(level, column, row) {
         const direction=[0,0];
-        // Define a direction, and also, offset them so that walls wont intersect doors
+        // Choose a direction
         if (random.random()>0.5) {
             direction[0]=1;
-            column = 2*Math.floor(column/2);
-            row = 2*Math.floor(row/2);
         }
         else {
             direction[1]=1;
-            column = 2*Math.floor(column/2)+1;
-            row = 2*Math.floor(row/2)+1;
         }
-        if (level[row][column].isPassable() && level[row][column].numberOfChanges()<=1) {
-            level[row][column].makeDoor();
-            for (let i=-1;i<2;i+=2) {
-                const position = [column + i * direction[0], row + i * direction[1]];
-                while (this.withinMap(position) && level[position[1]][position[0]].isPassable()) {
-                    level[position[1]][position[0]].makeWall();
-                    position[0] += i * direction[0];
-                    position[1] += i * direction[1];
+        let isValid=true;
+        // First, check if valid. The check is: all spaces around the start open?
+        const testPosition=[column, row];
+        for (let i=-1;i<2;i++) {
+            for (let j=-1; j<2; j++) {
+                isValid &= this.withinMap([testPosition[0]+i, testPosition[1]+j]);
+                if (isValid) {
+                    isValid &= level[testPosition[1]+j][testPosition[0]+i].isPassable() && !level[testPosition[1]+j][testPosition[0]+i].isExterior();
                 }
+            }
+        }
+        if (!isValid) {
+            return;
+        }
+        // Second check is: does the wall at either end reach a wall or a door?
+        for (let i=-1;i<2;i+=2) {
+            const position = [column + i * direction[0], row + i * direction[1]];
+            while (this.withinMap(position) && level[position[1]][position[0]].isPassable()) {
+                isValid &= !level[position[1]][position[0]].isDoor();
+                position[0] += i * direction[0];
+                position[1] += i * direction[1];
+            }
+        }
+        if (!isValid) {
+            return;
+        }
+        // Everything checks out. Add the subdivision!
+        level[row][column].makeDoor();
+        for (let i=-1;i<2;i+=2) {
+            const position = [column + i * direction[0], row + i * direction[1]];
+            while (this.withinMap(position) && level[position[1]][position[0]].isPassable()) {
+                level[position[1]][position[0]].makeWall();
+                position[0] += i * direction[0];
+                position[1] += i * direction[1];
             }
         }
     },

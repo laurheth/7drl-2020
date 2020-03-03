@@ -17,7 +17,7 @@ const random = {
             return min;
         }
         let result = Math.floor(this.random() * (1 + max - min)) + min;
-        console.log('range: ', min, result, max);
+        // console.log('range: ', min, result, max);
         return result;
     },
     selection(array) {
