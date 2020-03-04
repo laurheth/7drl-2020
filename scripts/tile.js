@@ -14,9 +14,10 @@ class Tile {
         this.visible=false;
         this.seen=false;
         this.entity=null;
+        this.hitpoints=Infinity;
     }
-    isPassable() {
-        if (this.entity) {
+    isPassable(ignoreEntities=false) {
+        if (this.entity && !ignoreEntities) {
             return false;
         }
         return this.passable;
@@ -41,31 +42,42 @@ class Tile {
     }
     makeWall() {
         if (!this.noOverwrite) {
-            this.setProperties('#','black','white',false, false);
+            this.hitpoints=10;
+            this.setProperties('#','lightgray','gray',false, false);
         }
+    }
+    makeEmpty() {
+        this.hitPoints=Infinity;
+        this.setProperties(' ','black','white',true);
     }
     makeExterior() {
         if (!this.noOverwrite) {
-            this.setProperties('#','white','black',false, false);
+            this.makeWall();
             this.exterior=true;
         }
     }
     makeFloor(preserveFloor=false) {
         this.setProperties('.','black','white',true);
         this.noOverwrite = preserveFloor;
+        this.hitpoints=5;
+    }
+    makeGrass() {
+        this.setProperties('.','black','lightgreen',true);
     }
     makeDoor() {
-        this.setProperties('+','black','burlywood',false, false);
+        this.setProperties('+','brown','white',false, false);
         this.alternateState = new Tile();
-        this.alternateState.setProperties('-','black','burlywood',true);
+        this.alternateState.setProperties('-','black','brown',true);
         this.alternateState.alternateState = this;
         this.door=true;
+        this.hitpoints=1;
     }
     isExterior() {
         return this.exterior;
     }
     makeStairs(up=true) {
         if (!this.noOverwrite) {
+            this.hitPoints = Infinity;
             if (up) {
                 this.setProperties('<','black','white',true);
             }
@@ -108,6 +120,17 @@ class Tile {
         if (this.entity) {
             this.entity.hide();
         }
+    }
+    // Figure this out later
+    hurt(dmg) {
+        this.hitpoints -= dmg;
+        if (this.hitpoints < 0) {
+            return Math.max(1,Math.abs(this.hitpoints));
+        }
+        return 0;
+    }
+    isEmpty() {
+        return (this.isPassable() && this.character === ' ');
     }
 }
 

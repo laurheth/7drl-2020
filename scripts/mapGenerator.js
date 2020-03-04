@@ -334,7 +334,10 @@ const mapGenerator = {
             for (let i=0;i<this.dimensions[0];i++) {
                 for (let j=0;j<this.dimensions[1];j++) {
                     if (fullMap[z][j][i].isDefault()) {
-                        if (z===0 || !fullMap[z-1][j][i].isDefault()) {
+                        if (z===0) {
+                            fullMap[z][j][i].makeGrass();
+                        }
+                        else if (!fullMap[z-1][j][i].isDefault()) {
                             fullMap[z][j][i].makeFloor();
                         }
                     }

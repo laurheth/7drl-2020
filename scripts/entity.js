@@ -17,6 +17,7 @@ class Entity {
 
         this.hitpoints = Infinity;
         this.damage=1;
+        this.mass=1;
 
         this.turnCount=0;
         
@@ -45,10 +46,19 @@ class Entity {
             if (position && position.length >= 2) {
                 this.element.style.transform = `translate(${position[0]}00%,${position[1]}00%)`;
             }
+            // Falling?
+            if (map.getTile(this.position) && map.getTile(this.position).isEmpty()) {
+                const downPosition = [...this.position];
+                downPosition[2]-=1;
+                if (map.getTile(this.position) && map.getTile(this.position).isPassable()) {
+                    this.hurt(2);
+                    this.step(0,0,-1);
+                }
+            }
         }
     }
 
-    step(dx, dy, dz) {
+    step(dx, dy, dz, forced=false) {
         if (!dx && !dy && !dz) {
             return false;
         }
@@ -61,16 +71,27 @@ class Entity {
                 this.updateTile(targetTile);
                 return true;
             }
-            else if (targetTile.isDoor()) {
+            else if (targetTile.entity) {
+                return this.attack(targetTile.entity,forced);
+            }
+            else if (targetTile.isDoor() && !forced) {
                 map.alternateTile(targetPosition);
                 return true;
             }
-            else if (targetTile.entity) {
-                this.attack(targetTile.entity);
-                return true;
+            else if (forced) {
+                map.damageTile(targetPosition,this.damage);
+                this.hurt(this.damage);
             }
         }
         return false;
+    }
+
+    knockBack(direction, tiles) {
+        for (let i=0;i<tiles;i++) {
+            if (this.alive) {
+                this.step(direction[0],direction[1],0,true);
+            }
+        }
     }
 
     act() {
@@ -105,8 +126,9 @@ class Entity {
         }
     }
 
-    attack(entity) {
+    attack(entity, forced=false) {
         entity.hurt(this.damage);
+        return true;
     }
 
     hurt(dmg) {

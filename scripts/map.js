@@ -38,8 +38,6 @@ const map = {
     },
     alternateTile(position) {
         if (this.onMap(position)) {
-            console.log(this.levels[position[2]][position[1]][position[0]]);
-            console.log(this.levels[position[2]][position[1]][position[0]].alternateState)
             this.levels[position[2]][position[1]][position[0]] = this.levels[position[2]][position[1]][position[0]].alternateState;
             this.updateTile(this.levels[position[2]][position[1]][position[0]], position[0], position[1]);
         }
@@ -53,6 +51,46 @@ const map = {
             }
         }
         return false;
+    },
+    damageTile(position, dmg, dz=0,spread=true) {
+        const tile = this.getTile(position);
+        if (!tile) {return;}
+
+        // Damage the tile. If it breaks, things get interesting
+        const leftOver = tile.hurt(dmg);
+        if (leftOver > 0) {
+            if (!isFinite(leftOver)) {leftOver=0;}
+            console.log('get wrekt', leftOver);
+            if (!tile.isPassable(true)) {
+                if (dz>-1) {
+                    this.damageTile([position[0],position[1],position[2]+1],leftOver,1);
+                }
+                tile.makeFloor();
+            }
+            else if (position[2]>0) {
+                if (dz<1) {
+                    const belowPosition = [position[0],position[1],position[2]-1];
+                    const belowTile = this.getTile(belowPosition);
+                    if ( belowTile && !belowTile.isPassable() ) {
+                        this.damageTile(belowPosition,leftOver,-1);
+                    }
+                }
+                if (!tile.isDownStair() && !tile.isUpStair()) {
+                    tile.makeEmpty();
+                }
+            }
+            this.updateTile(tile,position[0],position[1]);
+            if (spread) {
+                for (let i=-leftOver; i<=leftOver; i++) {
+                    for (let j=-leftOver; j<=leftOver; j++) {
+                        const thisDamage = leftOver - Math.abs(i) - Math.abs(j);
+                        if (thisDamage > 0) {
+                            this.damageTile([position[0]+i, position[1]+j, position[2]],thisDamage,0,false);
+                        }
+                    }
+                }
+            }
+        }
     },
     updateTile(tile,column,row) {
         if (this.currentLevel[row][column].isDefault() && !this.levelBelow[row][column].isDefault()) {

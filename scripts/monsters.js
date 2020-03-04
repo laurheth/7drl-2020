@@ -30,7 +30,6 @@ class Monster extends Entity {
                 default:
                 case ai.CHASE:
                     let direction = this.getDirection(this.target);
-                    // console.log(direction);
                     if (!this.step(direction[0],direction[1],0)) {
                         direction = this.getDirection(this.target,false);
                         if (!this.step(direction[0],direction[1],0)) {
@@ -64,16 +63,26 @@ class Monster extends Entity {
             this.target=[...map.player.position];
         }
     }
-    attack(entity) {
-        if (this.currentTile && this.currentTile.isVisible()) {
-            gameBoard.sendMessage(this.getName() + ' attacks ' + entity.getName(false) + '!');
+    attack(entity, forced=false) {
+        if (entity === map.player || forced) {
+            if (this.currentTile && this.currentTile.isVisible()) {
+                if (!forced) {
+                    gameBoard.sendMessage(this.getName() + ' attacks ' + entity.getName(false) + '!');
+                }
+                else {
+                    gameBoard.sendMessage(this.getName() + ' collides with ' + entity.getName(false) + '!');
+                }
+            }
+            return super.attack(entity);
         }
-        super.attack(entity);
+        else {
+            return false;
+        }
     }
     getDirection(target, best=true) {
         const direction = [0,0];
         if (best) {
-            if (Math.abs(this.position[0]-target[0]) > Math.abs(this.position[1]-target[1])) {
+            if (Math.abs(this.position[0]-target[0]) > Math.abs(this.position[1]-target[1] + random.random())) {
                 direction[0] = Math.sign(target[0] - this.position[0]);
             }
             else {
@@ -81,7 +90,7 @@ class Monster extends Entity {
             }
         }
         else {
-            if (Math.abs(this.position[0]-target[0]) <= Math.abs(this.position[1]-target[1])) {
+            if (Math.abs(this.position[0]-target[0]) <= Math.abs(this.position[1]-target[1] + random.random())) {
                 direction[0] = Math.sign(target[0] - this.position[0]);
             }
             else {

@@ -100,7 +100,8 @@ class Player extends Entity {
     }
     attack(entity) {
         gameBoard.sendMessage(this.getName() + ' attack ' + entity.getName(false) + '!');
-        super.attack(entity);
+        const direction = [Math.sign(entity.position[0] - this.position[0]), Math.sign(entity.position[1] - this.position[1])];
+        entity.knockBack(direction,Math.ceil(this.damage / entity.mass));
     }
     hurt(dmg) {
         super.hurt(dmg);
