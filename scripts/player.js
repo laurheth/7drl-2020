@@ -80,16 +80,17 @@ class Player extends Entity {
         if (this.position) {
             map.clearVision(this.position);
         }
-        if (position[2] !== gameBoard.currentLevel) {
-            gameBoard.currentLevel = position[2];
-            if (this.visitedLevels.indexOf(position[2]) < 0) {
-                this.visitedLevels.push(position[2]);
-                mapGenerator.populateLevel(map.levels[position[2]],position[2]);
-            }
-            map.display(position[2]);
-        }
         super.setPosition(position);
-        gameBoard.setViewPosition(position);
+        if (this.position[2] !== gameBoard.currentLevel) {
+            gameBoard.currentLevel = this.position[2];
+            if (this.visitedLevels.indexOf(this.position[2]) < 0) {
+                this.visitedLevels.push(this.position[2]);
+                mapGenerator.populateLevel(map.levels[this.position[2]],this.position[2]);
+            }
+            map.display(this.position[2]);
+        }
+        map.vision(this.position);
+        gameBoard.setViewPosition(this.position);
     }
     act() {
         this.turnCount++;

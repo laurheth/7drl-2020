@@ -50,12 +50,28 @@ class Entity {
             // Falling?
             if (map.getTile(this.position) && map.getTile(this.position).isEmpty()) {
                 const downPosition = [...this.position];
-                downPosition[2]-=1;
-                if (map.getTile(this.position) && map.getTile(this.position).isPassable()) {
-                    this.hurt(2);
-                    this.step(0,0,-1);
+                let fallDistance=0;
+                while(map.getTile(downPosition) && map.getTile(downPosition).isEmpty()) {
+                    downPosition[2]-=1;
+                    fallDistance++;
                 }
+                if (map.getTile(downPosition)) {
+                    if (map.getTile(downPosition).isPassable()) {
+                        this.hurt(Math.max(0,2*(fallDistance-1)));
+                    }
+                    else if (map.getTile(downPosition).entity) {
+                        map.sendMessage('Splat! Death from above!');
+                        map.getTile(downPosition).entity.die();
+                    }
+                }
+                else {
+                    downPosition[2]+=1;
+                    fallDistance--;
+                    this.hurt(Math.max(0,2*(fallDistance-1)));
+                }
+                this.position=downPosition;
             }
+            this.updateTile(map.getTile(this.position));
         }
     }
 
@@ -69,7 +85,6 @@ class Entity {
         if (targetTile) {
             if (targetTile.isPassable()) {
                 this.setPosition(targetPosition);
-                this.updateTile(targetTile);
                 return true;
             }
             else if (targetTile.entity) {

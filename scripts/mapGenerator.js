@@ -350,15 +350,35 @@ const mapGenerator = {
         }
     },
     populateLevel(level,z) {
+        const availableTiles=[];
         level.forEach((row,j)=>{
             row.forEach((tile,i)=> {
                 if (tile.isFloor() && tile.isPassable() && !tile.isExterior()) {
-                    if (random.random()>0.99) {
-                        new Monster([i,j,z]);
-                    }
+                    availableTiles.push([i,j,z]);
                 }
             });
         });
+        const podsToAdd = Math.ceil(availableTiles.length / 400);
+        for (let i=0;i<podsToAdd;i++) {
+            this.addPod(random.selection(availableTiles),['small orb','small orb','small orb','small orb','small orb','small orb']);
+        }
+    },
+    addPod(position,composition) {
+        let breaker=0;
+        let limit=4*composition.length;
+        let i,j;
+        while (composition.length>0 && breaker<limit) {
+            breaker++;
+            let tile=null;
+            for (i=-breaker;i<breaker;i++) {
+                for (j=-breaker;j<breaker;j++) {
+                    tile = map.getTile([position[0]+i, position[1]+j,position[2]]);
+                    if (composition.length>0 && tile && tile.isFloor() && tile.isPassable() && !tile.isExterior()) {
+                        new Monster([position[0]+i, position[1]+j,position[2]],composition.pop());
+                    }
+                }
+            }
+        }
     }
 }
 
