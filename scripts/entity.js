@@ -60,7 +60,7 @@ class Entity {
                         this.hurt(Math.max(0,2*(fallDistance-1)));
                     }
                     else if (map.getTile(downPosition).entity) {
-                        map.sendMessage('Splat! Death from above!');
+                        gameBoard.sendMessage('Splat! Death from above!');
                         map.getTile(downPosition).entity.die();
                     }
                 }
@@ -68,6 +68,15 @@ class Entity {
                     downPosition[2]+=1;
                     fallDistance--;
                     this.hurt(Math.max(0,2*(fallDistance-1)));
+                }
+                if (this === map.player) {
+                    gameBoard.sendMessage('You fall down '+fallDistance+' floors...');
+                }
+                else if (map.getTile(position) && map.getTile(position).isVisible()) {
+                    gameBoard.sendMessage(this.getName()+' falls down!');
+                }
+                else if (map.getTile(downPosition).isVisible()) {
+                    gameBoard.sendMessage(this.getName()+' falls from above and lands nearby!');
                 }
                 this.position=downPosition;
             }
