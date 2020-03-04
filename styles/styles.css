@@ -1,5 +1,5 @@
 @charset "UTF-8";
-@import url("https://fonts.googleapis.com/css?family=Space+Mono&display=swap");
+@import url("https://fonts.googleapis.com/css?family=Inconsolata:400,700&display=swap");
 article, aside, details, figcaption, figure, footer, header, hgroup, nav, section, summary {
   display: block;
 }
@@ -195,7 +195,7 @@ body {
   width: 100vmin;
   min-height: 100vmin;
   outline: 2px solid red;
-  font-family: "Goblin One", monospace;
+  font-family: monospace;
   position: relative;
   overflow: hidden;
 }

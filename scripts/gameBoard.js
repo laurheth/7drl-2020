@@ -71,7 +71,7 @@ const gameBoard = {
     },
 
     // Set tile properties
-    setTile(position,character='',background='',foreground='') {
+    setTile(position,character='',background='',foreground='',below=false) {
         const index = this.getIndex(position);
         if (index >= 0) {
             // Get the tile element
@@ -86,6 +86,12 @@ const gameBoard = {
                 foreground = (foreground) ? foreground : '#FFFFFF';
                 tileElement.style.background = background;
                 tileElement.style.color = foreground;
+            }
+            if (below) {
+                tileElement.style.opacity = 0.4;
+            }
+            else {
+                tileElement.style.opacity = 1;
             }
         }
     },

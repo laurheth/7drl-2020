@@ -31,7 +31,7 @@ const mapGenerator = {
         this.addFancyRooms(fullMap);
 
         // Add some cool hallways
-        // this.addHallways(fullMap);
+        this.addHallways(fullMap);
 
         // Add a pile of subdivisions
         this.subdivideEverything(fullMap);
@@ -40,8 +40,8 @@ const mapGenerator = {
         // Add stairs!
         this.addStairs(fullMap);
 
-        // Todo
         // touchups, add floors above things a floor down
+        this.postProcessing(fullMap);
 
         // Store the generated map
         map.levels=fullMap;
@@ -190,13 +190,16 @@ const mapGenerator = {
         if (!isValid) {
             return;
         }
-        // Second check is: would the wall block any doors?
+        // Second check is: would the wall block any doors, or pass too close to any walls?
         for (let i=-1;i<2;i+=2) {
             const position = [column + i * direction[0], row + i * direction[1]];
             while (this.withinMap(position) && level[position[1]][position[0]].isPassable()) {
                 for (let dx=-1;dx<2;dx++) {
                     for (let dy=-1;dy<2;dy++) {
                         isValid &= !level[position[1]+dy][position[0]+dx].isDoor();
+                        if ((direction[0]===0 && dx !==0 && dy===0) || (direction[1]===0 && dy !==0 && dx===0)) {
+                            isValid &= level[position[1]+dy][position[0]+dx].isPassable();
+                        }
                     }
                 }
                 position[0] += i * direction[0];
@@ -289,6 +292,19 @@ const mapGenerator = {
                             fullMap[z-1][stairPos[1]][stairPos[0]].makeStairs(true);
                             success=true;
                             console.log('placed stairs')
+                        }
+                    }
+                }
+            }
+        }
+    },
+    postProcessing(fullMap) {
+        for (let z=this.towerHeight-1; z>=0;z--) {
+            for (let i=0;i<this.dimensions[0];i++) {
+                for (let j=0;j<this.dimensions[1];j++) {
+                    if (fullMap[z][j][i].isDefault()) {
+                        if (z===0 || !fullMap[z-1][j][i].isDefault()) {
+                            fullMap[z][j][i].makeFloor();
                         }
                     }
                 }
