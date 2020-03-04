@@ -1,4 +1,5 @@
 import gameBoard from './gameBoard.js';
+import map from './map.js';
 
 class Entity {
     constructor(position,character, background='#000000', foreground='#FFFFFF') {
@@ -32,7 +33,20 @@ class Entity {
 
     step(dx, dy, dz) {
         const step = [Math.round(dx),Math.round(dy),Math.round(dz)];
-        this.setPosition(this.position.map((p,i)=>p+step[i]));
+        const targetPosition = this.position.map((p,i)=>p+step[i]);
+        console.log(targetPosition);
+        const targetTile = map.getTile(targetPosition);
+        if (targetTile) {
+            if (targetTile.isPassable()) {
+                this.setPosition(targetPosition);
+                return true;
+            }
+            else if (targetTile.isDoor()) {
+                map.alternateTile(targetPosition);
+                return true;
+            }
+        }
+        return false;
     }
 }
 

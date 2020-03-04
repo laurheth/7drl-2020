@@ -26,6 +26,33 @@ const map = {
                 gameBoard.seeTile([i,j]);
             });
         });
+    },
+    getTile(position) {
+        if (this.onMap(position)) {
+            return this.levels[position[2]][position[1]][position[0]];
+        }
+        return null;
+    },
+    alternateTile(position) {
+        if (this.onMap(position)) {
+            console.log(this.levels[position[2]][position[1]][position[0]]);
+            console.log(this.levels[position[2]][position[1]][position[0]].alternateState)
+            this.levels[position[2]][position[1]][position[0]] = this.levels[position[2]][position[1]][position[0]].alternateState;
+            this.updateTile(this.levels[position[2]][position[1]][position[0]], position[0], position[1]);
+        }
+    },
+    onMap(position) {
+        if (position[2] >= 0 && position[2] < this.levels.length) {
+            if (position[1] >= 0 && position[1] < this.levels[position[2]].length) {
+                if (position[0] >= 0 && position[0] < this.levels[position[2]][position[1]].length) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    },
+    updateTile(tile,column,row) {
+        gameBoard.setTile([column,row],tile.character,tile.background,tile.foreground);
     }
 };
 

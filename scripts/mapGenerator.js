@@ -35,8 +35,8 @@ const mapGenerator = {
         this.subdivideEverything(fullMap);
 
 
-        // Add stairs!
-        this.addStairs(fullMap);
+        // Add stairs and doors!
+        this.addConnections(fullMap);
 
         // touchups, add floors above things a floor down
         this.postProcessing(fullMap);
@@ -260,7 +260,7 @@ const mapGenerator = {
         }
     },
 
-    addStairs(fullMap) {
+    addConnections(fullMap) {
         // Resolve connections
         const connections=[];
         for (let z=0;z<this.connectedTowers.length;z++) {
@@ -279,8 +279,8 @@ const mapGenerator = {
             connections.push(connectionObj);
         }
 
-        // // Add stairs
-        for (let z=this.possibleStairs.length-1;z>0;z--) {
+        // Loop for stairs and doors, lots of similarities, so same loop
+        for (let z=this.possibleStairs.length-1;z>=0;z--) {
             const keys=Object.keys(connections[z]);
             // Any stairs to build?
             if (keys.length>0) {
@@ -291,11 +291,34 @@ const mapGenerator = {
                         breaker++;
                         const towerChosen = random.selection(connections[z][keys[i]]);
                         const stairRange = this.possibleStairs[z][towerChosen][0];
-                        const stairPos = [random.range(stairRange[0][0]+1, stairRange[1][0]-1), random.range(stairRange[0][1]+1, stairRange[1][1]-1)];
-                        if (fullMap[z][stairPos[1]][stairPos[0]].canOverwrite() && fullMap[z-1][stairPos[1]][stairPos[0]].canOverwrite()) {
-                            fullMap[z][stairPos[1]][stairPos[0]].makeStairs(false);
-                            fullMap[z-1][stairPos[1]][stairPos[0]].makeStairs(true);
-                            success=true;
+                        // // Add stairs
+                        if (z>0) {
+                            const stairPos = [random.range(stairRange[0][0]+1, stairRange[1][0]-1), random.range(stairRange[0][1]+1, stairRange[1][1]-1)];
+                            if (fullMap[z][stairPos[1]][stairPos[0]].canOverwrite() && fullMap[z-1][stairPos[1]][stairPos[0]].canOverwrite()) {
+                                fullMap[z][stairPos[1]][stairPos[0]].makeStairs(false);
+                                fullMap[z-1][stairPos[1]][stairPos[0]].makeStairs(true);
+                                success=true;
+                            }
+                        }
+                        else {
+                            const startPosition = [random.range(stairRange[0][0]+2, stairRange[1][0]-2), random.range(stairRange[0][1]+2, stairRange[1][1]-2)];
+                            const directions = [[0,1],[0,-1],[1,0],[-1,0]];
+                            for (let j=0;j<4;j++) {
+                                let breaker=0;
+                                let hitWall=false;
+                                const position = [...startPosition];
+                                while (breaker<50 && !hitWall) {
+                                    breaker++;
+                                    if (this.withinMap(position) && fullMap[z][position[1]][position[0]].isExterior() && !fullMap[z][position[1]][position[0]].isPassable()) {
+                                        fullMap[z][position[1] - directions[j][1]][position[0] - directions[j][0]].makeFloor();
+                                        fullMap[z][position[1]][position[0]].makeDoor();
+                                        hitWall=true;
+                                        success=true;
+                                    }
+                                    position[0] += directions[j][0];
+                                    position[1] += directions[j][1];
+                                }
+                            }
                         }
                     }
                 }

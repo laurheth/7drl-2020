@@ -74,6 +74,12 @@ class Tile {
     setTowerId(id){
         this.id=id;
     }
+    isUpStair() {
+        return (this.character === '<');
+    }
+    isDownStair() {
+        return (this.character === '>');
+    }
 }
 
 export default Tile;

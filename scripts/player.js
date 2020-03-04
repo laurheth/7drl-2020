@@ -26,10 +26,14 @@ class Player extends Entity {
                 this.step(0,1,0);
                 break;
             case '>':
-                this.step(0,0,-1);
+                if (map.getTile(this.position) && map.getTile(this.position).isDownStair()) {
+                    this.step(0,0,-1);
+                }
                 break;
             case '<':
-                this.step(0,0,1);
+                if (map.getTile(this.position) && map.getTile(this.position).isUpStair()) {
+                    this.step(0,0,1);
+                }
                 break;
             default:
                 // Don't change anything
