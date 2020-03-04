@@ -18,10 +18,9 @@ class Player extends Entity {
         this.maxHp=20;
 
         this.hpElement = document.getElementById('hp');
-        this.hpElement.textContent = `${this.hp}/${this.maxHp}`;
 
         this.equipmentElement = document.getElementById('equipment');
-        this.equipmentElement.textContent = `Baseball bat`;
+        this.updateStatus();
     }
     handleEvent(event) {
         // console.log(event);
@@ -79,6 +78,10 @@ class Player extends Entity {
     }
     act() {
         this.playerTurn=true;
+    }
+    updateStatus() {
+        this.hpElement.textContent = `${this.hp}/${this.maxHp}`;
+        this.equipmentElement.textContent = `Baseball bat`;
     }
 }
 

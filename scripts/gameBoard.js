@@ -8,6 +8,7 @@ const gameBoard = {
     init() {
         this.gridElement = document.getElementById('grid');
         this.setDimensions([30,30]);
+        this.messageElement = document.getElementById('messages');
     },
 
     // Set new dimensions for the map
@@ -157,6 +158,18 @@ const gameBoard = {
         }
         else {
             this.gridElement.style.transition = 'none';
+        }
+    },
+
+    sendMessage(message,type='') {
+        const newMessage = document.createElement('p');
+        newMessage.textContent=message;
+        if (type) {
+            newMessage.classList.add(type);
+        }
+        this.messageElement.prepend(newMessage);
+        while (this.messageElement.children.length > 10) {
+            this.messageElement.lastChild.remove();
         }
     }
 

@@ -225,8 +225,21 @@ h1, h2, h3, p {
 
 .messages {
   width: 100%;
-  height: 5rem;
+  height: 5.5rem;
   overflow: hidden;
+}
+.messages p {
+  opacity: 0.4;
+  margin: 0.1rem 0;
+}
+.messages p:nth-child(2) {
+  opacity: 0.8;
+}
+.messages p:nth-child(3) {
+  opacity: 0.6;
+}
+.messages p:first-child {
+  opacity: 1;
 }
 
 .game {

@@ -14,8 +14,11 @@ class Monster extends Entity {
                 this.hitpoints = 10;
                 this.ai=ai.WANDER;
         }
+
+        this.active = -1;
     }
     act() {
+        this.active--;
         switch(this.ai) {
             default:
             case ai.WANDER:
@@ -30,6 +33,10 @@ class Monster extends Entity {
                 break;
         }
         actionQueue.advance();
+    }
+    show() {
+        super.show();
+        this.active = 10;
     }
 }
 
