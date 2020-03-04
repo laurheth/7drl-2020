@@ -190,14 +190,51 @@ body {
   color: white;
 }
 
+h1, h2, h3, p {
+  margin: 0;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  justify-content: stretch;
+}
+.container .row {
+  display: flex;
+  flex-direction: row;
+  flex-grow: 1;
+}
+
+.statsHolder {
+  width: 25%;
+}
+.statsHolder h2 {
+  font-size: 1.2rem;
+}
+.statsHolder p {
+  font-size: 1rem;
+}
+.statsHolder h2, .statsHolder p {
+  margin: 0.5rem 0;
+}
+.statsHolder ul {
+  margin: 0;
+  padding-left: 1rem;
+}
+
+.messages {
+  width: 100%;
+  height: 5rem;
+  overflow: hidden;
+}
+
 .game {
   margin: 0 auto;
-  width: 100vmin;
-  min-height: 100vmin;
-  outline: 2px solid red;
   font-family: monospace;
   position: relative;
   overflow: hidden;
+  flex-grow: 1;
 }
 
 .grid {

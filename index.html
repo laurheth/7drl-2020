@@ -7,8 +7,24 @@
     <link rel="stylesheet" href="styles/styles.css">
 </head>
 <body>
-    <div class="game" id="game">
-        <div id="grid" class="grid">
+    <div class="container">
+        <div class="row">
+            <div class="game">
+                <div id="grid" class="grid">
+                </div>
+            </div>
+            <div class="statsHolder">
+                <p id="name">name</p>
+                <p>HP: <span id="hp">10/10</span></p>
+                <p>Equipment:</p>
+                <ul>
+                    <li id="equipment">none</li>
+                </ul>
+                <!-- <p id="equipment">none</p> -->
+            </div>
+        </div>
+        <div class="messages" id="messages">
+            <p>You do a thing</p>
         </div>
     </div>
     <script type="module" src="scripts/game.js"></script>

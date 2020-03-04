@@ -11,6 +11,17 @@ class Player extends Entity {
         document.addEventListener('keydown',(event)=>this.handleEvent(event));
         map.vision(this.position);
         this.playerTurn=false;
+        this.nameElement = document.getElementById('name');
+        this.nameElement.textContent='Lauren';
+
+        this.hp=20;
+        this.maxHp=20;
+
+        this.hpElement = document.getElementById('hp');
+        this.hpElement.textContent = `${this.hp}/${this.maxHp}`;
+
+        this.equipmentElement = document.getElementById('equipment');
+        this.equipmentElement.textContent = `Baseball bat`;
     }
     handleEvent(event) {
         // console.log(event);
