@@ -8,6 +8,7 @@ class Player extends Entity {
         super(startPosition,'@');
         gameBoard.jumpToPosition(startPosition);
         document.addEventListener('keydown',(event)=>this.handleEvent(event));
+        map.vision(this.position);
     }
     handleEvent(event) {
         console.log(event);
@@ -42,6 +43,7 @@ class Player extends Entity {
         }
         if (eventCaptured) {
             event.preventDefault();
+            map.vision(this.position);
         }
     }
     setPosition(position) {

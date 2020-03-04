@@ -233,11 +233,8 @@ body {
   font-size: 1rem;
 }
 .tile.hidden, .entity.hidden {
-  opacity: 0;
-}
-.tile.hidden .art, .entity.hidden .art {
   visibility: hidden;
 }
 .tile.memory, .entity.memory {
-  filter: grayscale(100%);
+  filter: grayscale(100%) brightness(0.5);
 }

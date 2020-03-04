@@ -5,6 +5,8 @@ import mapGenerator from './mapGenerator.js';
 
 const map = {
     levels: [],
+    currentLevel: null,
+    levelBelow: null,
     addLevel(level) {
         this.levels.push(level);
     },
@@ -12,18 +14,18 @@ const map = {
         this.levels.unshift(level);
     },
     display(levelIndex) {
-        const level = (levelIndex >= 0 && levelIndex < this.levels.length) ? this.levels[levelIndex] : mapGenerator.emptyLevel();
-        const levelBelow = (levelIndex-1 >= 0 && levelIndex-1 < this.levels.length) ? this.levels[levelIndex-1] : mapGenerator.emptyLevel();
-        gameBoard.setDimensions([level[0].length, level.length]);
-        level.forEach((row,j) => {
+        this.currentLevel = (levelIndex >= 0 && levelIndex < this.levels.length) ? this.levels[levelIndex] : mapGenerator.emptyLevel();
+
+        this.levelBelow = (levelIndex-1 >= 0 && levelIndex-1 < this.levels.length) ? this.levels[levelIndex-1] : mapGenerator.emptyLevel();
+
+        gameBoard.setDimensions([this.currentLevel[0].length, this.currentLevel.length]);
+        this.currentLevel.forEach((row,j) => {
             row.forEach((tile,i) => {
-                if (level[j][i].isDefault() && !levelBelow[j][i].isDefault()) {
-                    gameBoard.setTile([i,j],levelBelow[j][i].character,levelBelow[j][i].background,levelBelow[j][i].foreground,true);
+                this.updateTile(tile,i,j);
+                if (tile.hasBeenSeen()) {
+                    gameBoard.setMemory([i,j]);
                 }
-                else {
-                    gameBoard.setTile([i,j],tile.character,tile.background,tile.foreground);
-                }
-                gameBoard.seeTile([i,j]);
+                // gameBoard.seeTile([i,j]);
             });
         });
     },
@@ -52,7 +54,58 @@ const map = {
         return false;
     },
     updateTile(tile,column,row) {
-        gameBoard.setTile([column,row],tile.character,tile.background,tile.foreground);
+        if (this.currentLevel[row][column].isDefault() && !this.levelBelow[row][column].isDefault()) {
+            gameBoard.setTile([column,row],this.levelBelow[row][column].character,this.levelBelow[row][column].background,this.levelBelow[row][column].foreground,true);
+        }
+        else {
+            gameBoard.setTile([column,row],tile.character,tile.background,tile.foreground);
+        }
+    },
+    vision(startPosition,range=8) {
+        // console.log('vision', startPosition);
+        const minCorner = startPosition.map((x,i)=>(i!==2) ? x-range : x);
+        const maxCorner = startPosition.map((x,i)=>(i!==2) ? x+range : x);
+        // Unsee old tiles
+        for (let i=minCorner[0]-1;i<=maxCorner[0]+1;i++) {
+            for (let j=minCorner[1]-1;j<=maxCorner[1]+1;j++) {
+                gameBoard.unseeTile([i,j]);
+                const thisTile = this.getTile([i,j,startPosition[2]]);
+                if (thisTile) {
+                    thisTile.unsee();
+                }
+            }   
+        }
+
+        const rayCast = (start,end,range)=> {
+            if (Math.pow(end[0]-start[0],2) + Math.pow(end[1]-start[1],2) > range**2) {
+                return;
+            }
+            const current = [...start];
+            const distance = Math.sqrt(Math.pow(start[0] - end[0],2) + Math.pow(start[1] - end[1],2));
+            const direction = [(end[0] - start[0]) / distance, (end[1] - start[1])/distance];
+            // console.log('direction', direction);
+            let breaker=0;
+            while (Math.sqrt(Math.pow(start[0] - current[0],2) + Math.pow(start[1] - current[1],2)) < distance && breaker < 20) {
+                breaker++;
+                current[0] += direction[0];
+                current[1] += direction[1];
+                const thisTile = this.getTile(current.map(x=>Math.round(x)));
+                if (thisTile) {
+                    thisTile.see();
+                    gameBoard.seeTile(current.map(x=>Math.round(x)));
+                }
+                if (!thisTile || !thisTile.isSeeThrough()) {
+                    return;
+                }
+            }
+        };
+
+        // See new tiles
+        for (let i=minCorner[0];i<=maxCorner[0];i++) {
+            for (let j=minCorner[1];j<=maxCorner[1];j++) {
+                rayCast(startPosition, [i,j,startPosition[2]],range);
+            }   
+        }
     }
 };
 

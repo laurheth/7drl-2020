@@ -115,6 +115,15 @@ const gameBoard = {
         }
     },
 
+    hideTile(position) {
+        const index = this.getIndex(position);
+        if (index >= 0) {
+            const tileElement = this.tiles[index];
+            // Tile becomes a memory, but does not become hidden
+            tileElement.classList.add('hidden');
+        }
+    },
+
     // Set as a memory, for when we return to a map later
     setMemory(position) {
         const index = this.getIndex(position);

@@ -52,12 +52,9 @@ body {
         font-size: 1rem;
     }
     &.hidden {
-        opacity: 0;
-        .art {
-            visibility: hidden;
-        }
+        visibility: hidden;
     }
     &.memory {
-        filter: grayscale(100%);
+        filter: grayscale(100%) brightness(0.5);
     }
 }

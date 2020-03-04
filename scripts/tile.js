@@ -4,16 +4,21 @@ class Tile {
         this.background = 'black';
         this.foreground = 'white';
         this.passable = true
-        this.seen=true;
         this.alternateState = null;
         this.default=true;
         this.exterior=true;
         this.door=false;
         this.noOverwrite=false;
         this.id=-1;
+        this.seeThrough=true;
+        this.visible=false;
+        this.seen=false;
     }
     isPassable() {
         return this.passable;
+    }
+    isSeeThrough() {
+        return this.seeThrough;
     }
     isDefault() {
         return this.default;
@@ -21,22 +26,23 @@ class Tile {
     isDoor() {
         return this.door;
     }
-    setProperties(character, background, foreground, passable) {
+    setProperties(character, background, foreground, passable, seeThrough=true) {
         this.character = character;
         this.background = background;
         this.foreground = foreground;
         this.passable = passable;
+        this.seeThrough = seeThrough
         this.default=false;
         this.exterior=false;
     }
     makeWall() {
         if (!this.noOverwrite) {
-            this.setProperties('#','black','white',false);
+            this.setProperties('#','black','white',false, false);
         }
     }
     makeExterior() {
         if (!this.noOverwrite) {
-            this.setProperties('#','white','black',false);
+            this.setProperties('#','white','black',false, false);
             this.exterior=true;
         }
     }
@@ -45,7 +51,7 @@ class Tile {
         this.noOverwrite = preserveFloor;
     }
     makeDoor() {
-        this.setProperties('+','black','burlywood',false);
+        this.setProperties('+','black','burlywood',false, false);
         this.alternateState = new Tile();
         this.alternateState.setProperties('-','black','burlywood',true);
         this.alternateState.alternateState = this;
@@ -79,6 +85,19 @@ class Tile {
     }
     isDownStair() {
         return (this.character === '>');
+    }
+    isVisible() {
+        return this.visible;
+    }
+    hasBeenSeen() {
+        return this.seen;
+    }
+    see() {
+        this.visible=true;
+        this.seen=true;
+    }
+    unsee() {
+        this.visible=false;
     }
 }
 
