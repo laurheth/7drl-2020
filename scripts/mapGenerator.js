@@ -9,6 +9,7 @@ const mapGenerator = {
     border: 6, // stay this far away from the map edge
     towerHeight: 26, // traditional roguelike depth
     numberOfTiles: 0,
+    targetFraction: 0.5, // Fraction of the entire map to fill with towers
     targetTiles: 15000,
     towerNumber: -1,
     possibleStairs: [],
@@ -22,6 +23,9 @@ const mapGenerator = {
             this.possibleStairs.push({});
             this.connectedTowers.push({});
         }
+        // Do the math on the target number of tiles
+        this.targetTiles = this.targetFraction * (this.dimensions[0] - this.border*2) * (this.dimensions[1] - this.border*2) * this.towerHeight;
+
         // Build the shell of the structure
         this.buildExterior(fullMap);
 
@@ -294,7 +298,7 @@ const mapGenerator = {
                         // // Add stairs
                         if (z>0) {
                             const stairPos = [random.range(stairRange[0][0]+1, stairRange[1][0]-1), random.range(stairRange[0][1]+1, stairRange[1][1]-1)];
-                            if (fullMap[z][stairPos[1]][stairPos[0]].canOverwrite() && fullMap[z-1][stairPos[1]][stairPos[0]].canOverwrite()) {
+                            if (fullMap[z][stairPos[1]][stairPos[0]].canOverwrite() && fullMap[z][stairPos[1]][stairPos[0]].isPassable() && fullMap[z-1][stairPos[1]][stairPos[0]].canOverwrite() && fullMap[z-1][stairPos[1]][stairPos[0]].isPassable()) {
                                 fullMap[z][stairPos[1]][stairPos[0]].makeStairs(false);
                                 fullMap[z-1][stairPos[1]][stairPos[0]].makeStairs(true);
                                 success=true;

@@ -106,6 +106,29 @@ const map = {
                 rayCast(startPosition, [i,j,startPosition[2]],range);
             }   
         }
+
+        const postProcess = (thisTile, i, j, k) => {
+            for (let ii=-1; ii<2; ii++) {
+                for (let jj=-1; jj<2; jj++) {
+                    const testTile = this.getTile([i+ii,j+jj,k]);
+                    if (testTile && testTile.isSeeThrough() && testTile.isVisible()) {
+                        thisTile.see();
+                        gameBoard.seeTile([i,j,k]);
+                        return;
+                    }
+                }
+            }
+        }
+
+        // Post-processing, make artefacts visible
+        for (let i=minCorner[0];i<=maxCorner[0];i++) {
+            for (let j=minCorner[1];j<=maxCorner[1];j++) {
+                const thisTile = this.getTile([i,j,startPosition[2]]);
+                if (thisTile && !thisTile.isSeeThrough() && !thisTile.isVisible()) {
+                    postProcess(thisTile,i,j,startPosition[2]);
+                }
+            }   
+        }
     }
 };
 
