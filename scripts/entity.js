@@ -17,6 +17,7 @@ class Entity {
 
         this.hitpoints = Infinity;
         this.damage=1;
+        this.force=1;
         this.mass=1;
 
         this.turnCount=0;
@@ -58,7 +59,7 @@ class Entity {
         }
     }
 
-    step(dx, dy, dz, forced=false) {
+    step(dx, dy, dz, forced=false,appliedForce=0) {
         if (!dx && !dy && !dz) {
             return false;
         }
@@ -79,17 +80,22 @@ class Entity {
                 return true;
             }
             else if (forced) {
-                map.damageTile(targetPosition,this.damage);
-                this.hurt(this.damage);
+                map.damageTile(targetPosition,appliedForce);
+                this.hurt(appliedForce);
             }
         }
         return false;
     }
 
+    push(target) {
+        const direction = [Math.sign(target.position[0] - this.position[0]), Math.sign(target.position[1] - this.position[1])];
+        target.knockBack(direction,Math.ceil(this.force / target.mass));
+    }
+
     knockBack(direction, tiles) {
         for (let i=0;i<tiles;i++) {
             if (this.alive) {
-                this.step(direction[0],direction[1],0,true);
+                this.step(direction[0],direction[1],0,true,tiles-i);
             }
         }
     }
@@ -128,10 +134,12 @@ class Entity {
 
     attack(entity, forced=false) {
         entity.hurt(this.damage);
+        this.push(entity);
         return true;
     }
 
     hurt(dmg) {
+        this.awake=true;
         this.hitpoints -= dmg;
         if (this.hitpoints <= 0) {
             this.die();
@@ -139,9 +147,11 @@ class Entity {
     }
 
     die() {
-        gameBoard.sendMessage(this.name+" dies!");
         this.alive=false;
         if (this.currentTile) {
+            if (this.currentTile.isVisible()) {
+                gameBoard.sendMessage(this.getName()+" dies!");
+            }
             this.currentTile.entity = null;
             this.currentTile=null;
         }
@@ -150,11 +160,16 @@ class Entity {
     }
 
     getName(capitalize=true) {
-        if (capitalize || this.pronoun) {
+        if (this.pronoun) {
             return this.name;
         }
         else {
-            return this.name.toLowerCase();
+            if (capitalize) {
+                return 'The '+this.name;
+            }
+            else {
+                return 'the '+this.name;
+            }
         }
     }
 }

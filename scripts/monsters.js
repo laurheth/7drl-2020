@@ -14,12 +14,17 @@ class Monster extends Entity {
     constructor(startPosition, type) {
         switch(type) {
             default:
-                super(startPosition,'g','black','green');
+            case 'small orb':
+                super(startPosition,'o','black','white');
                 this.hitpoints = 10;
                 this.damage=2;
-                this.name='The goblin';
+                this.force=2;
+                this.mass=1;
+                this.name='small orb';
                 this.ai=ai.CHASE;
+                break;
         }
+        this.awake=false;
         this.target=null;
         this.active = -1;
     }
@@ -42,7 +47,7 @@ class Monster extends Entity {
                     }
             }
         }
-        else {
+        else if (this.awake) {
             // Wander
             let breaker=10;
             let dx=0;
@@ -59,25 +64,30 @@ class Monster extends Entity {
     show() {
         super.show();
         this.active = 10;
+        this.awake=true;
         if (map.player) {
             this.target=[...map.player.position];
         }
     }
     attack(entity, forced=false) {
-        if (entity === map.player || forced) {
+        if (entity === map.player) {
             if (this.currentTile && this.currentTile.isVisible()) {
-                if (!forced) {
-                    gameBoard.sendMessage(this.getName() + ' attacks ' + entity.getName(false) + '!');
-                }
-                else {
-                    gameBoard.sendMessage(this.getName() + ' collides with ' + entity.getName(false) + '!');
-                }
+                gameBoard.sendMessage(this.getName() + ' attacks ' + entity.getName(false) + '!');
             }
-            return super.attack(entity);
+            super.attack(entity);
         }
         else {
-            return false;
+            if (this.currentTile && this.currentTile.isVisible()) {
+                gameBoard.sendMessage(this.getName() + ' collides with ' + entity.getName(false) + '!');
+            }
+            if (forced) {
+                super.attack(entity);
+            }
+            else {
+                this.push(entity);
+            }
         }
+        return true;
     }
     getDirection(target, best=true) {
         const direction = [0,0];

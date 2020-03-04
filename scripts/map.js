@@ -116,6 +116,7 @@ const map = {
         }
     },
     vision(startPosition,range=8) {
+        console.log(startPosition);
         const minCorner = startPosition.map((x,i)=>(i!==2) ? x-range : x);
         const maxCorner = startPosition.map((x,i)=>(i!==2) ? x+range : x);
         // Always see the start tile

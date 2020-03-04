@@ -1,8 +1,9 @@
-import gameBoard from './gameBoard.js';
+// import gameBoard from './gameBoard.js';
 import map from './map.js';
 import Tile from './tile.js';
 import random from './random.js';
 import roomBuilder from './roomBuilder.js';
+import Monster from './monsters.js';
 
 const mapGenerator = {
     dimensions: [50,50],
@@ -42,11 +43,14 @@ const mapGenerator = {
         // Add stairs and doors!
         this.addConnections(fullMap);
 
+        
         // touchups, add floors above things a floor down
         this.postProcessing(fullMap);
 
         // Store the generated map
         map.levels=fullMap;
+
+        this.populateLevel(map.levels[0],0);
     },
 
     // Generate an empty level
@@ -344,6 +348,17 @@ const mapGenerator = {
                 }
             }
         }
+    },
+    populateLevel(level,z) {
+        level.forEach((row,j)=>{
+            row.forEach((tile,i)=> {
+                if (tile.isFloor() && tile.isPassable() && !tile.isExterior()) {
+                    if (random.random()>0.99) {
+                        new Monster([i,j,z]);
+                    }
+                }
+            });
+        });
     }
 }
 

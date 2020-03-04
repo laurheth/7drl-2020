@@ -2,6 +2,7 @@ import Entity from './entity.js';
 import gameBoard from './gameBoard.js';
 import map from './map.js';
 import actionQueue from './actionQueue.js';
+import mapGenerator from './mapGenerator.js';
 
 // const player = new entity([15,15],'@');
 class Player extends Entity {
@@ -15,10 +16,13 @@ class Player extends Entity {
         this.nameElement = document.getElementById('name');
         this.nameElement.textContent='Lauren';
 
-        this.hitpoints=20;
-        this.maxHp=20;
+        this.hitpoints=40;
+        this.maxHp=40;
         this.damage=5;
+        this.force=5;
         this.healRate=10;
+
+        this.visitedLevels=[0];
 
         this.hpElement = document.getElementById('hp');
 
@@ -66,7 +70,6 @@ class Player extends Entity {
             }
             if (acted) {
                 this.playerTurn=false;
-                map.vision(this.position);
                 actionQueue.advance();
             }
         } else {
@@ -79,6 +82,10 @@ class Player extends Entity {
         }
         if (position[2] !== gameBoard.currentLevel) {
             gameBoard.currentLevel = position[2];
+            if (this.visitedLevels.indexOf(position[2]) < 0) {
+                this.visitedLevels.push(position[2]);
+                mapGenerator.populateLevel(map.levels[position[2]],position[2]);
+            }
             map.display(position[2]);
         }
         super.setPosition(position);
@@ -93,6 +100,7 @@ class Player extends Entity {
             }
         }
         this.playerTurn=true;
+        map.vision(this.position);
     }
     updateStatus() {
         this.hpElement.textContent = `${this.hitpoints}/${this.maxHp}`;
@@ -101,7 +109,8 @@ class Player extends Entity {
     attack(entity) {
         gameBoard.sendMessage(this.getName() + ' attack ' + entity.getName(false) + '!');
         const direction = [Math.sign(entity.position[0] - this.position[0]), Math.sign(entity.position[1] - this.position[1])];
-        entity.knockBack(direction,Math.ceil(this.damage / entity.mass));
+        entity.knockBack(direction,Math.ceil(this.force / entity.mass));
+        return true;
     }
     hurt(dmg) {
         super.hurt(dmg);
@@ -112,6 +121,18 @@ class Player extends Entity {
         this.alive=false;
         actionQueue.stop();
         this.updateStatus();
+    }
+    knockBack(direction, tiles) {
+        super.knockBack(direction, tiles);
+        map.vision(this.position);
+    }
+    getName(capitalize=true) {
+        if (capitalize) {
+            return this.name;
+        }
+        else {
+            return this.name.toLowerCase();
+        }
     }
 }
 

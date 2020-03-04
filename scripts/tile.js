@@ -63,6 +63,7 @@ class Tile {
     }
     makeGrass() {
         this.setProperties('.','black','lightgreen',true);
+        this.exterior=true;
     }
     makeDoor() {
         this.setProperties('+','brown','white',false, false);
@@ -107,6 +108,9 @@ class Tile {
     }
     hasBeenSeen() {
         return this.seen;
+    }
+    isFloor() {
+        return (this.character === '.');
     }
     see() {
         this.visible=true;
