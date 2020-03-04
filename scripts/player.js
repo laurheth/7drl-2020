@@ -11,11 +11,14 @@ class Player extends Entity {
         document.addEventListener('keydown',(event)=>this.handleEvent(event));
         map.vision(this.position);
         this.playerTurn=false;
+        this.name='You';
         this.nameElement = document.getElementById('name');
         this.nameElement.textContent='Lauren';
 
-        this.hp=20;
+        this.hitpoints=20;
         this.maxHp=20;
+        this.damage=5;
+        this.healRate=10;
 
         this.hpElement = document.getElementById('hp');
 
@@ -24,7 +27,7 @@ class Player extends Entity {
     }
     handleEvent(event) {
         // console.log(event);
-        if (this.playerTurn) {
+        if (this.playerTurn && this.alive) {
             let eventCaptured = true;
             let acted=false;
             switch(event.key) {
@@ -50,6 +53,9 @@ class Player extends Entity {
                         acted=this.step(0,0,1);
                     }
                     break;
+                case '.':
+                    acted=true;
+                    break;
                 default:
                     // Don't change anything
                     eventCaptured=false;
@@ -63,6 +69,8 @@ class Player extends Entity {
                 map.vision(this.position);
                 actionQueue.advance();
             }
+        } else {
+            event.preventDefault();
         }
     }
     setPosition(position) {
@@ -77,11 +85,32 @@ class Player extends Entity {
         gameBoard.setViewPosition(position);
     }
     act() {
+        this.turnCount++;
+        if (this.turnCount % this.healRate === 0) {
+            if (this.hitpoints < this.maxHp) {
+                this.hitpoints++;
+                this.updateStatus();
+            }
+        }
         this.playerTurn=true;
     }
     updateStatus() {
-        this.hpElement.textContent = `${this.hp}/${this.maxHp}`;
+        this.hpElement.textContent = `${this.hitpoints}/${this.maxHp}`;
         this.equipmentElement.textContent = `Baseball bat`;
+    }
+    attack(entity) {
+        gameBoard.sendMessage(this.getName() + ' attack ' + entity.getName(false) + '!');
+        super.attack(entity);
+    }
+    hurt(dmg) {
+        super.hurt(dmg);
+        this.updateStatus();
+    }
+    die() {
+        gameBoard.sendMessage("You die...");
+        this.alive=false;
+        actionQueue.stop();
+        this.updateStatus();
     }
 }
 

@@ -7,6 +7,7 @@ const map = {
     levels: [],
     currentLevel: null,
     levelBelow: null,
+    player: null,
     addLevel(level) {
         this.levels.push(level);
     },

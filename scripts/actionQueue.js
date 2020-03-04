@@ -2,12 +2,15 @@ const actionQueue = {
     index: 0,
     list: [],
     detectErrors: 0,
+    stopped: false,
     advance() {
-        this.index++;
-        if (this.index >= this.list.length) {
-            this.index=0;
+        if (!this.stopped) {
+            this.index++;
+            if (this.index >= this.list.length) {
+                this.index=0;
+            }
+            this.act();
         }
-        this.act();
     },
     act() {
         this.list[this.index].act();
@@ -31,6 +34,9 @@ const actionQueue = {
         else {
             return null;
         }
+    },
+    stop() {
+        this.stopped=true;
     }
 }
 

@@ -13,9 +13,12 @@ class Entity {
         this.element.appendChild(this.artElement);
         gameBoard.gridElement.appendChild(this.element);
 
-        console.log(this.element);
+        this.alive=true;
 
         this.hitpoints = Infinity;
+        this.damage=1;
+
+        this.turnCount=0;
         
         this.setArt(character, background, foreground);
         this.setPosition(position);
@@ -23,18 +26,25 @@ class Entity {
         this.updateTile(map.getTile(position));
 
         actionQueue.add(this);
+
+        this.name='The entity';
+        this.pronoun=false;
     }
 
     setArt(character, background, foreground) {
-        this.artElement.textContent = character;
-        this.artElement.style.color = foreground;
-        this.artElement.style.background = background;
+        if (this.alive) {
+            this.artElement.textContent = character;
+            this.artElement.style.color = foreground;
+            this.artElement.style.background = background;
+        }
     }
 
     setPosition(position) {
-        this.position = position;
-        if (position && position.length >= 2) {
-            this.element.style.transform = `translate(${position[0]}00%,${position[1]}00%)`;
+        if (this.alive) {
+            this.position = position;
+            if (position && position.length >= 2) {
+                this.element.style.transform = `translate(${position[0]}00%,${position[1]}00%)`;
+            }
         }
     }
 
@@ -53,6 +63,10 @@ class Entity {
             }
             else if (targetTile.isDoor()) {
                 map.alternateTile(targetPosition);
+                return true;
+            }
+            else if (targetTile.entity) {
+                this.attack(targetTile.entity);
                 return true;
             }
         }
@@ -80,11 +94,46 @@ class Entity {
     }
 
     hide() {
-        this.element.classList.add('hidden');
+        if (this.alive) {
+            this.element.classList.add('hidden');
+        }
     }
 
     show() {
-        this.element.classList.remove('hidden');
+        if (this.alive) {
+            this.element.classList.remove('hidden');
+        }
+    }
+
+    attack(entity) {
+        entity.hurt(this.damage);
+    }
+
+    hurt(dmg) {
+        this.hitpoints -= dmg;
+        if (this.hitpoints <= 0) {
+            this.die();
+        }
+    }
+
+    die() {
+        gameBoard.sendMessage(this.name+" dies!");
+        this.alive=false;
+        if (this.currentTile) {
+            this.currentTile.entity = null;
+            this.currentTile=null;
+        }
+        actionQueue.remove(this);
+        this.element.remove();
+    }
+
+    getName(capitalize=true) {
+        if (capitalize || this.pronoun) {
+            return this.name;
+        }
+        else {
+            return this.name.toLowerCase();
+        }
     }
 }
 
