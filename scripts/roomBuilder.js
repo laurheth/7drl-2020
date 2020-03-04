@@ -2,31 +2,44 @@ import random from './random.js';
 
 const roomBuilder = {
     rectangle(level, minCorner, maxCorner) {
-        const possibleExits = [];
-        for (let i = minCorner[0]; i <= maxCorner[0]; i++) {
-            for (let j = minCorner[1]; j <= maxCorner[1]; j++) {
-                if (!level[j][i].isExterior()) {
-                    if (i === minCorner[0] || i === maxCorner[0] || j === minCorner[1] || j === maxCorner[1]) {
-                        level[j][i].makeWall();
-                        possibleExits.push([i, j]);
+        if (this.roomWillFit(level, minCorner, maxCorner)) {
+            const possibleExits = [];
+            for (let i = minCorner[0]; i <= maxCorner[0]; i++) {
+                for (let j = minCorner[1]; j <= maxCorner[1]; j++) {
+                    if (!level[j][i].isExterior()) {
+                        if (i === minCorner[0] || i === maxCorner[0] || j === minCorner[1] || j === maxCorner[1]) {
+                            level[j][i].makeWall();
+                            possibleExits.push([i, j]);
+                        }
+                        else {
+                            level[j][i].makeFloor();
+                        }
                     }
-                    else {
-                        level[j][i].makeFloor();
+                }
+            }
+            let numDoors = random.range(2, 4);
+            if (possibleExits.length > 0) {
+                let breaker = 0;
+                while (breaker < 20 && numDoors > 0) {
+                    breaker++;
+                    const position = random.selection(possibleExits);
+                    if (this.addDoor(level, position[0], position[1])) {
+                        numDoors--;
                     }
                 }
             }
         }
-        let numDoors = random.range(2, 4);
-        if (possibleExits.length > 0) {
-            let breaker = 0;
-            while (breaker < 20 && numDoors > 0) {
-                breaker++;
-                const position = random.selection(possibleExits);
-                if (this.addDoor(level, position[0], position[1])) {
-                    numDoors--;
+    },
+
+    roomWillFit(level,minCorner,maxCorner) {
+        for (let i = minCorner[0]-1; i<= maxCorner[0]+1; i++) {
+            for (let j=minCorner[1]-1; j<= maxCorner[1]+1; j++) {
+                if (!level[j][i].isPassable()) {
+                    return false;
                 }
             }
         }
+        return true;
     },
 
     hallWay(level, start, end, minLength = 10) {

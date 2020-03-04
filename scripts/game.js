@@ -8,6 +8,6 @@ gameBoard.init();
 mapGenerator.generate();
 map.display(0);
 
-const player = new Player([4,4,0]);
+const player = new Player([Math.round(mapGenerator.dimensions[0]/2),Math.round(mapGenerator.dimensions[1]-mapGenerator.border/2),0]);
 
 gameBoard.toggleAnimateView();

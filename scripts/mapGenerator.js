@@ -6,7 +6,7 @@ import roomBuilder from './roomBuilder.js';
 
 const mapGenerator = {
     dimensions: [50,50],
-    border: 3, // stay this far away from the map edge
+    border: 6, // stay this far away from the map edge
     towerHeight: 26, // traditional roguelike depth
     numberOfTiles: 0,
     targetTiles: 15000,
@@ -24,8 +24,6 @@ const mapGenerator = {
         }
         // Build the shell of the structure
         this.buildExterior(fullMap);
-        console.log(this.connectedTowers);
-        console.log(this.possibleStairs);
 
         // Add some fancier rooms on top of the existing labyrinthe
         this.addFancyRooms(fullMap);
@@ -142,7 +140,7 @@ const mapGenerator = {
                 return border;
             }
             else if (x + border >= this.dimensions[i]) {
-                return this.dimensions[i]-border;
+                return this.dimensions[i]-border-1;
             }
             else {
                 return x;
@@ -157,7 +155,7 @@ const mapGenerator = {
     subdivideEverything(fullMap) {
         const floorNum = (this.dimensions[0]-2*this.border) * (this.dimensions[1]-2*this.border);
         for (let z=0; z<this.towerHeight; z++) {
-            let subdivisions = Math.floor(floorNum / random.range(10,100));
+            let subdivisions = Math.floor(floorNum / random.range(10,50));
             for (let i=0; i<subdivisions;i++) {
                 const position = this.forceInBorder(this.randomPosition());
                 if (!fullMap[z][position[1]][position[0]].isExterior()) {
@@ -227,11 +225,20 @@ const mapGenerator = {
 
     addFancyRooms(fullMap) {
         for (let z=0; z<this.towerHeight; z++) {
-            for (let i=0; i<5;i++) {
-                const roomSize = [random.range(7,15), random.range(7,15)];
-                let minCorner = this.forceInBorder(this.randomPosition(),Math.max(...roomSize)).map((x)=>x-Math.max(...roomSize));
-                let maxCorner = this.forceInBorder(minCorner.map((x,i)=>x+roomSize[i]));
-                roomBuilder.rectangle(fullMap[z],minCorner,maxCorner);
+            for (let i=0; i<10;i++) {
+
+                if (Object.keys(this.possibleStairs[z]).length >0) {
+                    const towerArea = this.possibleStairs[z][random.selection(Object.keys(this.possibleStairs[z]))][0];
+
+                    const size = [towerArea[1][0] - towerArea[0][0], towerArea[1][1] - towerArea[0][1]];
+
+                    const roomSize = [random.range(5,Math.min(15,size[0]-4)), random.range(5,Math.min(15,size[1]-4))];
+
+                    const minCorner = towerArea[0].map((x,i)=>x + random.range(2,size[i]-roomSize[i]-2));
+                    const maxCorner = this.forceInBorder(minCorner.map((x,i)=>x+roomSize[i]));
+
+                    roomBuilder.rectangle(fullMap[z],minCorner,maxCorner);
+                }
             }
         }
     },
@@ -284,14 +291,11 @@ const mapGenerator = {
                         breaker++;
                         const towerChosen = random.selection(connections[z][keys[i]]);
                         const stairRange = this.possibleStairs[z][towerChosen][0];
-                        console.log('stair range',stairRange);
                         const stairPos = [random.range(stairRange[0][0]+1, stairRange[1][0]-1), random.range(stairRange[0][1]+1, stairRange[1][1]-1)];
-                        console.log(stairPos);
                         if (fullMap[z][stairPos[1]][stairPos[0]].canOverwrite() && fullMap[z-1][stairPos[1]][stairPos[0]].canOverwrite()) {
                             fullMap[z][stairPos[1]][stairPos[0]].makeStairs(false);
                             fullMap[z-1][stairPos[1]][stairPos[0]].makeStairs(true);
                             success=true;
-                            console.log('placed stairs')
                         }
                     }
                 }
