@@ -13,8 +13,12 @@ class Tile {
         this.seeThrough=true;
         this.visible=false;
         this.seen=false;
+        this.entity=null;
     }
     isPassable() {
+        if (this.entity) {
+            return false;
+        }
         return this.passable;
     }
     isSeeThrough() {
@@ -95,9 +99,15 @@ class Tile {
     see() {
         this.visible=true;
         this.seen=true;
+        if (this.entity) {
+            this.entity.show();
+        }
     }
     unsee() {
         this.visible=false;
+        if (this.entity) {
+            this.entity.hide();
+        }
     }
 }
 

@@ -1,5 +1,6 @@
 import gameBoard from './gameBoard.js';
 import map from './map.js';
+import actionQueue from './actionQueue.js';
 
 class Entity {
     constructor(position,character, background='#000000', foreground='#FFFFFF') {
@@ -14,8 +15,14 @@ class Entity {
 
         console.log(this.element);
 
+        this.hitpoints = Infinity;
+        
         this.setArt(character, background, foreground);
         this.setPosition(position);
+        
+        this.updateTile(map.getTile(position));
+
+        actionQueue.add(this);
     }
 
     setArt(character, background, foreground) {
@@ -32,13 +39,16 @@ class Entity {
     }
 
     step(dx, dy, dz) {
+        if (!dx && !dy && !dz) {
+            return false;
+        }
         const step = [Math.round(dx),Math.round(dy),Math.round(dz)];
         const targetPosition = this.position.map((p,i)=>p+step[i]);
-        console.log(targetPosition);
         const targetTile = map.getTile(targetPosition);
         if (targetTile) {
             if (targetTile.isPassable()) {
                 this.setPosition(targetPosition);
+                this.updateTile(targetTile);
                 return true;
             }
             else if (targetTile.isDoor()) {
@@ -47,6 +57,34 @@ class Entity {
             }
         }
         return false;
+    }
+
+    act() {
+        actionQueue.advance();
+    }
+
+    updateTile(newTile) {
+        if (this.currentTile) {
+            this.currentTile.entity=null;
+        }
+        if (newTile) {
+            newTile.entity=this;
+            if (newTile.isVisible()) {
+                this.show();
+            }
+            else {
+                this.hide();
+            }
+        }
+        this.currentTile=newTile;
+    }
+
+    hide() {
+        this.element.classList.add('hidden');
+    }
+
+    show() {
+        this.element.classList.remove('hidden');
     }
 }
 

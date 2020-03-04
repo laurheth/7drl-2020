@@ -61,19 +61,28 @@ const map = {
             gameBoard.setTile([column,row],tile.character,tile.background,tile.foreground);
         }
     },
-    vision(startPosition,range=8) {
+    clearVision(startPosition,range=9) {
         // console.log('vision', startPosition);
         const minCorner = startPosition.map((x,i)=>(i!==2) ? x-range : x);
         const maxCorner = startPosition.map((x,i)=>(i!==2) ? x+range : x);
         // Unsee old tiles
-        for (let i=minCorner[0]-1;i<=maxCorner[0]+1;i++) {
-            for (let j=minCorner[1]-1;j<=maxCorner[1]+1;j++) {
+        for (let i=minCorner[0];i<=maxCorner[0];i++) {
+            for (let j=minCorner[1];j<=maxCorner[1];j++) {
                 gameBoard.unseeTile([i,j]);
                 const thisTile = this.getTile([i,j,startPosition[2]]);
                 if (thisTile) {
                     thisTile.unsee();
                 }
             }   
+        }
+    },
+    vision(startPosition,range=8) {
+        const minCorner = startPosition.map((x,i)=>(i!==2) ? x-range : x);
+        const maxCorner = startPosition.map((x,i)=>(i!==2) ? x+range : x);
+        // Always see the start tile
+        if (this.getTile(startPosition)) {
+            this.getTile(startPosition).see();
+            gameBoard.seeTile(startPosition);
         }
 
         const rayCast = (start,end,range)=> {
