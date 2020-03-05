@@ -30,8 +30,13 @@ class Animation {
             map.revertTile(...position);
         });
 
-        const frame = this.frames.shift();
-        if (!frame) {
+        let frame = this.frames.shift();
+        if (Array.isArray(frame)) {
+            if (!Array.isArray(frame[0])) {
+                frame = [frame];
+            }
+        }
+        if (!frame || frame[0].length < 2) {
             return false;
         }
 

@@ -21,8 +21,13 @@ class Entity {
         this.force=1;
         this.mass=1;
         this.blastRadius=0;
+        this.blastMultiplier=1;
         this.explosive=false;
         this.noDirectDamage=false;
+
+        this.character = character;
+        this.foreground = foreground;
+        this.background = background;
 
         this.turnCount=0;
         
@@ -262,8 +267,8 @@ class Entity {
                         continue;
                     }
                     else {
-                        damageToDeal = Math.max(1,this.damage * (this.blastRadius - distance) / this.blastRadius);
-                        forceToPush = Math.max(1,this.force * (this.blastRadius - distance) / this.blastRadius);
+                        damageToDeal = Math.max(1,this.blastMultiplier * this.damage * (this.blastRadius - distance) / this.blastRadius);
+                        forceToPush = Math.max(1,this.blastMultiplier * this.force * (this.blastRadius - distance) / this.blastRadius);
                         const tile = map.getTile([this.position[0]+i, this.position[1]+j, this.position[2]]);
                         if (tile) {
                             if (pushEntities) {

@@ -362,7 +362,7 @@ const mapGenerator = {
                 if (tile.isFloor() && tile.isPassable() && !tile.isExterior()) {
                     availableTiles.push([i,j,z]);
                     if (random.random()>0.99) {
-                        new Doodad([i,j,z],'barrel');
+                        new Doodad([i,j,z],this.addDoodad(z));
                     }
                 }
             });
@@ -371,6 +371,17 @@ const mapGenerator = {
         for (let i=0;i<podsToAdd;i++) {
             this.addPod(random.selection(availableTiles),this.choosePod(z,3+z));
         }
+    },
+    addDoodad(level) {
+        const weights = {
+            'candle':4,
+            'statue':5,
+            'chest':this.probabilityFunction(level,2,26,2),
+            'table':5,
+            'barrel':this.probabilityFunction(level,0,10,6),
+        }
+        console.log(weights);
+        return random.weighted(weights);
     },
     addPod(position,composition) {
         let breaker=0;
@@ -393,6 +404,7 @@ const mapGenerator = {
         const dangerRatings = {
             'small orb':1,
             'spike':1,
+            'splodey':3,
             'large orb':5,
             'spikeman':5
         }
@@ -401,6 +413,7 @@ const mapGenerator = {
             'spike':this.probabilityFunction(level,0,10,6,2,30),
             'large orb':this.probabilityFunction(level,1,10,3),
             'spikeman':this.probabilityFunction(level,10,20,3),
+            'splodey':this.probabilityFunction(level,5,15,4,1,30),
         }
         console.log(options);
         const pod=[];
