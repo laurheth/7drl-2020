@@ -55,7 +55,7 @@ const map = {
     },
     damageTile(position, dmg, dz=0,spread=true) {
         const tile = this.getTile(position);
-        if (!tile) {return;}
+        if (!tile || tile.isEmpty() || (tile.isFloor() && position[2]===0)) {return;}
 
         // Damage the tile. If it breaks, things get interesting
         const leftOver = tile.hurt(dmg);
@@ -82,22 +82,20 @@ const map = {
             }
             this.updateTile(tile,position[0],position[1],position[2]);
             if (spread) {
-                for (let i=-leftOver; i<=leftOver; i++) {
-                    for (let j=-leftOver; j<=leftOver; j++) {
-                        const thisDamage = leftOver - Math.abs(i) - Math.abs(j);
-                        if (thisDamage > 0) {
-                            this.damageTile([position[0]+i, position[1]+j, position[2]],thisDamage,0,false);
-                        }
+                for (let i=-1; i<=1; i++) {
+                    for (let j=-1; j<=1; j++) {
+                        this.damageTile([position[0]+i, position[1]+j, position[2]],leftOver,0,false);
                     }
                 }
             }
         }
+        this.updateTile(tile,...position);
     },
     updateTile(tile,column,row,z) {
         if (z !== gameBoard.currentLevel) {
             return;
         }
-        if (this.currentLevel[row][column].isDefault() && !this.levelBelow[row][column].isDefault()) {
+        if (this.currentLevel[row][column].isEmpty() && !this.levelBelow[row][column].isEmpty()) {
             gameBoard.setTile([column,row],this.levelBelow[row][column].character,this.levelBelow[row][column].background,this.levelBelow[row][column].foreground,true);
         }
         else {

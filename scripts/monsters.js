@@ -55,6 +55,22 @@ class Monster extends Entity {
         this.target=null;
         this.active = -1;
     }
+    validStep(direction) {
+        if (direction.length===2) {
+            direction.push(0);
+        }
+        let testPosition = this.position.map((x,i)=>x+direction[i]);
+        if (map.getTile(testPosition) && !map.getTile(testPosition).isEmpty()) {
+            return true;
+        }
+        else {
+            testPosition[2]-=1;
+            if (map.getTile(testPosition) && !map.getTile(testPosition).isPassable()) {
+                return true;
+            }
+        }
+        return false;
+    }
     act() {
         this.active--;
         if (this.awake) {
@@ -64,11 +80,11 @@ class Monster extends Entity {
                     case ai.CHASE:
                         let getBest = (random.random()>0.25);
                         let direction = this.getDirection(this.target,getBest);
-                        if (!this.step(direction[0],direction[1],0)) {
+                        if (!this.validStep(direction) || !this.step(direction[0],direction[1],0)) {
                             direction = this.getDirection(this.target,!getBest);
-                            if (!this.step(direction[0],direction[1],0)) {
+                            if (!this.validStep(direction) || !this.step(direction[0],direction[1],0)) {
                                 let breaker=5;
-                                while (breaker>0 && !this.step(direction[0],direction[1],0)) {
+                                while (breaker>0 && (!this.validStep(direction) || !this.step(direction[0],direction[1],0))) {
                                     breaker--;
                                     direction = random.selection(directions);
                                 }
@@ -103,15 +119,15 @@ class Monster extends Entity {
             this.target=[...map.player.position];
         }
     }
-    attack(entity, forced=false) {
+    attack(entity, forced=false, silent=false) {
         if (entity === map.player && !forced) {
-            if (this.currentTile && this.currentTile.isVisible()) {
+            if (this.currentTile && this.currentTile.isVisible() && !silent) {
                 gameBoard.sendMessage(this.getName() + ' attacks ' + entity.getName(false) + '!');
             }
             super.attack(entity);
         }
         else {
-            if (this.currentTile && this.currentTile.isVisible()) {
+            if (this.currentTile && this.currentTile.isVisible()  && !silent) {
                 if (forced) {
                     gameBoard.sendMessage(this.getName() + ' collides with ' + entity.getName(false) + '!');
                 }

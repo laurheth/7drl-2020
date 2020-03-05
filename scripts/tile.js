@@ -150,7 +150,7 @@ class Tile {
     }
     // Figure this out later
     hurt(dmg) {
-        this.hitpoints -= dmg;
+        this.hitpoints -= Math.ceil(dmg);
         if (this.hitpoints < 0) {
             if (this.isVisible) {
                 gameBoard.sendMessage(this.getName()+' is destroyed.');
@@ -160,7 +160,7 @@ class Tile {
         return 0;
     }
     isEmpty() {
-        return (this.isPassable() && this.character === ' ');
+        return (this.character === ' ');
     }
     getName(capitalize=true) {
         return (capitalize) ? 'The '+this.name : 'the '+this.name;

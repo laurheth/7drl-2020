@@ -4,6 +4,7 @@ import Tile from './tile.js';
 import random from './random.js';
 import roomBuilder from './roomBuilder.js';
 import Monster from './monsters.js';
+import Doodad from './doodad.js';
 
 const mapGenerator = {
     dimensions: [50,50],
@@ -360,6 +361,9 @@ const mapGenerator = {
             row.forEach((tile,i)=> {
                 if (tile.isFloor() && tile.isPassable() && !tile.isExterior()) {
                     availableTiles.push([i,j,z]);
+                    if (random.random()>0.99) {
+                        new Doodad([i,j,z],'barrel');
+                    }
                 }
             });
         });
