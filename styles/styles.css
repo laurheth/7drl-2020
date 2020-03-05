@@ -209,18 +209,47 @@ h1, h2, h3, p {
 .statsHolder {
   width: 25%;
 }
-.statsHolder h2 {
-  font-size: 1.2rem;
-}
-.statsHolder p {
+.statsHolder p, .statsHolder h2, .statsHolder h3 {
   font-size: 1rem;
 }
-.statsHolder h2, .statsHolder p {
+.statsHolder .special, .statsHolder h2, .statsHolder h3 {
+  text-decoration: underline;
+}
+.statsHolder h2, .statsHolder h3, .statsHolder p {
   margin: 0.5rem 0;
 }
 .statsHolder ul {
   margin: 0;
-  padding-left: 1rem;
+  padding: 0;
+  list-style: none;
+}
+.statsHolder ul li {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+}
+.statsHolder ul li p {
+  margin: 0;
+  width: 100%;
+}
+.statsHolder ul li button {
+  margin-top: 0.2rem;
+  display: block;
+  width: 50%;
+}
+.statsHolder button {
+  color: yellow;
+  background: black;
+  display: block;
+  height: 1rem;
+  padding: 0;
+  border: none;
+  text-align: left;
+  border-radius: 2px;
+  transition: 0.3s;
+}
+.statsHolder button:hover, .statsHolder button:focus {
+  color: cyan;
 }
 
 .messages {

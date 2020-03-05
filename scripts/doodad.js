@@ -10,6 +10,7 @@ class Doodad extends Entity {
                 this.force=1;
                 this.mass=0.5;
                 this.name='candelabrum';
+                this.dieVerb='shatters';
                 break;
             default:
             case 'statue':
@@ -19,6 +20,7 @@ class Doodad extends Entity {
                 this.force=4;
                 this.mass=4;
                 this.name='statue';
+                this.dieVerb='shatters';
                 break;
             case 'chest':
                 super(startPosition,'π','black','brown');
@@ -27,6 +29,7 @@ class Doodad extends Entity {
                 this.force=1;
                 this.mass=2;
                 this.name='treasure chest';
+                this.dieVerb='smashes open';
                 break;
             case 'table':
                 super(startPosition,'╤','black','white');
@@ -35,6 +38,7 @@ class Doodad extends Entity {
                 this.force=1;
                 this.mass=1;
                 this.name='table';
+                this.dieVerb='smashes apart';
                 break;
             case 'barrel':
                 super(startPosition,'Ξ','black','orangered');
@@ -45,6 +49,7 @@ class Doodad extends Entity {
                 this.blastRadius=5;
                 this.name='explosive barrel';
                 this.explosive=true;
+                this.dieVerb='explodes';
                 break;
         }
         this.noDirectDamage=true;

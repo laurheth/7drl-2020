@@ -3,6 +3,7 @@ import gameBoard from './gameBoard.js';
 import map from './map.js';
 import actionQueue from './actionQueue.js';
 import mapGenerator from './mapGenerator.js';
+import getItem from './items.js';
 
 // const player = new entity([15,15],'@');
 class Player extends Entity {
@@ -19,16 +20,40 @@ class Player extends Entity {
         this.hitpoints=20;
         this.maxHp=20;
         this.damage=1;
-        this.force=4;
+        this.force=1;
         this.mass=2;
         this.healRate=10;
+
+        this.inventory=[];
+        this.inventory.push(getItem('bat'));
+
+        this.wielded=this.inventory[0];
 
         this.visitedLevels=[0];
 
         this.hpElement = document.getElementById('hp');
 
-        this.equipmentElement = document.getElementById('equipment');
+        this.inventoryElement = document.getElementById('inventory');
+        this.equipedElement = document.getElementById('equiped');
+        this.armorElement = document.getElementById('armor');
+
+        // this.inventoryElement.addEventListener('click', (event)=>{
+        //     event.preventDefault();
+        //     this.clickItem(event.originalTarget);
+        // });
+
+        this.armorElement.addEventListener('click',(event)=>{
+            event.preventDefault();
+            this.removeArmor();
+        });
+
+        this.equipedElement.addEventListener('click',(event)=>{
+            event.preventDefault();
+            this.removeWeapon();
+        });
+
         this.updateStatus();
+        this.updateInventory();
     }
     handleEvent(event) {
         // console.log(event);
@@ -113,14 +138,105 @@ class Player extends Entity {
     }
     updateStatus() {
         this.hpElement.textContent = `${this.hitpoints}/${this.maxHp}`;
-        this.equipmentElement.textContent = `Baseball bat`;
     }
+
+    updateInventory() {
+        this.armorElement.textContent = (this.armor) ? this.armor.name : 'None';
+        this.equipedElement.textContent = (this.wielded) ? this.wielded.name : 'None';
+        while(this.inventoryElement.firstChild) {
+            this.inventoryElement.lastChild.remove();
+        }
+        this.inventory.forEach((item,i)=>{
+            if (item !== this.armor && item !== this.wielded) {
+                const newElement = document.createElement('li');
+                const nameElement = document.createElement('p');
+                nameElement.textContent = item.name;
+
+                const equipButton = document.createElement('button');
+                equipButton.addEventListener('click',(event)=>{
+                    event.preventDefault();
+                    this.useItem(i);
+                });
+                equipButton.textContent = 'Use item';
+
+                const dropButton = document.createElement('button');
+                dropButton.addEventListener('click',(event)=>{
+                    event.preventDefault();
+                    this.dropItem(i);
+                });
+                dropButton.textContent = 'Drop item';
+
+                newElement.appendChild(nameElement);
+                newElement.appendChild(equipButton);
+                newElement.appendChild(dropButton);
+                this.inventoryElement.appendChild(newElement);
+            }
+        });
+    }
+
+    removeArmor() {
+        this.armor=null;
+        this.updateInventory();
+    }
+
+    removeWeapon() {
+        this.wielded=null;
+        this.updateInventory();
+    }
+
+    clickItem(liElement) {
+        for (let i=0;i<this.inventory.length;i++) {
+            if (this.inventory[i].name===liElement.textContent) {
+                this.useItem(i);
+                break;
+            }
+        }
+    }
+
+    useItem(index) {
+        const item = this.inventory[index];
+        if (item.type === 'armor') {
+            this.armor = item;
+        }
+        else if (item.type === 'tool') {
+            this.wielded = item;
+        }
+        else {
+            if ('heal' in item.effect) {
+                this.hitpoints += item.effect.heal;
+                if (this.hitpoints > this.maxHp) {
+                    this.hitpoints = this.maxHp;
+                }
+            }
+        }
+        this.updateInventory();
+        this.updateStatus();
+    }
+
+    dropItem(index) {
+        const item = this.inventory[index];
+        if (map.addItem(this.position,item)) {
+            this.inventory.splice(index,1);
+            this.updateInventory();
+        }
+    }
+
     attack(entity) {
         gameBoard.sendMessage(this.getName() + ' attack ' + entity.getName(false) + '!');
         super.attack(entity);
         return true;
     }
     hurt(dmg) {
+        if (this.armor) {
+            let protection = this.armor.protect(dmg);
+            console.log(dmg, protection,this.armor.getDurability());
+            dmg -= protection;
+            if (!this.armor.damage(protection)) {
+                this.armor=null;
+                this.inventory.splice(this.inventory.indexOf(this.armor),1);
+                this.updateInventory();
+            }
+        }
         super.hurt(dmg);
         this.updateStatus();
     }
@@ -143,6 +259,24 @@ class Player extends Entity {
 
     collideMessage(targetTile) {
         gameBoard.sendMessage(this.getName()+' crash into '+targetTile.getName(false)+'!');
+    }
+
+    getDamage() {
+        if (this.playerTurn && this.wielded) {
+            return this.wielded.getDamage();
+        }
+        else {
+            return this.damage;
+        }
+    }
+
+    getForce() {
+        if (this.playerTurn && this.wielded) {
+            return this.wielded.getForce();
+        }
+        else {
+            return this.force;
+        }
     }
 }
 

@@ -25,6 +25,8 @@ class Entity {
         this.explosive=false;
         this.noDirectDamage=false;
 
+        this.dieVerb='dies';
+
         this.character = character;
         this.foreground = foreground;
         this.background = background;
@@ -46,7 +48,7 @@ class Entity {
         if (this.alive) {
             this.artElement.textContent = character;
             this.artElement.style.color = foreground;
-            this.artElement.style.background = background;
+            this.element.style.background = background;
         }
     }
 
@@ -77,7 +79,7 @@ class Entity {
                     else {
                         downPosition[2]+=1;
                         fallDistance--;
-                        this.hurt(Math.max(0,this.mass*(fallDistance-1)));
+                        this.hurt(Math.max(0,this.getMass()*(fallDistance-1)));
                     }
                     if (this === map.player) {
                         gameBoard.sendMessage('You fall down '+fallDistance+' floors...');
@@ -128,7 +130,7 @@ class Entity {
     push(target, travel=true) {
         const targPos = [...target.position];
         const direction = [Math.sign(targPos[0] - this.position[0]), Math.sign(targPos[1] - this.position[1])];
-        let pushDist = Math.ceil(this.force / target.mass);
+        let pushDist = Math.ceil(this.getForce() / target.getMass());
         // If can't attack it, must push, don't just sit there
         if(target.noDirectDamage) {
             pushDist = Math.max(1,pushDist);
@@ -142,7 +144,7 @@ class Entity {
     knockBack(direction, tiles) {
         for (let i=0;i<tiles;i++) {
             if (this.alive) {
-                this.step(direction[0],direction[1],0,true,Math.ceil(this.mass));
+                this.step(direction[0],direction[1],0,true,Math.ceil(this.getMass()));
             }
         }
     }
@@ -182,10 +184,10 @@ class Entity {
     attack(entity, forced=false, silent=false) {
         // Don't directly attack doodads, but do shove them, unless forced to
         if (!entity.noDirectDamage || forced) {
-            entity.hurt(this.damage);
+            entity.hurt(this.getDamage());
         }
         if (forced) {
-            this.hurt(entity.damage);
+            this.hurt(entity.getDamage());
         }
         this.push(entity);
         return true;
@@ -198,12 +200,24 @@ class Entity {
         }
     }
 
+    getMass() {
+        return this.mass;
+    }
+
+    getDamage() {
+        return this.damage;
+    }
+
+    getForce() {
+        return this.force;
+    }
+
     die() {
         this.alive=false;
         if (this.currentTile) {
             if (this.currentTile.isVisible()) {
                 if (!this.explosive) {
-                    gameBoard.sendMessage(this.getName()+" dies!");
+                    gameBoard.sendMessage(this.getName()+" " + this.dieVerb + "!");
                 }
                 else {
                     gameBoard.sendMessage(this.getName()+" explodes!");
@@ -267,8 +281,8 @@ class Entity {
                         continue;
                     }
                     else {
-                        damageToDeal = Math.max(1,this.blastMultiplier * this.damage * (this.blastRadius - distance) / this.blastRadius);
-                        forceToPush = Math.max(1,this.blastMultiplier * this.force * (this.blastRadius - distance) / this.blastRadius);
+                        damageToDeal = Math.max(1,this.blastMultiplier * this.getDamage() * (this.blastRadius - distance) / this.blastRadius);
+                        forceToPush = Math.max(1,this.blastMultiplier * this.getForce() * (this.blastRadius - distance) / this.blastRadius);
                         const tile = map.getTile([this.position[0]+i, this.position[1]+j, this.position[2]]);
                         if (tile) {
                             if (pushEntities) {

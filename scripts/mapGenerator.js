@@ -380,7 +380,6 @@ const mapGenerator = {
             'table':5,
             'barrel':this.probabilityFunction(level,0,10,6),
         }
-        console.log(weights);
         return random.weighted(weights);
     },
     addPod(position,composition) {
@@ -415,7 +414,6 @@ const mapGenerator = {
             'spikeman':this.probabilityFunction(level,10,20,3),
             'splodey':this.probabilityFunction(level,5,15,4,1,30),
         }
-        console.log(options);
         const pod=[];
         let breaker=10;
         let option='';
@@ -427,7 +425,6 @@ const mapGenerator = {
                 danger -= dangerRatings[pod[pod.length-1]];
             }
         }
-        console.log(pod);
         return pod;
     },
     probabilityFunction(level, minLevel,peakLevel,peakValue, minValue=1, maxLevel=Infinity) {

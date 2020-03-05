@@ -19,6 +19,7 @@ class Tile {
         this.entity=null;
         this.hitpoints=Infinity;
         this.name='empty space';
+        this.item=null;
     }
     isPassable(ignoreEntities=false) {
         if (this.entity && !ignoreEntities) {
@@ -34,6 +35,13 @@ class Tile {
     }
     isDoor() {
         return this.door;
+    }
+    setItem(item) {
+        this.item=item;
+    }
+    getItem() {
+        const item = this.item;
+        return item;
     }
     setProperties(character, background, foreground, passable, seeThrough=true) {
         this.character = character;
@@ -151,7 +159,7 @@ class Tile {
     // Figure this out later
     hurt(dmg) {
         this.hitpoints -= Math.ceil(dmg);
-        if (this.hitpoints < 0) {
+        if (this.hitpoints <= 0) {
             if (this.isVisible) {
                 gameBoard.sendMessage(this.getName()+' is destroyed.');
             }

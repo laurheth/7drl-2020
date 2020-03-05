@@ -99,13 +99,44 @@ const map = {
             gameBoard.setTile([column,row],this.levelBelow[row][column].character,this.levelBelow[row][column].background,this.levelBelow[row][column].foreground,true);
         }
         else {
-            gameBoard.setTile([column,row],tile.character,tile.background,tile.foreground);
+            if (tile.item) {
+                gameBoard.setTile([column,row],tile.item.character,tile.background,tile.item.color);
+            }
+            else {
+                gameBoard.setTile([column,row],tile.character,tile.background,tile.foreground);
+            }
         }
     },
-    revertTile(column, row, z) {
-        if (z !== gameBoard.currentLevel) {
-            return;
+    getItemFromTile(position) {
+        const tile = this.getTile(position);
+        if (tile) {
+            const item = tile.getItem();
+            if (item) {
+                tile.setItem(null);
+                return item;
+            }
         }
+        return null;
+    },
+    addItem(position, item) {
+        let searchDistance=0;
+        while (searchDistance < 50) {
+            for (let i=-searchDistance; i<=searchDistance; i++) {
+                for (let j=-searchDistance; j<=searchDistance; j++) {
+                    const tile = this.getTile([position[0]+i,position[1]+j,position[2]]);
+                    if (tile && !tile.item) {
+                        tile.setItem(item);
+                        this.revertTile(position[0]+i,position[1]+j);
+                        return true;
+                    }
+                }
+            }
+            searchDistance++;
+        }
+        return false;
+    },
+    revertTile(column, row) {
+        let z=gameBoard.currentLevel;
         if (this.getTile([column, row, z])) {
             this.updateTile(this.getTile([column, row, z]),column, row, z);
         }

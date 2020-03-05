@@ -26,18 +26,49 @@ h1,h2,h3,p {
 
 .statsHolder {
     width: 25%;
-    h2 {
-        font-size: 1.2rem;
-    }
-    p {
+    p, h2, h3 {
         font-size: 1rem;
     }
-    h2, p {
+    .special, h2, h3 {
+        text-decoration: underline;
+    }
+    h2, h3, p {
         margin: 0.5rem 0;
     }
     ul {
         margin: 0;
-        padding-left: 1rem;
+        padding: 0;
+        list-style: none;
+        li {
+            display: flex;
+            flex-wrap: wrap;
+            margin-bottom: 0.5rem;
+            p {
+                margin: 0;
+                width: 100%;
+            }
+            button {
+                margin-top: 0.2rem;
+                display: block;
+                width: 50%;
+            }
+        }
+    }
+    button {
+        color: yellow;
+        background: black;
+        display: block;
+        height: 1rem;
+        padding: 0;
+        border: none;
+
+        text-align: left;
+
+        border-radius: 2px;
+        transition: 0.3s;
+        &:hover, &:focus {
+            color: cyan;
+        }
     }
 }
 
