@@ -1,7 +1,7 @@
 import gameBoard from './gameBoard.js';
 import map from './map.js';
 import actionQueue from './actionQueue.js';
-// import Doodad from './doodad.js';
+import animator from './animator.js';
 
 class Entity {
     constructor(position,character, background='#000000', foreground='#FFFFFF') {
@@ -240,8 +240,10 @@ class Entity {
         let pushEntities=false;
         let damageTiles=false;
         // I want damage to be applied centrally, and move outwards, so do it via and expanding annulus
-        annulus=0;
+        annulus=-1;
+        const animation = animator.newAnimation(10,'*',['red','orange','yellow','orange'],'black');
         while (annulus <= this.blastRadius+1) {
+            const newFrame = [];
             for (i=-annulus-1;i<=annulus+1;i++) {
                 for (j=-annulus-1;j<=annulus+1;j++) {
                     pushEntities=false;
@@ -256,7 +258,7 @@ class Entity {
                         continue;
                     }
                     distance = Math.sqrt(i*i + j*j);
-                    if (distance>this.blastRadius) {
+                    if (distance>=this.blastRadius) {
                         continue;
                     }
                     else {
@@ -275,11 +277,15 @@ class Entity {
                             else {
                                 map.damageTile([this.position[0]+i, this.position[1]+j, this.position[2]],damageToDeal + forceToPush);
                             }
+                            if (tile.isPassable()) {
+                                newFrame.push([this.position[0]+i, this.position[1]+j, this.position[2]]);
+                            }
                         }
                     }
                 }
             }
             annulus++;
+            animation.addFrame(newFrame);
         }
     }
 }

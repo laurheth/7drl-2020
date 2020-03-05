@@ -10,7 +10,7 @@ class Doodad extends Entity {
                 this.damage=5;
                 this.force=8;
                 this.mass=1;
-                this.blastRadius=4;
+                this.blastRadius=5;
                 this.name='explosive barrel';
                 this.explosive=true;
                 break;

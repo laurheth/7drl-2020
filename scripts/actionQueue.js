@@ -1,3 +1,5 @@
+import animator from './animator.js';
+
 const actionQueue = {
     index: 0,
     list: [],

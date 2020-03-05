@@ -102,6 +102,14 @@ const map = {
             gameBoard.setTile([column,row],tile.character,tile.background,tile.foreground);
         }
     },
+    revertTile(column, row, z) {
+        if (z !== gameBoard.currentLevel) {
+            return;
+        }
+        if (this.getTile([column, row, z])) {
+            this.updateTile(this.getTile([column, row, z]),column, row, z);
+        }
+    },
     clearVision(startPosition,range=9) {
         // console.log('vision', startPosition);
         const minCorner = startPosition.map((x,i)=>(i!==2) ? x-range : x);
