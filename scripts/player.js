@@ -36,11 +36,7 @@ class Player extends Entity {
         this.inventoryElement = document.getElementById('inventory');
         this.equipedElement = document.getElementById('equiped');
         this.armorElement = document.getElementById('armor');
-
-        // this.inventoryElement.addEventListener('click', (event)=>{
-        //     event.preventDefault();
-        //     this.clickItem(event.originalTarget);
-        // });
+        this.actionElement = document.getElementById('actions');
 
         this.armorElement.addEventListener('click',(event)=>{
             event.preventDefault();
@@ -86,6 +82,13 @@ class Player extends Entity {
                 case '.':
                     acted=true;
                     break;
+                case 'g':
+                    if(map.getTile(this.position) && map.getTile(this.position).item) {
+                        this.inventory.push(map.getItemFromTile(this.position));
+                        map.revertTile(this.position[0],this.position[1]);
+                        this.updateInventory();
+                        acted=true;
+                    }
                 default:
                     // Don't change anything
                     eventCaptured=false;
@@ -95,13 +98,16 @@ class Player extends Entity {
                 event.preventDefault();
             }
             if (acted) {
-                this.playerTurn=false;
-                map.vision(this.position);
-                actionQueue.advance();
+                this.endTurn();
             }
         } else {
             event.preventDefault();
         }
+    }
+    endTurn() {
+        this.playerTurn=false;
+        map.vision(this.position);
+        actionQueue.advance();
     }
     setPosition(position) {
         if (this.position) {
@@ -129,6 +135,7 @@ class Player extends Entity {
                 }
             }
             this.playerTurn=true;
+            this.updateActions();
         }
         else {
             gameBoard.sendMessage("You die...");
@@ -174,6 +181,47 @@ class Player extends Entity {
         });
     }
 
+    updateActions() {
+        const tile = map.getTile(this.position);
+        while(this.actionElement.firstChild) {
+            this.actionElement.lastChild.remove();
+        }
+        if (tile.isUpStair()) {
+            this.addAction('Ascend.',()=>{
+                this.step(0,0,1)
+                this.endTurn();
+            });
+        }
+        else if (tile.isDownStair()) {
+            this.addAction('Descend.',()=>{
+                this.step(0,0,-1)
+                this.endTurn();
+            });
+        }
+        if (tile.item) {
+            this.addAction(`Pick up ${tile.item.name}.`,()=>{
+                this.inventory.push(map.getItemFromTile(this.position));
+                map.revertTile(this.position[0],this.position[1]);
+                this.updateInventory();
+                this.endTurn();
+            });
+        }
+    }
+
+    addAction(text,callback) {
+        const actionItem = document.createElement('li');
+        const actionButton = document.createElement('button');
+
+        actionButton.textContent = text;
+        actionButton.addEventListener('click',(event)=>{
+            event.preventDefault();
+            callback();
+        });
+
+        actionItem.appendChild(actionButton);
+        this.actionElement.appendChild(actionItem);
+    }
+
     removeArmor() {
         this.armor=null;
         this.updateInventory();
@@ -209,6 +257,7 @@ class Player extends Entity {
                 }
             }
         }
+        this.endTurn();
         this.updateInventory();
         this.updateStatus();
     }
@@ -218,6 +267,7 @@ class Player extends Entity {
         if (map.addItem(this.position,item)) {
             this.inventory.splice(index,1);
             this.updateInventory();
+            this.updateActions();
         }
     }
 

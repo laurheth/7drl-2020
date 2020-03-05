@@ -124,7 +124,7 @@ const map = {
             for (let i=-searchDistance; i<=searchDistance; i++) {
                 for (let j=-searchDistance; j<=searchDistance; j++) {
                     const tile = this.getTile([position[0]+i,position[1]+j,position[2]]);
-                    if (tile && !tile.item) {
+                    if (tile && !tile.item && tile.isFloor()) {
                         tile.setItem(item);
                         this.revertTile(position[0]+i,position[1]+j);
                         return true;

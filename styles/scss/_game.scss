@@ -25,6 +25,8 @@ h1,h2,h3,p {
 }
 
 .statsHolder {
+    display: flex;
+    flex-direction: column;
     width: 25%;
     p, h2, h3 {
         font-size: 1rem;
@@ -52,6 +54,12 @@ h1,h2,h3,p {
                 display: block;
                 width: 50%;
             }
+        }
+    }
+    .actions {
+        margin-top: auto;
+        ul li button {
+            width: 100%;
         }
     }
     button {
