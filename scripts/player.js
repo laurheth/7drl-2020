@@ -16,10 +16,11 @@ class Player extends Entity {
         this.nameElement = document.getElementById('name');
         this.nameElement.textContent='Lauren';
 
-        this.hitpoints=40;
-        this.maxHp=40;
-        this.damage=5;
+        this.hitpoints=20;
+        this.maxHp=20;
+        this.damage=1;
         this.force=5;
+        this.mass=2;
         this.healRate=10;
 
         this.visitedLevels=[0];
@@ -109,8 +110,7 @@ class Player extends Entity {
     }
     attack(entity) {
         gameBoard.sendMessage(this.getName() + ' attack ' + entity.getName(false) + '!');
-        const direction = [Math.sign(entity.position[0] - this.position[0]), Math.sign(entity.position[1] - this.position[1])];
-        entity.knockBack(direction,Math.ceil(this.force / entity.mass));
+        super.attack(entity);
         return true;
     }
     hurt(dmg) {

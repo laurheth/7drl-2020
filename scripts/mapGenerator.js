@@ -358,9 +358,9 @@ const mapGenerator = {
                 }
             });
         });
-        const podsToAdd = Math.ceil(availableTiles.length / 400);
+        const podsToAdd = Math.ceil(availableTiles.length / 200);
         for (let i=0;i<podsToAdd;i++) {
-            this.addPod(random.selection(availableTiles),['small orb','small orb','small orb','small orb','small orb','small orb']);
+            this.addPod(random.selection(availableTiles),this.choosePod(z,3+z));
         }
     },
     addPod(position,composition) {
@@ -379,6 +379,25 @@ const mapGenerator = {
                 }
             }
         }
+    },
+    choosePod(level,danger) {
+        const dangerRatings = {
+            'small orb':1,
+            'large orb':5
+        }
+        const options = {
+            'small orb':5,
+            'large orb':1,
+        }
+        const pod=[];
+        let breaker=10;
+        while(danger > 0 && breaker>0) {
+            breaker--;
+            pod.push(random.weighted(options));
+            danger -= dangerRatings[pod[pod.length-1]];
+        }
+        console.log(pod);
+        return pod;
     }
 }
 

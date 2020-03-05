@@ -27,9 +27,11 @@ const random = {
     // Assumes an object with format
     // {a:10, b:20, c:6} where numbers == weights
     weighted(object) {
+        // console.log('????');
         const keys = Object.keys(object);
         const total = keys.reduce((acc,key) => acc + object[key], 0);
-        const chosenValue = this.range(0,total);
+        let chosenValue = this.range(0,total);
+        // console.log(object, keys, total, chosenValue);
         let chosenItem=0;
         for (let i=0; i<keys.length;i++) {
             chosenItem = i;
@@ -38,7 +40,8 @@ const random = {
                 break;
             }
         }
-        return object[keys[chosenItem]];
+        // console.log(keys[chosenItem]);
+        return keys[chosenItem];
     }
 }
 

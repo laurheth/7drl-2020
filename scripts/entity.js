@@ -119,7 +119,7 @@ class Entity {
     knockBack(direction, tiles) {
         for (let i=0;i<tiles;i++) {
             if (this.alive) {
-                this.step(direction[0],direction[1],0,true,tiles-i);
+                this.step(direction[0],direction[1],0,true,this.mass*(tiles-i));
             }
         }
     }

@@ -13,6 +13,14 @@ const directions = [[0,1],[0,-1],[1,0],[-1,0]];
 class Monster extends Entity {
     constructor(startPosition, type) {
         switch(type) {
+            case 'large orb':
+                super(startPosition,'O','black','white');
+                this.hitpoints = 20;
+                this.damage=4;
+                this.force=6;
+                this.mass=4;
+                this.name='large orb';
+                this.ai=ai.CHASE;
             default:
             case 'small orb':
                 super(startPosition,'o','black','white');
