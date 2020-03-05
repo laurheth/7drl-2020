@@ -389,12 +389,14 @@ const mapGenerator = {
         const dangerRatings = {
             'small orb':1,
             'spike':1,
-            'large orb':5
+            'large orb':5,
+            'spikeman':5
         }
         const options = {
             'small orb':5,
             'spike':this.probabilityFunction(level,0,10,6,2,30),
             'large orb':this.probabilityFunction(level,1,10,3),
+            'spikeman':this.probabilityFunction(level,10,20,3),
         }
         console.log(options);
         const pod=[];
@@ -402,8 +404,11 @@ const mapGenerator = {
         let option='';
         while(danger > 0 && breaker>0) {
             breaker--;
-            pod.push(random.weighted(options));
-            danger -= dangerRatings[pod[pod.length-1]];
+            option = random.weighted(options);
+            if (dangerRatings[option]<=danger) {
+                pod.push(option);
+                danger -= dangerRatings[pod[pod.length-1]];
+            }
         }
         console.log(pod);
         return pod;

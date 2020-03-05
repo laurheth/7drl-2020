@@ -13,6 +13,15 @@ const directions = [[0,1],[0,-1],[1,0],[-1,0]];
 class Monster extends Entity {
     constructor(startPosition, type) {
         switch(type) {
+            case 'spikeman':
+                super(startPosition,'X','black','hotpink');
+                this.hitpoints = 30;
+                this.damage=8;
+                this.force=0;
+                this.mass=2;
+                this.name='spikey man';
+                this.ai=ai.CHASE;
+                break;
             case 'spike':
                 super(startPosition,'x','black','red');
                 this.hitpoints = 10;
