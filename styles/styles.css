@@ -209,6 +209,7 @@ h1, h2, h3, p {
 .statsHolder {
   display: flex;
   flex-direction: column;
+  max-height: calc(100vh - 5.5rem);
   width: 25%;
 }
 .statsHolder p, .statsHolder h2, .statsHolder h3 {
@@ -238,6 +239,9 @@ h1, h2, h3, p {
   margin-top: 0.2rem;
   display: block;
   width: 50%;
+}
+.statsHolder .inventory {
+  overflow-y: auto;
 }
 .statsHolder .actions {
   margin-top: auto;

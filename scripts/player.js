@@ -128,9 +128,11 @@ class Player extends Entity {
     act() {
         if (this.alive) {
             this.turnCount++;
-            if (this.turnCount % this.healRate === 0) {
+            if (this.turnCount % this.healRate === 0 && this.healRate < 20) {
                 if (this.hitpoints < this.maxHp) {
                     this.hitpoints++;
+                    this.turnCount=0;
+                    this.healRate++;
                     this.updateStatus();
                 }
             }
@@ -256,6 +258,10 @@ class Player extends Entity {
                     this.hitpoints = this.maxHp;
                 }
             }
+            if ('food' in item.effect) {
+                this.healRate = Math.max(1, this.healRate - item.effect.food);
+            }
+            this.inventory.splice(index,1);
         }
         this.endTurn();
         this.updateInventory();
@@ -326,6 +332,15 @@ class Player extends Entity {
         }
         else {
             return this.force;
+        }
+    }
+
+    getMass() {
+        if (this.armor) {
+            return this.armor.getMass() + this.mass;
+        }
+        else {
+            return this.mass;
         }
     }
 }

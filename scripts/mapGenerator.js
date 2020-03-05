@@ -5,6 +5,7 @@ import random from './random.js';
 import roomBuilder from './roomBuilder.js';
 import Monster from './monsters.js';
 import Doodad from './doodad.js';
+import getItem from './items.js';
 
 const mapGenerator = {
     dimensions: [50,50],
@@ -364,6 +365,9 @@ const mapGenerator = {
                     if (random.random()>0.99) {
                         new Doodad([i,j,z],this.addDoodad(z));
                     }
+                    else if (random.random()>0.99) {
+                        level[j][i].item = getItem(this.addItem(z));
+                    }
                 }
             });
         });
@@ -380,6 +384,24 @@ const mapGenerator = {
             'table':5,
             'barrel':this.probabilityFunction(level,0,10,6),
         }
+        return random.weighted(weights);
+    },
+    addItem(level) {
+        const weights = {
+            'potion':this.probabilityFunction(level,0,26,10),
+            'smallfood':5,
+            'mediumfood':this.probabilityFunction(level,0,12,8),
+            'bigfood':this.probabilityFunction(level,0,26,10),
+            'weighted':this.probabilityFunction(level,10,20,2),
+            'plate':this.probabilityFunction(level,18,26,3),
+            'chain':this.probabilityFunction(level,10,20,3,1,23),
+            'leather':this.probabilityFunction(level,3,15,3,1,19),
+            'sonic mallet':this.probabilityFunction(level,18,26,2),
+            'golf club':this.probabilityFunction(level,5,20,2),
+            'sword':1,
+            'bat':2,
+        }
+        console.log(weights);
         return random.weighted(weights);
     },
     addPod(position,composition) {

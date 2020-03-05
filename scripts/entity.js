@@ -54,6 +54,7 @@ class Entity {
 
     setPosition(position) {
         if (this.alive) {
+            let splatMessage=false;
             this.position = position;
             if (position && position.length >= 2) {
                 this.element.style.transform = `translate(${position[0]}00%,${position[1]}00%)`;
@@ -72,8 +73,8 @@ class Entity {
                             this.hurt(Math.max(0,2*(fallDistance-1)));
                         }
                         else if (map.getTile(downPosition).entity) {
-                            gameBoard.sendMessage('Splat! Death from above!');
-                            map.getTile(downPosition).entity.die();
+                            splatMessage=true;
+                            map.getTile(downPosition).entity.hurt(2*map.getTile(downPosition).entity.hitpoints);
                         }
                     }
                     else {
@@ -92,6 +93,9 @@ class Entity {
                     }
                     this.position=downPosition;
                 }
+            }
+            if (splatMessage) {
+                gameBoard.sendMessage('Splat! Death from above!');
             }
             this.updateTile(map.getTile(this.position));
         }

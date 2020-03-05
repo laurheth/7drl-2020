@@ -44,6 +44,9 @@ class Armor extends Item {
             return Math.min(this.armor,this.durability);
         }
     }
+    getMass() {
+        return this.mass;
+    }
 }
 
 class Consumable extends Item {
@@ -60,6 +63,12 @@ const getItem = (type) => {
     switch(type) {
         case 'potion':
             return new Consumable('Healing potion','!','red',{heal:20});
+        case 'smallfood':
+            return new Consumable('Apple','%','red',{heal:2,food:5});
+        case 'mediumfood':
+            return new Consumable('Sandwich','%','burlywood',{heal:3,food:10});
+        case 'bigfood':
+            return new Consumable("Bowl of chilli",'%','white',{heal:4,food:20});
         case 'weighted':
             return new Armor('Stone armor','[','burlywood',2,40,5);
         case 'plate':
