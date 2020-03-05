@@ -345,6 +345,11 @@ const mapGenerator = {
                             fullMap[z][j][i].makeFloor();
                         }
                     }
+                    else if (fullMap[z][j][i].isExterior() && !fullMap[z][j][i].isPassable(true)) {
+                        if (random.random()>(0.99 - z * 0.005)) {
+                            fullMap[z][j][i].makeWindow();
+                        }
+                    }
                 }
             }
         }
@@ -383,14 +388,18 @@ const mapGenerator = {
     choosePod(level,danger) {
         const dangerRatings = {
             'small orb':1,
+            'spike':1,
             'large orb':5
         }
         const options = {
             'small orb':5,
-            'large orb':1,
+            'spike':this.probabilityFunction(level,0,10,6,2,30),
+            'large orb':this.probabilityFunction(level,1,10,3),
         }
+        console.log(options);
         const pod=[];
         let breaker=10;
+        let option='';
         while(danger > 0 && breaker>0) {
             breaker--;
             pod.push(random.weighted(options));
@@ -398,6 +407,20 @@ const mapGenerator = {
         }
         console.log(pod);
         return pod;
+    },
+    probabilityFunction(level, minLevel,peakLevel,peakValue, minValue=1, maxLevel=Infinity) {
+        if (level<minLevel || level > maxLevel) {
+            return 0;
+        }
+        else if (level < peakLevel) {
+            return Math.max(minValue,Math.ceil(peakValue * (level - minLevel) / (peakLevel - minLevel)));
+        } 
+        else if (isFinite(maxLevel)) {
+            return Math.max(minValue,Math.ceil(peakValue * (maxLevel - level) / (maxLevel - peakLevel)));
+        }
+        else {
+            return peakValue;
+        }
     }
 }
 

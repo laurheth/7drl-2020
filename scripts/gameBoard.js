@@ -4,6 +4,9 @@ const gameBoard = {
     tiles: [],
     gridElement: null,
     currentLevel: 0,
+    lastMessage: '',
+    lastMessageElement:null,
+    repeats:0,
     // Initialize
     init() {
         this.gridElement = document.getElementById('grid');
@@ -157,19 +160,28 @@ const gameBoard = {
             // setTimeout(()=>this.gridElement.style.transition = 'transform 0.1s',100);
         }
         else {
-            this.gridElement.style.transition = 'none';
+            // this.gridElement.style.transition = 'none';
         }
     },
 
     sendMessage(message,type='') {
-        const newMessage = document.createElement('p');
-        newMessage.textContent=message;
-        if (type) {
-            newMessage.classList.add(type);
+        if (message !== this.lastMessage) {
+            this.lastMessage = message;
+            this.repeats=1;
+            const newMessage = document.createElement('p');
+            newMessage.textContent=message;
+            if (type) {
+                newMessage.classList.add(type);
+            }
+            this.messageElement.prepend(newMessage);
+            while (this.messageElement.children.length > 10) {
+                this.messageElement.lastChild.remove();
+            }
+            this.lastMessageElement = newMessage;
         }
-        this.messageElement.prepend(newMessage);
-        while (this.messageElement.children.length > 10) {
-            this.messageElement.lastChild.remove();
+        else {
+            this.repeats++;
+            this.lastMessageElement.textContent = `${message} (${this.repeats})`
         }
     }
 

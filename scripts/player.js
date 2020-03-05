@@ -19,7 +19,7 @@ class Player extends Entity {
         this.hitpoints=20;
         this.maxHp=20;
         this.damage=1;
-        this.force=5;
+        this.force=4;
         this.mass=2;
         this.healRate=10;
 
@@ -71,6 +71,7 @@ class Player extends Entity {
             }
             if (acted) {
                 this.playerTurn=false;
+                map.vision(this.position);
                 actionQueue.advance();
             }
         } else {
@@ -94,14 +95,20 @@ class Player extends Entity {
         gameBoard.setViewPosition(this.position);
     }
     act() {
-        this.turnCount++;
-        if (this.turnCount % this.healRate === 0) {
-            if (this.hitpoints < this.maxHp) {
-                this.hitpoints++;
-                this.updateStatus();
+        if (this.alive) {
+            this.turnCount++;
+            if (this.turnCount % this.healRate === 0) {
+                if (this.hitpoints < this.maxHp) {
+                    this.hitpoints++;
+                    this.updateStatus();
+                }
             }
+            this.playerTurn=true;
         }
-        this.playerTurn=true;
+        else {
+            gameBoard.sendMessage("You die...");
+            actionQueue.stop();
+        }
         map.vision(this.position);
     }
     updateStatus() {
@@ -118,9 +125,7 @@ class Player extends Entity {
         this.updateStatus();
     }
     die() {
-        gameBoard.sendMessage("You die...");
         this.alive=false;
-        actionQueue.stop();
         this.updateStatus();
     }
     knockBack(direction, tiles) {
@@ -134,6 +139,10 @@ class Player extends Entity {
         else {
             return this.name.toLowerCase();
         }
+    }
+
+    collideMessage(targetTile) {
+        gameBoard.sendMessage(this.getName()+' crash into '+targetTile.getName(false)+'!');
     }
 }
 

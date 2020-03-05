@@ -67,7 +67,7 @@ class Entity {
                 else {
                     downPosition[2]+=1;
                     fallDistance--;
-                    this.hurt(Math.max(0,2*(fallDistance-1)));
+                    this.hurt(Math.max(0,this.mass*(fallDistance-1)));
                 }
                 if (this === map.player) {
                     gameBoard.sendMessage('You fall down '+fallDistance+' floors...');
@@ -104,6 +104,9 @@ class Entity {
                 return true;
             }
             else if (forced) {
+                if (targetTile.isVisible()) {
+                    this.collideMessage(targetTile);
+                }
                 map.damageTile(targetPosition,appliedForce);
                 this.hurt(appliedForce);
             }
@@ -111,15 +114,20 @@ class Entity {
         return false;
     }
 
-    push(target) {
-        const direction = [Math.sign(target.position[0] - this.position[0]), Math.sign(target.position[1] - this.position[1])];
-        target.knockBack(direction,Math.ceil(this.force / target.mass));
+    push(target, travel=true) {
+        const targPos = [...target.position];
+        const direction = [Math.sign(targPos[0] - this.position[0]), Math.sign(targPos[1] - this.position[1])];
+        const pushDist = Math.ceil(this.force / target.mass);
+        target.knockBack(direction,pushDist);
+        if (travel && map.getTile(targPos).isPassable()) {
+            this.step(direction[0],direction[1],0);
+        }
     }
 
     knockBack(direction, tiles) {
         for (let i=0;i<tiles;i++) {
             if (this.alive) {
-                this.step(direction[0],direction[1],0,true,this.mass*(tiles-i));
+                this.step(direction[0],direction[1],0,true,Math.ceil(this.mass));
             }
         }
     }
@@ -158,13 +166,15 @@ class Entity {
 
     attack(entity, forced=false) {
         entity.hurt(this.damage);
+        if (forced) {
+            this.hurt(entity.damage);
+        }
         this.push(entity);
         return true;
     }
 
     hurt(dmg) {
-        this.awake=true;
-        this.hitpoints -= dmg;
+        this.hitpoints -= Math.ceil(dmg);
         if (this.hitpoints <= 0) {
             this.die();
         }
@@ -195,6 +205,9 @@ class Entity {
                 return 'the '+this.name;
             }
         }
+    }
+    collideMessage(targetTile) {
+        gameBoard.sendMessage(this.getName()+' crashes into '+targetTile.getName(false)+'.');
     }
 }
 

@@ -22,7 +22,7 @@ const map = {
         gameBoard.setDimensions([this.currentLevel[0].length, this.currentLevel.length]);
         this.currentLevel.forEach((row,j) => {
             row.forEach((tile,i) => {
-                this.updateTile(tile,i,j);
+                this.updateTile(tile,i,j,levelIndex);
                 if (tile.hasBeenSeen()) {
                     gameBoard.setMemory([i,j]);
                 }
@@ -39,10 +39,11 @@ const map = {
     alternateTile(position) {
         if (this.onMap(position)) {
             this.levels[position[2]][position[1]][position[0]] = this.levels[position[2]][position[1]][position[0]].alternateState;
-            this.updateTile(this.levels[position[2]][position[1]][position[0]], position[0], position[1]);
+            this.updateTile(this.levels[position[2]][position[1]][position[0]], position[0], position[1],position[2]);
         }
     },
     onMap(position) {
+        if (position.length<3) {return false;}
         if (position[2] >= 0 && position[2] < this.levels.length) {
             if (position[1] >= 0 && position[1] < this.levels[position[2]].length) {
                 if (position[0] >= 0 && position[0] < this.levels[position[2]][position[1]].length) {
@@ -79,7 +80,7 @@ const map = {
                     tile.makeEmpty();
                 }
             }
-            this.updateTile(tile,position[0],position[1]);
+            this.updateTile(tile,position[0],position[1],position[2]);
             if (spread) {
                 for (let i=-leftOver; i<=leftOver; i++) {
                     for (let j=-leftOver; j<=leftOver; j++) {
@@ -92,7 +93,10 @@ const map = {
             }
         }
     },
-    updateTile(tile,column,row) {
+    updateTile(tile,column,row,z) {
+        if (z !== gameBoard.currentLevel) {
+            return;
+        }
         if (this.currentLevel[row][column].isDefault() && !this.levelBelow[row][column].isDefault()) {
             gameBoard.setTile([column,row],this.levelBelow[row][column].character,this.levelBelow[row][column].background,this.levelBelow[row][column].foreground,true);
         }
@@ -116,7 +120,6 @@ const map = {
         }
     },
     vision(startPosition,range=8) {
-        console.log(startPosition);
         const minCorner = startPosition.map((x,i)=>(i!==2) ? x-range : x);
         const maxCorner = startPosition.map((x,i)=>(i!==2) ? x+range : x);
         // Always see the start tile

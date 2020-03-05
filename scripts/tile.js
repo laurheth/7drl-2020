@@ -1,7 +1,9 @@
+import gameBoard from "./gameBoard.js";
+
 class Tile {
     constructor() {
         this.character = ' ';
-        this.background = 'black';
+        this.background = 'navy';
         this.foreground = 'white';
         this.passable = true
         this.alternateState = null;
@@ -13,8 +15,10 @@ class Tile {
         this.seeThrough=true;
         this.visible=false;
         this.seen=false;
+        this.floor=false;
         this.entity=null;
         this.hitpoints=Infinity;
+        this.name='empty space';
     }
     isPassable(ignoreEntities=false) {
         if (this.entity && !ignoreEntities) {
@@ -39,16 +43,19 @@ class Tile {
         this.seeThrough = seeThrough
         this.default=false;
         this.exterior=false;
+        this.floor=false;
     }
     makeWall() {
         if (!this.noOverwrite) {
             this.hitpoints=10;
             this.setProperties('#','lightgray','gray',false, false);
+            this.name='wall';
         }
     }
     makeEmpty() {
         this.hitPoints=Infinity;
         this.setProperties(' ','black','white',true);
+        this.name='empty space';
     }
     makeExterior() {
         if (!this.noOverwrite) {
@@ -60,10 +67,14 @@ class Tile {
         this.setProperties('.','black','white',true);
         this.noOverwrite = preserveFloor;
         this.hitpoints=5;
+        this.name='floor';
+        this.floor=true;
     }
     makeGrass() {
         this.setProperties('.','black','lightgreen',true);
         this.exterior=true;
+        this.name='grass';
+        this.floor=true;
     }
     makeDoor() {
         this.setProperties('+','brown','white',false, false);
@@ -72,6 +83,16 @@ class Tile {
         this.alternateState.alternateState = this;
         this.door=true;
         this.hitpoints=1;
+        this.name='door';
+    }
+    makeWindow() {
+        this.setProperties('+','black','cyan',false, true);
+        this.alternateState = new Tile();
+        this.alternateState.setProperties('-','black','cyan',true);
+        this.alternateState.alternateState = this;
+        this.door=true;
+        this.hitpoints=1;
+        this.name='window';
     }
     isExterior() {
         return this.exterior;
@@ -81,9 +102,11 @@ class Tile {
             this.hitPoints = Infinity;
             if (up) {
                 this.setProperties('<','black','white',true);
+                this.name='upwards stairs';
             }
             else {
                 this.setProperties('>','black','white',true);
+                this.name='downwards stairs';
             }
             this.noOverwrite = true
             return true;
@@ -110,7 +133,7 @@ class Tile {
         return this.seen;
     }
     isFloor() {
-        return (this.character === '.');
+        return this.floor;
     }
     see() {
         this.visible=true;
@@ -129,12 +152,18 @@ class Tile {
     hurt(dmg) {
         this.hitpoints -= dmg;
         if (this.hitpoints < 0) {
+            if (this.isVisible) {
+                gameBoard.sendMessage(this.getName()+' is destroyed.');
+            }
             return Math.max(1,Math.abs(this.hitpoints));
         }
         return 0;
     }
     isEmpty() {
         return (this.isPassable() && this.character === ' ');
+    }
+    getName(capitalize=true) {
+        return (capitalize) ? 'The '+this.name : 'the '+this.name;
     }
 }
 
