@@ -85,6 +85,15 @@ h1,h2,h3,p {
             color: cyan;
         }
     }
+    .good {
+        color: rgb(0,255,0);
+    }
+    .okay {
+        color: orange;
+    }
+    .bad {
+        color: red;
+    }
 }
 
 .messages {

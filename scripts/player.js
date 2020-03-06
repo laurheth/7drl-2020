@@ -150,9 +150,38 @@ class Player extends Entity {
         this.hpElement.textContent = `${this.hitpoints}/${this.maxHp}`;
     }
 
+    fullItemDetailDisplay(item,element) {
+        element.classList.remove('good','bad','okay');
+        element.textContent = item.getName();
+        let durability = item.getDurabilityFraction();
+        if (durability > 0.5) {
+            element.classList.add('good');
+        }
+        else if (durability < 0.25) {
+            element.classList.add('bad');
+        }
+        else {
+            element.classList.add('okay');
+        }
+        if (isFinite(durability)) {
+            element.textContent += ` (${Math.round(100*durability)}%)`;
+        }
+    }
+
+    updateInventoryElement(item,element) {
+        if (item) {
+            this.fullItemDetailDisplay(item,element);
+        }
+        else {
+            element.classList.remove('good','bad','okay');
+            element.textContent = 'None';
+        }
+    }
+
     updateInventory() {
-        this.armorElement.textContent = (this.armor) ? this.armor.getName() : 'None';
-        this.equipedElement.textContent = (this.wielded) ? this.wielded.getName() : 'None';
+        this.updateInventoryElement(this.armor, this.armorElement);
+        this.updateInventoryElement(this.wielded, this.equipedElement);
+        
         while(this.inventoryElement.firstChild) {
             this.inventoryElement.lastChild.remove();
         }
@@ -160,7 +189,8 @@ class Player extends Entity {
             if (item !== this.armor && item !== this.wielded) {
                 const newElement = document.createElement('li');
                 const nameElement = document.createElement('p');
-                nameElement.textContent = item.getName();
+
+                this.fullItemDetailDisplay(item,nameElement);
 
                 const equipButton = document.createElement('button');
                 equipButton.addEventListener('click',(event)=>{
@@ -288,8 +318,8 @@ class Player extends Entity {
                     gameBoard.sendMessage('Your '+this.wielded.getName(false)+' breaks!');
                     this.inventory.splice(this.inventory.indexOf(this.wielded),1);
                     this.wielded=null;
-                    this.updateInventory();
                 }
+                this.updateInventoryElement(this.wielded,this.equipedElement);
             }
         }
         else {
@@ -307,8 +337,8 @@ class Player extends Entity {
                 gameBoard.sendMessage('Your '+this.armor.getName(false)+' was destroyed!');
                 this.inventory.splice(this.inventory.indexOf(this.armor),1);
                 this.armor=null;
-                this.updateInventory();
             }
+            this.updateInventoryElement(this.armor,this.armorElement);
         }
         super.hurt(dmg);
         this.updateStatus();

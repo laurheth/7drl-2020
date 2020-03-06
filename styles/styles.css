@@ -263,6 +263,15 @@ h1, h2, h3, p {
 .statsHolder button:hover, .statsHolder button:focus {
   color: cyan;
 }
+.statsHolder .good {
+  color: lime;
+}
+.statsHolder .okay {
+  color: orange;
+}
+.statsHolder .bad {
+  color: red;
+}
 
 .messages {
   width: 100%;

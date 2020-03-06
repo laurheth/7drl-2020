@@ -5,6 +5,7 @@ class Item {
         this.color=color;
         this.type=type; // weapon/tool, or passive, or consumable
         this.durability=durability;
+        this.maxDurability=durability;
         this.unique=false;
     }
     damage(damage) {
@@ -13,6 +14,15 @@ class Item {
     }
     getDurability() {
         return this.durability;
+    }
+    getDurabilityFraction() {
+        console.log(this.durability, this.maxDurability);
+        if (isFinite(this.durability)) {
+            return this.durability / this.maxDurability;
+        }
+        else {
+            return Infinity;
+        }
     }
     getName(capitalize=true) {
         if (capitalize || this.unique) {
@@ -26,10 +36,9 @@ class Item {
 
 class Weapon extends Item {
     constructor(name,character,color,damage,force,durability) {
-        super(name,character,color,'tool');
+        super(name,character,color,'tool',durability);
         this.dmg=damage;
         this.force=force;
-        this.durability=durability;
     }
     getDamage() {
         return this.dmg;
@@ -41,9 +50,8 @@ class Weapon extends Item {
 
 class Armor extends Item {
     constructor(name,character,color,armor,durability,mass) {
-        super(name,character,color,'armor');
+        super(name,character,color,'armor',durability);
         this.armor=armor;
-        this.durability=durability;
         this.mass=mass;
     }
     protect(damage) {
