@@ -56,7 +56,7 @@ const actionQueue = {
         }
         if (this.locks.length<=0) {
             this.stopped=false;
-            this.act();
+            this.advance();
         }
     }
 }
