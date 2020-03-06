@@ -3,7 +3,7 @@ import gameBoard from './gameBoard.js';
 import actionQueue from './actionQueue.js';
 
 class Animation {
-    constructor(interval, character, foreground, background) {
+    constructor(interval, character, foreground, background,tieToEntity=null,tieToViewPort=false) {
         this.indices = [0,0,0];
         if (!Array.isArray(character)) {
             character = [character];
@@ -20,12 +20,18 @@ class Animation {
         this.backgrounds = background;
         this.frames=[];
         this.toRevert=[];
+        this.tieToEntity=tieToEntity;
+        this.tieToViewPort=tieToViewPort;
     }
     addFrame(frame) {
         this.frames.push(frame);
     }
     frame() {
         // Undo the last frame
+        if (this.tieToEntity) {
+            // console.log('reveal');
+            this.tieToEntity.show(true);
+        }
         this.toRevert.forEach(position => {
             map.revertTile(...position);
         });
@@ -38,6 +44,11 @@ class Animation {
         }
         if (!frame || frame[0].length < 2) {
             return false;
+        }
+
+        if (this.tieToEntity) {
+            // console.log('hide');
+            this.tieToEntity.hide(true);
         }
 
         const char = this.characters[this.indices[0]];
@@ -82,8 +93,8 @@ const animator = {
             actionQueue.advance();
         }
     },
-    newAnimation(interval,characters,foregrounds,backgrounds) {
-        this.animations.push(new Animation(interval,characters,foregrounds,backgrounds));
+    newAnimation(interval,characters,foregrounds,backgrounds,tieToEntity=null,tieToViewPort=false) {
+        this.animations.push(new Animation(interval,characters,foregrounds,backgrounds,tieToEntity,tieToViewPort));
         return this.animations[this.animations.length-1];
     }
 };

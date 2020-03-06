@@ -31,6 +31,7 @@ class Entity {
         this.character = character;
         this.foreground = foreground;
         this.background = background;
+        this.forceHidden=false;
 
         this.turnCount=0;
         
@@ -149,7 +150,22 @@ class Entity {
     knockBack(direction, tiles) {
         for (let i=0;i<tiles;i++) {
             if (this.alive) {
-                this.step(direction[0],direction[1],0,true,Math.ceil(this.getMass()));
+                if (i===0) {
+                    this.step(direction[0],direction[1],0,true,Math.ceil(this.getMass()));
+                }
+                else {
+                    if (i===1) {
+                        actionQueue.addLock(this);
+                    }
+                    setTimeout(()=>{
+                        if (this.alive) {
+                            this.step(direction[0],direction[1],0,true,Math.ceil(this.getMass()));
+                        }
+                        if (i===(tiles-1)) {
+                            actionQueue.removeLock(this);
+                        }
+                    },50*i);
+                }
             }
         }
     }
@@ -174,15 +190,19 @@ class Entity {
         this.currentTile=newTile;
     }
 
-    hide() {
-        if (this.alive) {
+    hide(force=false) {
+        if ((this.alive && !this.forceHidden) || force) {
             this.element.classList.add('hidden');
+            this.forceHidden=force;
         }
     }
 
-    show() {
-        if (this.alive) {
+    show(force=false) {
+        // console.log(force, this.alive, !this.forceHidden);
+        if (force || (this.alive && !this.forceHidden)) {
+            // console.log('reveal successful');
             this.element.classList.remove('hidden');
+            this.forceHidden=false;
         }
     }
 
@@ -239,6 +259,7 @@ class Entity {
             this.dropLoot=null;
         }
         actionQueue.remove(this);
+        actionQueue.removeLock(this);
         this.element.remove();
     }
 

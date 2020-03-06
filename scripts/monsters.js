@@ -124,8 +124,8 @@ class Monster extends Entity {
         
         actionQueue.advance();
     }
-    show() {
-        super.show();
+    show(force) {
+        super.show(force);
         this.active = 10;
         if (map.player) {
             this.target=[...map.player.position];
