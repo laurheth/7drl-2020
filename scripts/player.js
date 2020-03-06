@@ -4,6 +4,7 @@ import map from './map.js';
 import actionQueue from './actionQueue.js';
 import mapGenerator from './mapGenerator.js';
 import getItem from './items.js';
+import random from './random.js';
 
 // const player = new entity([15,15],'@');
 class Player extends Entity {
@@ -20,7 +21,7 @@ class Player extends Entity {
         this.hitpoints=20;
         this.maxHp=20;
         this.damage=1;
-        this.force=1;
+        this.force=0.1;
         this.mass=2;
         this.healRate=10;
 
@@ -150,8 +151,8 @@ class Player extends Entity {
     }
 
     updateInventory() {
-        this.armorElement.textContent = (this.armor) ? this.armor.name : 'None';
-        this.equipedElement.textContent = (this.wielded) ? this.wielded.name : 'None';
+        this.armorElement.textContent = (this.armor) ? this.armor.getName() : 'None';
+        this.equipedElement.textContent = (this.wielded) ? this.wielded.getName() : 'None';
         while(this.inventoryElement.firstChild) {
             this.inventoryElement.lastChild.remove();
         }
@@ -159,7 +160,7 @@ class Player extends Entity {
             if (item !== this.armor && item !== this.wielded) {
                 const newElement = document.createElement('li');
                 const nameElement = document.createElement('p');
-                nameElement.textContent = item.name;
+                nameElement.textContent = item.getName();
 
                 const equipButton = document.createElement('button');
                 equipButton.addEventListener('click',(event)=>{
@@ -201,11 +202,12 @@ class Player extends Entity {
             });
         }
         if (tile.item) {
-            this.addAction(`Pick up ${tile.item.name}.`,()=>{
+            this.addAction(`Pick up ${tile.item.getName(false)}.`,()=>{
                 this.inventory.push(map.getItemFromTile(this.position));
                 map.revertTile(this.position[0],this.position[1]);
                 this.updateInventory();
                 this.endTurn();
+                console.log(this.inventory);
             });
         }
     }
@@ -234,26 +236,27 @@ class Player extends Entity {
         this.updateInventory();
     }
 
-    clickItem(liElement) {
-        for (let i=0;i<this.inventory.length;i++) {
-            if (this.inventory[i].name===liElement.textContent) {
-                this.useItem(i);
-                break;
-            }
-        }
-    }
-
     useItem(index) {
         const item = this.inventory[index];
         if (item.type === 'armor') {
+            gameBoard.sendMessage('You put on the '+item.getName(false)+'.');
             this.armor = item;
         }
         else if (item.type === 'tool') {
+            gameBoard.sendMessage('You equip the '+item.getName(false)+'.');
             this.wielded = item;
         }
         else {
+            console.log(index, item);
+            gameBoard.sendMessage('You '+item.getVerb() +' the '+item.getName(false)+'.');
             if ('heal' in item.effect) {
                 this.hitpoints += item.effect.heal;
+                if (this.hitpoints - item.effect.heal === this.maxHp && item.effect.heal > 15) {
+                    if (random.random()>0.5) {
+                        this.maxHp++;
+                        gameBoard.sendMessage('You feel your vitality permanently increase!');
+                    }
+                }
                 if (this.hitpoints > this.maxHp) {
                     this.hitpoints = this.maxHp;
                 }
@@ -283,7 +286,7 @@ class Player extends Entity {
             if (this.wielded) {
                 console.log(this.wielded);
                 if(!this.wielded.damage(1)) {
-                    gameBoard.sendMessage('Your '+this.wielded.name+' breaks!');
+                    gameBoard.sendMessage('Your '+this.wielded.getName(false)+' breaks!');
                     this.inventory.splice(this.inventory.indexOf(this.wielded),1);
                     this.wielded=null;
                     this.updateInventory();
@@ -302,7 +305,7 @@ class Player extends Entity {
             console.log(dmg, protection,this.armor.getDurability());
             dmg -= protection;
             if (!this.armor.damage(protection)) {
-                gameBoard.sendMessage('Your '+this.armor.name+' was destroyed!');
+                gameBoard.sendMessage('Your '+this.armor.getName(false)+' was destroyed!');
                 this.inventory.splice(this.inventory.indexOf(this.armor),1);
                 this.armor=null;
                 this.updateInventory();

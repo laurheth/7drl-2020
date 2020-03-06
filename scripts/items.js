@@ -5,6 +5,7 @@ class Item {
         this.color=color;
         this.type=type; // weapon/tool, or passive, or consumable
         this.durability=durability;
+        this.unique=false;
     }
     damage(damage) {
         this.durability -= damage;
@@ -12,6 +13,14 @@ class Item {
     }
     getDurability() {
         return this.durability;
+    }
+    getName(capitalize=true) {
+        if (capitalize || this.unique) {
+            return this.name;
+        }
+        else {
+            return this.name.toLowerCase();
+        }
     }
 }
 
@@ -51,25 +60,29 @@ class Armor extends Item {
 }
 
 class Consumable extends Item {
-    constructor(name,character,color,effect) {
+    constructor(name,character,color,effect,verb) {
         super(name,character,color,'consumable');
         this.effect = effect;
+        this.useVerb=verb;
     }
     consume() {
         return this.effect;
+    }
+    getVerb() {
+        return this.useVerb;
     }
 }
 
 const getItem = (type) => {
     switch(type) {
         case 'potion':
-            return new Consumable('Healing potion','!','red',{heal:20});
+            return new Consumable('Healing potion','!','red',{heal:20},'quaff');
         case 'smallfood':
-            return new Consumable('Apple','%','red',{heal:2,food:5});
+            return new Consumable('Apple','%','red',{heal:2,food:5},'eat');
         case 'mediumfood':
-            return new Consumable('Sandwich','%','burlywood',{heal:3,food:10});
+            return new Consumable('Sandwich','%','burlywood',{heal:3,food:10},'eat');
         case 'bigfood':
-            return new Consumable("Bowl of chilli",'%','white',{heal:4,food:20});
+            return new Consumable("Bowl of chilli",'%','white',{heal:4,food:20},'eat');
         case 'weighted':
             return new Armor('Stone armor','[','burlywood',2,40,5);
         case 'plate':
@@ -79,7 +92,9 @@ const getItem = (type) => {
         case 'leather':
             return new Armor('Leather armor','[','brown',1,20,0.1);
         case 'sixela':
-            return new Weapon('Legendary Hammer of Sixela','yellow',3,20,Infinity);
+            const sixela = new Weapon('Legendary Hammer of Sixela','yellow',3,20,Infinity);
+            sixela.unique=true;
+            return sixela;
         case 'sonic mallet':
             return new Weapon('Sonic mallet','/','pink',2,10,100);
         case 'golf club':

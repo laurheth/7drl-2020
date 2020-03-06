@@ -29,7 +29,7 @@ class Monster extends Entity {
                 super(startPosition,'X','black','hotpink');
                 this.hitpoints = 30;
                 this.damage=8;
-                this.force=0;
+                this.force=1;
                 this.mass=2;
                 this.name='spikey man';
                 this.ai=ai.CHASE;
@@ -38,7 +38,7 @@ class Monster extends Entity {
                 super(startPosition,'x','black','red');
                 this.hitpoints = 10;
                 this.damage=4;
-                this.force=0;
+                this.force=0.1;
                 this.mass=0.5;
                 this.name='spikey boi';
                 this.ai=ai.CHASE;

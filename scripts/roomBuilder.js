@@ -31,10 +31,62 @@ const roomBuilder = {
         }
     },
 
+    shapedRoom(level, minCorner, maxCorner) {
+        if (this.roomWillFit(level, minCorner, maxCorner)) {
+            const possibleExits = [];
+            let steps = (maxCorner[0] - minCorner[0]) * (maxCorner[1] - minCorner[1])/3;
+            const startPosition = [Math.round((maxCorner[0] + minCorner[0])/2), Math.round((maxCorner[1] + minCorner[1])/2)];
+            const position = [...startPosition];
+            const directions = [[0,1], [0,-1], [1,0], [-1,0]];
+            while (steps>=0) {
+                steps-=1;
+                for (let i=-1;i<3;i++) {
+                    for (let j=-1;j<3;j++) {
+                        if (i===-1 || j===-1 || i===2 || j===2) {
+                            level[position[1] + j][position[0] + i].makeWall();
+                        }
+                        else {
+                            level[position[1] + j][position[0] + i].makeFloor(true);
+                        }
+                    }
+                }
+                const direction = random.selection(directions);
+                position[0] += direction[0];
+                position[1] += direction[1];
+
+                if (position[0] < minCorner[0]+1 || position[1] < minCorner[1]+1 || position[0]  > maxCorner[0]-2 || position[1] > maxCorner[1]-2) {
+                    position[0] = startPosition[0];
+                    position[1] = startPosition[1];
+                }
+            }
+            for (let i=minCorner[0];i<=maxCorner[0];i++) {
+                for (let j=minCorner[1];j<=maxCorner[1];j++) {
+                    if(!level[j][i].isPassable()) {
+                        possibleExits.push([i,j]);
+                    }
+                    else {
+                        level[j][i].noOverwrite = false;
+                    }
+                }
+            }
+            let numDoors = random.range(2, 4);
+            if (possibleExits.length > 0) {
+                let breaker = 0;
+                while (breaker < 20 && numDoors > 0) {
+                    breaker++;
+                    const position = random.selection(possibleExits);
+                    if (this.addDoor(level, position[0], position[1])) {
+                        numDoors--;
+                    }
+                }
+            }
+        }
+    },
+
     roomWillFit(level,minCorner,maxCorner) {
         for (let i = minCorner[0]-1; i<= maxCorner[0]+1; i++) {
             for (let j=minCorner[1]-1; j<= maxCorner[1]+1; j++) {
-                if (!level[j][i].isPassable()) {
+                if (!level[j][i].isFloor()) {
                     return false;
                 }
             }
@@ -47,8 +99,6 @@ const roomBuilder = {
             return false;
         }
         if (this.validPosition(level, start[0], start[1]) && this.validPosition(level, end[0], end[1])) {
-            level[start[1]][start[0]].makeFloor(true);
-            level[end[1]][end[0]].makeFloor(true);
             const direction = [0, 0];
             let position = [...start];
             while (Math.abs(end[0] - position[0]) > 0 || Math.abs(end[1] - position[1]) > 0) {

@@ -24,6 +24,7 @@ class Entity {
         this.blastMultiplier=1;
         this.explosive=false;
         this.noDirectDamage=false;
+        this.dropLoot=null;
 
         this.dieVerb='dies';
 
@@ -232,6 +233,10 @@ class Entity {
         }
         if (this.explosive) {
             this.detonate();
+        }
+        if (this.dropLoot) {
+            map.addItem(this.position,this.dropLoot);
+            this.dropLoot=null;
         }
         actionQueue.remove(this);
         this.element.remove();

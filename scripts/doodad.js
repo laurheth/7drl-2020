@@ -1,4 +1,20 @@
 import Entity from './entity.js';
+import getItem from './items.js';
+import random from './random.js';
+import gameBoard from './gameBoard.js';
+
+const loot = (level) => {
+    const weights = {
+        'weighted': (level < 10) ? 1 : 2,
+        'plate':(level < 20) ? 0 : 4,
+        'chain': 2,
+        'leather': (level < 5) ? 8 : 1,
+        'sonic mallet':(level < 20) ? 0 : 4,
+        'golf club': (level < 10) ? 8 : 1,
+        'sword':(level < 5) ? 8 : 1,
+    }
+    return random.weighted(weights);
+};
 
 class Doodad extends Entity {
     constructor(startPosition, type) {
@@ -30,6 +46,7 @@ class Doodad extends Entity {
                 this.mass=2;
                 this.name='treasure chest';
                 this.dieVerb='smashes open';
+                this.dropLoot=getItem(loot(gameBoard.currentLevel));
                 break;
             case 'table':
                 super(startPosition,'╤','black','white');

@@ -247,7 +247,12 @@ const mapGenerator = {
                     const minCorner = towerArea[0].map((x,i)=>x + random.range(2,size[i]-roomSize[i]-2));
                     const maxCorner = this.forceInBorder(minCorner.map((x,i)=>x+roomSize[i]));
 
-                    roomBuilder.rectangle(fullMap[z],minCorner,maxCorner);
+                    if (random.random()>0.6) {
+                        roomBuilder.rectangle(fullMap[z],minCorner,maxCorner);
+                    }
+                    else {
+                        roomBuilder.shapedRoom(fullMap[z],minCorner,maxCorner);
+                    }
                 }
             }
         }
@@ -375,7 +380,12 @@ const mapGenerator = {
         }
         for (let i=0;i<Math.min(10,2*podsToAdd);i++) {
             const position = random.selection(availableTiles);
-            level[position[1]][position[0]].item = getItem(this.addItem(z));
+            if (z === this.towerHeight-2 && i===0) {
+                level[position[1]][position[0]].item = getItem('sixela');
+            }
+            else {
+                level[position[1]][position[0]].item = getItem(this.addItem(z));
+            }
         }
     },
     addDoodad(level) {
