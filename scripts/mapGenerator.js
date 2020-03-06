@@ -365,15 +365,17 @@ const mapGenerator = {
                     if (random.random()>0.99) {
                         new Doodad([i,j,z],this.addDoodad(z));
                     }
-                    else if (random.random()>0.99) {
-                        level[j][i].item = getItem(this.addItem(z));
-                    }
                 }
             });
         });
         const podsToAdd = Math.ceil(availableTiles.length / 200);
+        console.log('pods',podsToAdd);
         for (let i=0;i<podsToAdd;i++) {
             this.addPod(random.selection(availableTiles),this.choosePod(z,3+z));
+        }
+        for (let i=0;i<Math.min(10,2*podsToAdd);i++) {
+            const position = random.selection(availableTiles);
+            level[position[1]][position[0]].item = getItem(this.addItem(z));
         }
     },
     addDoodad(level) {
@@ -382,7 +384,7 @@ const mapGenerator = {
             'statue':5,
             'chest':this.probabilityFunction(level,2,26,2),
             'table':5,
-            'barrel':this.probabilityFunction(level,0,10,6),
+            'barrel':this.probabilityFunction(level,0,10,8),
         }
         return random.weighted(weights);
     },
@@ -430,7 +432,7 @@ const mapGenerator = {
             'spikeman':5
         }
         const options = {
-            'small orb':5,
+            'small orb':this.probabilityFunction(level,0,0,5,1,30),
             'spike':this.probabilityFunction(level,0,10,6,2,30),
             'large orb':this.probabilityFunction(level,1,10,3),
             'spikeman':this.probabilityFunction(level,10,20,3),

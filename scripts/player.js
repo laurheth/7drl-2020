@@ -277,9 +277,23 @@ class Player extends Entity {
         }
     }
 
-    attack(entity) {
-        gameBoard.sendMessage(this.getName() + ' attack ' + entity.getName(false) + '!');
-        super.attack(entity);
+    attack(entity, forced) {
+        if (!forced) {
+            gameBoard.sendMessage(this.getName() + ' attack ' + entity.getName(false) + '!');
+            if (this.wielded) {
+                console.log(this.wielded);
+                if(!this.wielded.damage(1)) {
+                    gameBoard.sendMessage('Your '+this.wielded.name+' breaks!');
+                    this.inventory.splice(this.inventory.indexOf(this.wielded),1);
+                    this.wielded=null;
+                    this.updateInventory();
+                }
+            }
+        }
+        else {
+            gameBoard.sendMessage(this.getName() + ' collide with ' + entity.getName(false) + '!');
+        }
+        super.attack(entity,forced);
         return true;
     }
     hurt(dmg) {
@@ -288,8 +302,9 @@ class Player extends Entity {
             console.log(dmg, protection,this.armor.getDurability());
             dmg -= protection;
             if (!this.armor.damage(protection)) {
-                this.armor=null;
+                gameBoard.sendMessage('Your '+this.armor.name+' was destroyed!');
                 this.inventory.splice(this.inventory.indexOf(this.armor),1);
+                this.armor=null;
                 this.updateInventory();
             }
         }

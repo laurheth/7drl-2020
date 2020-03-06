@@ -16,13 +16,14 @@ class Item {
 }
 
 class Weapon extends Item {
-    constructor(name,character,color,damage,force) {
+    constructor(name,character,color,damage,force,durability) {
         super(name,character,color,'tool');
-        this.damage=damage;
+        this.dmg=damage;
         this.force=force;
+        this.durability=durability;
     }
     getDamage() {
-        return this.damage;
+        return this.dmg;
     }
     getForce() {
         return this.force;
@@ -78,18 +79,18 @@ const getItem = (type) => {
         case 'leather':
             return new Armor('Leather armor','[','brown',1,20,0.1);
         case 'sixela':
-            return new Weapon('Legendary Hammer of Sixela','yellow',3,20);
+            return new Weapon('Legendary Hammer of Sixela','yellow',3,20,Infinity);
         case 'sonic mallet':
-            return new Weapon('Sonic mallet','/','pink',2,10);
+            return new Weapon('Sonic mallet','/','pink',2,10,100);
         case 'golf club':
-            return new Weapon('Golf club','/','cyan',1,6);
+            return new Weapon('Golf club','/','cyan',1,6,60);
         case 'sword':
-            return new Weapon('Sword','/','white',4,0);
+            return new Weapon('Sword','/','white',4,0,60);
         case 'bat':
-            return new Weapon('Baseball bat','/','brown',1,4);
+            return new Weapon('Baseball bat','/','brown',1,4,40);
         default:
         case 'hands':
-            return new Weapon('Fists','/','brown',1,0);
+            return new Weapon('Fists','/','brown',1,0,Infinity);
     }
 }
 
