@@ -7,6 +7,7 @@ const gameBoard = {
     lastMessage: '',
     lastMessageElement:null,
     repeats:0,
+    messagesClosed:0,
     // Initialize
     init() {
         this.gridElement = document.getElementById('grid');
@@ -164,24 +165,35 @@ const gameBoard = {
         }
     },
 
-    sendMessage(message,type='') {
-        if (message !== this.lastMessage) {
-            this.lastMessage = message;
-            this.repeats=1;
-            const newMessage = document.createElement('p');
-            newMessage.textContent=message;
-            if (type) {
-                newMessage.classList.add(type);
+    sendMessage(message,type='',final=false) {
+        if (!this.messagesClosed) {
+            if (message !== this.lastMessage) {
+                this.lastMessage = message;
+                this.repeats=1;
+                const newMessage = document.createElement('p');
+                newMessage.textContent=message;
+                if (type) {
+                    if (Array.isArray(type)) {
+                        newMessage.classList.add(...type);
+                    }
+                    else {
+                        newMessage.classList.add(type);
+                    }
+                }
+                this.messageElement.prepend(newMessage);
+                while (this.messageElement.children.length > 10) {
+                    this.messageElement.lastChild.remove();
+                }
+                this.lastMessageElement = newMessage;
             }
-            this.messageElement.prepend(newMessage);
-            while (this.messageElement.children.length > 10) {
-                this.messageElement.lastChild.remove();
+            else {
+                this.repeats++;
+                this.lastMessageElement.textContent = `${message} (${this.repeats})`
             }
-            this.lastMessageElement = newMessage;
         }
-        else {
-            this.repeats++;
-            this.lastMessageElement.textContent = `${message} (${this.repeats})`
+
+        if (final) {
+            this.messagesClosed=true;
         }
     }
 

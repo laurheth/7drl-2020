@@ -95,6 +95,15 @@ h1,h2,h3,p {
     p {
         opacity: 0.4;
         margin: 0.1rem 0;
+        &.important {
+            font-weight: bold;
+        }
+        &.good {
+            color: yellow;
+        }
+        &.bad {
+            color: red;
+        }
     }
     p:nth-child(2) {
         opacity: 0.8;

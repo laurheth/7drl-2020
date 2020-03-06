@@ -141,7 +141,7 @@ class Player extends Entity {
             this.updateActions();
         }
         else {
-            gameBoard.sendMessage("You die...");
+            gameBoard.sendMessage("You die...",['bad','important'],true);
             actionQueue.stop();
         }
         map.vision(this.position);
@@ -207,7 +207,6 @@ class Player extends Entity {
                 map.revertTile(this.position[0],this.position[1]);
                 this.updateInventory();
                 this.endTurn();
-                console.log(this.inventory);
             });
         }
     }

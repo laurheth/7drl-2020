@@ -273,6 +273,15 @@ h1, h2, h3, p {
   opacity: 0.4;
   margin: 0.1rem 0;
 }
+.messages p.important {
+  font-weight: bold;
+}
+.messages p.good {
+  color: yellow;
+}
+.messages p.bad {
+  color: red;
+}
 .messages p:nth-child(2) {
   opacity: 0.8;
 }
