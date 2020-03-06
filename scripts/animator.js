@@ -3,7 +3,7 @@ import gameBoard from './gameBoard.js';
 import actionQueue from './actionQueue.js';
 
 class Animation {
-    constructor(interval, character, foreground, background,tieToEntity=null,tieToViewPort=false) {
+    constructor(interval, character, foreground, background) {
         this.indices = [0,0,0];
         if (!Array.isArray(character)) {
             character = [character];
@@ -20,8 +20,6 @@ class Animation {
         this.backgrounds = background;
         this.frames=[];
         this.toRevert=[];
-        this.tieToEntity=tieToEntity;
-        this.tieToViewPort=tieToViewPort;
     }
     addFrame(frame) {
         this.frames.push(frame);
@@ -37,12 +35,7 @@ class Animation {
         });
 
         let frame = this.frames.shift();
-        if (Array.isArray(frame)) {
-            if (!Array.isArray(frame[0])) {
-                frame = [frame];
-            }
-        }
-        if (!frame || frame[0].length < 2) {
+        if (!frame) {
             return false;
         }
 
@@ -54,7 +47,6 @@ class Animation {
         const char = this.characters[this.indices[0]];
         const fore = this.foregrounds[this.indices[1]];
         const back = this.backgrounds[this.indices[2]];
-
 
         frame.forEach(position => {
             this.toRevert.push(position);
@@ -75,13 +67,11 @@ const animator = {
     interval: null,
     animations:[],
     act() {
-        // console.log(this.animations);
         if (this.interval !== null) {
             clearInterval(this.interval);
         }
         if (this.animations.length > 0) {
             const animation = this.animations.shift();
-            console.log(animation);
             this.interval = setInterval(()=>{
                 if (!animation.frame()) {
                     animator.act();
@@ -93,8 +83,8 @@ const animator = {
             actionQueue.advance();
         }
     },
-    newAnimation(interval,characters,foregrounds,backgrounds,tieToEntity=null,tieToViewPort=false) {
-        this.animations.push(new Animation(interval,characters,foregrounds,backgrounds,tieToEntity,tieToViewPort));
+    newAnimation(interval,characters,foregrounds,backgrounds) {
+        this.animations.push(new Animation(interval,characters,foregrounds,backgrounds));
         return this.animations[this.animations.length-1];
     }
 };

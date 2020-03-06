@@ -61,7 +61,7 @@ class Doodad extends Entity {
                 super(startPosition,'Ξ','black','orangered');
                 this.hitpoints = 1;
                 this.damage=5;
-                this.force=8;
+                this.force=5;
                 this.mass=1;
                 this.blastRadius=5;
                 this.name='explosive barrel';

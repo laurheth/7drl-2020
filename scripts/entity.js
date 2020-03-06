@@ -56,50 +56,62 @@ class Entity {
 
     setPosition(position) {
         if (this.alive) {
-            let splatMessage=false;
             this.position = position;
             if (position && position.length >= 2) {
                 this.element.style.transform = `translate(${position[0]}00%,${position[1]}00%)`;
             }
-            // Falling?
-            if (map.getTile(this.position) && map.getTile(this.position).isEmpty()) {
-                const downPosition = [...this.position];
-                if (map.getTile([downPosition[0],downPosition[1],downPosition[2]-1]) && map.getTile([downPosition[0],downPosition[1],downPosition[2]-1]).isPassable(true)) {
-                    let fallDistance=0;
-                    while(map.getTile(downPosition) && map.getTile(downPosition).isEmpty()) {
-                        downPosition[2]-=1;
-                        fallDistance++;
+            this.updateTile(map.getTile(this.position));
+        }
+    }
+
+    // Consider falling, and then do so if necessary
+    fall() {
+        if (!this.alive) {
+            return;
+        }
+        // Falling?
+        let splatMessage=false;
+        if (map.getTile(this.position) && map.getTile(this.position).isEmpty()) {
+            const downPosition = [...this.position];
+            if (map.getTile([downPosition[0],downPosition[1],downPosition[2]-1]) && map.getTile([downPosition[0],downPosition[1],downPosition[2]-1]).isPassable(true)) {
+                let fallDistance=0;
+                while(map.getTile(downPosition) && map.getTile(downPosition).isEmpty()) {
+                    downPosition[2]-=1;
+                    fallDistance++;
+                }
+                if (map.getTile(downPosition)) {
+                    if (map.getTile(downPosition).isPassable()) {
+                        this.hurt(Math.max(0,2*(fallDistance-1)));
                     }
-                    if (map.getTile(downPosition)) {
-                        if (map.getTile(downPosition).isPassable()) {
-                            this.hurt(Math.max(0,2*(fallDistance-1)));
-                        }
-                        else if (map.getTile(downPosition).entity) {
-                            splatMessage=true;
-                            map.getTile(downPosition).entity.hurt(2*map.getTile(downPosition).entity.hitpoints);
-                        }
+                    else if (map.getTile(downPosition).entity) {
+                        splatMessage=true;
+                        map.getTile(downPosition).entity.hurt(2*map.getTile(downPosition).entity.hitpoints);
                     }
-                    else {
-                        downPosition[2]+=1;
-                        fallDistance--;
-                        this.hurt(Math.max(0,this.getMass()*(fallDistance-1)));
-                    }
-                    if (this === map.player) {
-                        gameBoard.sendMessage('You fall down '+fallDistance+' floors...');
-                    }
-                    else if (map.getTile(position) && map.getTile(position).isVisible()) {
-                        gameBoard.sendMessage(this.getName()+' falls down!');
-                    }
-                    else if (map.getTile(downPosition).isVisible()) {
-                        gameBoard.sendMessage(this.getName()+' falls from above and lands nearby!');
-                    }
-                    this.position=downPosition;
+                }
+                else {
+                    downPosition[2]+=1;
+                    fallDistance--;
+                    this.hurt(Math.max(0,this.getMass()*(fallDistance-1)));
+                }
+                if (this === map.player) {
+                    gameBoard.sendMessage('You fall down '+fallDistance+' floor' + (fallDistance>1 ? 's' : '') + '...');
+                }
+                else if (map.getTile(this.position) && map.getTile(this.position).isVisible()) {
+                    gameBoard.sendMessage(this.getName()+' falls down!');
+                }
+                else if (map.getTile(downPosition).isVisible()) {
+                    gameBoard.sendMessage(this.getName()+' falls from above and lands nearby!');
+                }
+                this.position=downPosition;
+                if (splatMessage) {
+                    gameBoard.sendMessage('Splat! Death from above!');
+                }
+                this.updateTile(map.getTile(this.position));
+                if (this === map.player) {
+                    map.display(this.position[2]);
+                    map.vision(this.position);
                 }
             }
-            if (splatMessage) {
-                gameBoard.sendMessage('Splat! Death from above!');
-            }
-            this.updateTile(map.getTile(this.position));
         }
     }
 
@@ -113,6 +125,9 @@ class Entity {
         if (targetTile) {
             if (targetTile.isPassable()) {
                 this.setPosition(targetPosition);
+                if (!forced) {
+                    this.fall();
+                }
                 return true;
             }
             else if (targetTile.entity) {
@@ -148,10 +163,14 @@ class Entity {
     }
 
     knockBack(direction, tiles) {
+        tiles = Math.ceil(tiles);
         for (let i=0;i<tiles;i++) {
             if (this.alive) {
                 if (i===0) {
                     this.step(direction[0],direction[1],0,true,Math.ceil(this.getMass()));
+                    if (tiles===1) {
+                        this.fall();
+                    }
                 }
                 else {
                     if (i===1) {
@@ -162,6 +181,7 @@ class Entity {
                             this.step(direction[0],direction[1],0,true,Math.ceil(this.getMass()));
                         }
                         if (i===(tiles-1)) {
+                            this.fall();
                             actionQueue.removeLock(this);
                         }
                     },50*i);
@@ -239,6 +259,14 @@ class Entity {
 
     die() {
         this.alive=false;
+        if (this.explosive) {
+            this.explosive=false;
+            this.detonate();
+        }
+        if (this.dropLoot) {
+            map.addItem(this.position,this.dropLoot);
+            this.dropLoot=null;
+        }
         if (this.currentTile) {
             if (this.currentTile.isVisible()) {
                 if (!this.explosive) {
@@ -250,13 +278,6 @@ class Entity {
             }
             this.currentTile.entity = null;
             this.currentTile=null;
-        }
-        if (this.explosive) {
-            this.detonate();
-        }
-        if (this.dropLoot) {
-            map.addItem(this.position,this.dropLoot);
-            this.dropLoot=null;
         }
         actionQueue.remove(this);
         actionQueue.removeLock(this);
@@ -288,6 +309,7 @@ class Entity {
         let forceToPush;
         let pushEntities=false;
         let damageTiles=false;
+        let entitiesToHarm=[];
         // I want damage to be applied centrally, and move outwards, so do it via and expanding annulus
         annulus=-1;
         const animation = animator.newAnimation(10,'*',['red','orange','yellow','orange'],'black');
@@ -297,14 +319,12 @@ class Entity {
                 for (j=-annulus-1;j<=annulus+1;j++) {
                     pushEntities=false;
                     damageTiles=false;
-                    if (Math.abs(i) !== annulus+1 && Math.abs(j) !== annulus+1) {
+                    // if (Math.abs(i) !== annulus+1 && Math.abs(j) !== annulus+1) {
+                    if (annulus === this.blastRadius+1) {
                         pushEntities=true;
                     }
-                    else if (Math.abs(i) !== annulus && Math.abs(j) !== annulus) {
+                    else if (Math.abs(i) === annulus || Math.abs(j) === annulus) {
                         damageTiles=true;
-                    }
-                    else {
-                        continue;
                     }
                     distance = Math.sqrt(i*i + j*j);
                     if (distance>=this.blastRadius) {
@@ -316,17 +336,19 @@ class Entity {
                         const tile = map.getTile([this.position[0]+i, this.position[1]+j, this.position[2]]);
                         if (tile) {
                             if (pushEntities) {
-                                if (tile.entity) {
-                                    tile.entity.hurt(damageToDeal);
-                                    if (tile.entity) {
-                                        tile.entity.knockBack([Math.sign(i),Math.sign(j)],forceToPush);
-                                    }
+                                if (tile.entity && tile.entity !== this) {
+                                    entitiesToHarm.push({
+                                        entity: tile.entity,
+                                        damage: damageToDeal,
+                                        force: forceToPush,
+                                        direction:[Math.sign(i),Math.sign(j)]
+                                    });
                                 }
                             }
-                            else {
+                            else if (damageTiles) {
                                 map.damageTile([this.position[0]+i, this.position[1]+j, this.position[2]],damageToDeal + forceToPush);
                             }
-                            if (tile.isPassable()) {
+                            if (tile.isPassable(true)) {
                                 newFrame.push([this.position[0]+i, this.position[1]+j, this.position[2]]);
                             }
                         }
@@ -335,6 +357,14 @@ class Entity {
             }
             annulus++;
             animation.addFrame(newFrame);
+        }
+        if (entitiesToHarm.length>0) {
+            entitiesToHarm.forEach(damagePlan=>{
+                damagePlan.entity.hurt(damagePlan.damage);
+                if (damagePlan.entity.alive) {
+                    damagePlan.entity.knockBack(damagePlan.direction,damagePlan.force);
+                }
+            });
         }
     }
 }

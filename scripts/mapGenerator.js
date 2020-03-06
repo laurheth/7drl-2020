@@ -394,7 +394,7 @@ const mapGenerator = {
             'statue':5,
             'chest':this.probabilityFunction(level,2,26,2),
             'table':5,
-            'barrel':this.probabilityFunction(level,0,10,8),
+            'barrel':this.probabilityFunction(level,0,12,8,2),
         }
         return random.weighted(weights);
     },
