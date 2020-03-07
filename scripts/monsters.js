@@ -84,7 +84,7 @@ class Monster extends Entity {
                 this.damage=4;
                 this.force=6;
                 this.mass=4;
-                this.name='large orb';
+                this.name='spherical cow';
                 this.ai=ai.CHASE;
                 break;
             default:
@@ -94,7 +94,7 @@ class Monster extends Entity {
                 this.damage=2;
                 this.force=2;
                 this.mass=1;
-                this.name='small orb';
+                this.name='robo hamster ball';
                 this.ai=ai.CHASE;
                 break;
         }
