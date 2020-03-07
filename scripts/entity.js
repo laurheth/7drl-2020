@@ -4,7 +4,7 @@ import actionQueue from './actionQueue.js';
 import animator from './animator.js';
 
 class Entity {
-    constructor(position,character, background='#000000', foreground='#FFFFFF') {
+    constructor(position,character, background='#000000', foreground='#FFFFFF',pseudoEntity=false) {
         this.element = document.createElement('div');
         this.element.classList.add('entity');;
 
@@ -36,9 +36,14 @@ class Entity {
         this.turnCount=0;
         
         this.setArt(character, background, foreground);
-        this.setPosition(position);
-        
-        this.updateTile(map.getTile(position));
+
+        if (!pseudoEntity) {
+            this.setPosition(position);
+            this.updateTile(map.getTile(position));
+        }
+        else {
+            this.position=position;
+        }
 
         actionQueue.add(this);
 
@@ -102,15 +107,16 @@ class Entity {
                 else if (map.getTile(downPosition).isVisible()) {
                     gameBoard.sendMessage(this.getName()+' falls from above and lands nearby!');
                 }
-                this.position=downPosition;
                 if (splatMessage) {
                     gameBoard.sendMessage('Splat! Death from above!');
                 }
-                this.updateTile(map.getTile(this.position));
-                if (this === map.player) {
-                    map.display(this.position[2]);
-                    map.vision(this.position);
-                }
+                // this.updateTile(map.getTile(this.position));
+                // if (this === map.player) {
+                //     map.display(this.position[2]);
+                //     map.vision(this.position);
+                //     gameBoard.setViewPosition(this.position);
+                // }
+                this.setPosition(downPosition);
             }
         }
     }
@@ -259,10 +265,6 @@ class Entity {
 
     die() {
         this.alive=false;
-        if (this.explosive) {
-            this.explosive=false;
-            this.detonate();
-        }
         if (this.dropLoot) {
             map.addItem(this.position,this.dropLoot);
             this.dropLoot=null;
@@ -278,6 +280,10 @@ class Entity {
             }
             this.currentTile.entity = null;
             this.currentTile=null;
+        }
+        if (this.explosive) {
+            this.explosive=false;
+            this.detonate();
         }
         actionQueue.remove(this);
         actionQueue.removeLock(this);

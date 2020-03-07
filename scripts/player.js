@@ -25,6 +25,8 @@ class Player extends Entity {
         this.mass=2;
         this.healRate=10;
 
+        this.specialActive=false;
+
         this.inventory=[];
         this.inventory.push(getItem('bat'));
 
@@ -214,29 +216,66 @@ class Player extends Entity {
         });
     }
 
+    step(dx, dy, dz, forced=false,appliedForce=0) {
+        if (this.specialActive && !forced) {
+            if ((dx===0 && dy===0) || dz!==0) {
+                return false;
+            }
+            else {
+                gameBoard.sendMessage('You '+ this.wielded.special.name.toLowerCase());
+                this.wielded.special.activate(this,[dx,dy,0]);
+                if (this.wielded.getDurability() <= 0) {
+                    this.inventory.splice(this.inventory.indexOf(this.wielded),1);
+                    this.wielded=null;
+                }
+                this.specialActive=false;
+                this.updateInventoryElement(this.wielded,this.equipedElement);
+                this.updateActions();
+                return true;
+            }
+        }
+        else {
+            return super.step(dx,dy,dz,forced,appliedForce);
+        }
+    }
+
     updateActions() {
         const tile = map.getTile(this.position);
         while(this.actionElement.firstChild) {
             this.actionElement.lastChild.remove();
         }
-        if (tile.isUpStair()) {
-            this.addAction('Ascend.',()=>{
-                this.step(0,0,1)
-                this.endTurn();
-            });
+        if (!this.specialActive) {
+            if (tile.isUpStair()) {
+                this.addAction('Ascend.',()=>{
+                    this.step(0,0,1)
+                    this.endTurn();
+                });
+            }
+            else if (tile.isDownStair()) {
+                this.addAction('Descend.',()=>{
+                    this.step(0,0,-1)
+                    this.endTurn();
+                });
+            }
+            if (tile.item) {
+                this.addAction(`Pick up ${tile.item.getName(false)}.`,()=>{
+                    this.inventory.push(map.getItemFromTile(this.position));
+                    map.revertTile(this.position[0],this.position[1]);
+                    this.updateInventory();
+                    this.endTurn();
+                });
+            }
+            if (this.wielded && this.wielded.special) {
+                this.addAction(this.wielded.special.name,()=>{
+                    this.specialActive=true;
+                    this.updateActions();
+                });
+            }
         }
-        else if (tile.isDownStair()) {
-            this.addAction('Descend.',()=>{
-                this.step(0,0,-1)
-                this.endTurn();
-            });
-        }
-        if (tile.item) {
-            this.addAction(`Pick up ${tile.item.getName(false)}.`,()=>{
-                this.inventory.push(map.getItemFromTile(this.position));
-                map.revertTile(this.position[0],this.position[1]);
-                this.updateInventory();
-                this.endTurn();
+        else {
+            this.addAction('Cancel.',()=>{
+                this.specialActive=false;
+                this.updateActions();
             });
         }
     }
@@ -266,6 +305,7 @@ class Player extends Entity {
     }
 
     useItem(index) {
+        this.specialActive=false;
         const item = this.inventory[index];
         if (item.type === 'armor') {
             gameBoard.sendMessage('You put on the '+item.getName(false)+'.');
@@ -298,6 +338,7 @@ class Player extends Entity {
         this.endTurn();
         this.updateInventory();
         this.updateStatus();
+        this.updateActions();
     }
 
     dropItem(index) {

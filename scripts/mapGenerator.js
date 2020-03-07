@@ -410,6 +410,7 @@ const mapGenerator = {
             'leather':this.probabilityFunction(level,3,15,3,1,19),
             'sonic mallet':this.probabilityFunction(level,18,26,2),
             'golf club':this.probabilityFunction(level,5,20,2),
+            'rocket':this.probabilityFunction(level,4,20,3),
             'sword':1,
             'bat':2,
         }

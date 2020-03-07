@@ -1,3 +1,7 @@
+import map from "./map.js";
+import Entity from './entity.js';
+import animator from './animator.js';
+
 class Item {
     constructor(name,character,color,type,durability=Infinity) {
         this.name=name;
@@ -7,6 +11,7 @@ class Item {
         this.durability=durability;
         this.maxDurability=durability;
         this.unique=false;
+        this.special=null;
     }
     damage(damage) {
         this.durability -= damage;
@@ -81,6 +86,54 @@ class Consumable extends Item {
     }
 }
 
+// Accepts two callback functions
+const shoot = (user,perTile,direction, endFunction,range=8) => {
+    const startPosition = user.position;
+    const position = [...startPosition];
+    const tested=[[...position]];
+    let success=false;
+    while(!success && tested.length<range) {
+        position[0]+=direction[0];
+        position[1]+=direction[1];
+        tested.push([...position]);
+        success = perTile(position);
+    }
+    endFunction(user,tested,success);
+}
+
+const rocketSpecial = (user, direction,damage=8,force=8,radius=4,range=12) => {
+    shoot(user,(position)=>{
+        return !(map.getTile(position) && map.getTile(position).isPassable());
+    },direction,(user,path,hit)=>{
+        let rocket = null;
+        if (path.length>2) {
+            rocket = new Entity(path[1],'*','black','red',false);
+            rocket.explosive=true;
+            rocket.damage=damage;
+            rocket.force=force;
+            rocket.blastRadius=radius;
+            rocket.name="rocket";
+            rocket.hitpoints=1;
+            rocket.knockBack([path[1][0]-path[0][0], path[1][1]-path[0][1], 0],path.length*2);
+        }
+        else {
+            rocket = new Entity(path[1],'*','black','red',true);
+            rocket.explosive=true;
+            rocket.damage=damage;
+            rocket.force=force;
+            rocket.blastRadius=radius;
+            rocket.name="The rocket";
+            rocket.die();
+        }
+        
+
+        // const animation = animator.newAnimation(50,'*','red','black');
+        // console.log(path);
+        // path.forEach(pos=>animation.addFrame([[...pos]]));
+
+    },range);
+};
+
 const getItem = (type) => {
     switch(type) {
         case 'potion':
@@ -100,9 +153,20 @@ const getItem = (type) => {
         case 'leather':
             return new Armor('Leather armor','[','brown',1,20,0.1);
         case 'sixela':
-            const sixela = new Weapon('Legendary Hammer of Sixela','yellow',3,20,Infinity);
+            const sixela = new Weapon('Legendary Hammer of Sixela','/','yellow',3,20,Infinity);
             sixela.unique=true;
             return sixela;
+        case 'rocket':
+            const rocket=new Weapon('Rocket launcher', '/','red',1,2,20);
+            rocket.special = {
+                name: 'Fire the rocket launcher.',
+                // that:rocket,
+                activate: (user,direction) => {
+                    rocketSpecial(user,direction);
+                    rocket.damage(4);
+                }
+            }
+            return rocket;
         case 'sonic mallet':
             return new Weapon('Sonic mallet','/','pink',2,10,100);
         case 'golf club':
