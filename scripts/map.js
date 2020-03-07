@@ -60,8 +60,13 @@ const map = {
         // Damage the tile. If it breaks, things get interesting
         const leftOver = tile.hurt(dmg);
         if (leftOver > 0) {
+            // Move items
+            if (tile.item) {
+                this.addItem(position,tile.item);
+            }
+
             if (!isFinite(leftOver)) {leftOver=0;}
-            console.log('get wrekt', leftOver);
+
             if (!tile.isPassable(true)) {
                 if (dz>-1) {
                     this.damageTile([position[0],position[1],position[2]+1],leftOver,1);
@@ -128,6 +133,9 @@ const map = {
                         tile.setItem(item);
                         this.revertTile(position[0]+i,position[1]+j);
                         return true;
+                    }
+                    else if (tile && tile.isEmpty() && position[2]>0) {
+                        return this.addItem([position[0],position[1],position[2]-1]);
                     }
                 }
             }

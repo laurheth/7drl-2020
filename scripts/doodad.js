@@ -12,7 +12,8 @@ const loot = (level) => {
         'sonic mallet':(level < 20) ? 0 : 4,
         'golf club': (level < 10) ? 8 : 1,
         'sword':(level < 5) ? 8 : 1,
-        'rocket':(level<5) ? 0 : 3
+        'rocket':(level<5) ? 0 : 3,
+        'hookshot':(level<5) ? 1 : ((level<15) ? 3 : 5),
     }
     return random.weighted(weights);
 };

@@ -383,6 +383,14 @@ const mapGenerator = {
             if (z === this.towerHeight-2 && i===0) {
                 level[position[1]][position[0]].item = getItem('sixela');
             }
+            else if (z===4 && i===0) {
+                if (random.random()>0.5) {
+                    level[position[1]][position[0]].item = getItem('rocket');
+                }
+                else {
+                    level[position[1]][position[0]].item = getItem('hookshot');
+                }
+            }
             else {
                 level[position[1]][position[0]].item = getItem(this.addItem(z));
             }
@@ -411,6 +419,7 @@ const mapGenerator = {
             'sonic mallet':this.probabilityFunction(level,18,26,2),
             'golf club':this.probabilityFunction(level,5,20,2),
             'rocket':this.probabilityFunction(level,4,20,3),
+            'hookshot':this.probabilityFunction(level,4,20,5),
             'sword':1,
             'bat':2,
         }
@@ -439,15 +448,17 @@ const mapGenerator = {
             'small orb':1,
             'spike':1,
             'splodey':3,
-            'large orb':5,
-            'spikeman':5
+            'large orb':6,
+            'spikeman':6,
+            'roomba':2,
         }
         const options = {
             'small orb':this.probabilityFunction(level,0,0,5,1,30),
             'spike':this.probabilityFunction(level,0,10,6,2,30),
-            'large orb':this.probabilityFunction(level,1,10,3),
+            'large orb':this.probabilityFunction(level,6,20,3),
             'spikeman':this.probabilityFunction(level,10,20,3),
-            'splodey':this.probabilityFunction(level,5,15,4,1,30),
+            'splodey':this.probabilityFunction(level,5,15,4,1,24),
+            'roomba':this.probabilityFunction(level,10,15,3,1,20),
         }
         const pod=[];
         let breaker=10;

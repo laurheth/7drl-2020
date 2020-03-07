@@ -1,6 +1,8 @@
 import map from "./map.js";
 import Entity from './entity.js';
-import animator from './animator.js';
+import actionQueue from './actionQueue.js';
+import gameBoard from './gameBoard.js';
+// import map from './map.js';
 
 class Item {
     constructor(name,character,color,type,durability=Infinity) {
@@ -125,12 +127,54 @@ const rocketSpecial = (user, direction,damage=8,force=8,radius=4,range=12) => {
             rocket.name="The rocket";
             rocket.die();
         }
-        
+    },range);
+};
 
-        // const animation = animator.newAnimation(50,'*','red','black');
-        // console.log(path);
-        // path.forEach(pos=>animation.addFrame([[...pos]]));
-
+const hookSpecial = (user,direction,damage=1,force=8,range=8) => {
+    actionQueue.addLock(user);
+    const interval=50;
+    let time=0;
+    shoot(user,(position)=>{
+        const thisPosition=[...position];
+        time+=interval;
+        setTimeout(()=>{
+            gameBoard.setTile([thisPosition[0],thisPosition[1]],'*','black','gray')
+        },time);
+        return !(map.getTile(position) && map.getTile(position).isPassable());
+    },direction,(user,path,hit)=>{
+        if (hit) {
+            const tile = map.getTile(path[path.length-1]);
+            const direction = [path[1][0]-path[0][0], path[1][1]-path[0][1],0];
+            if (tile && tile.entity) {
+                setTimeout(()=>{
+                    tile.entity.hurt(damage);
+                    if (tile.entity) {
+                        tile.entity.knockBack(direction,Math.ceil(force/tile.entity.getMass()));
+                    }
+                },time);
+                path.reverse().forEach(position=>{
+                    time+=interval;
+                    setTimeout(()=>map.revertTile(...position),time);
+                });
+                time+=interval;
+                setTimeout(()=>actionQueue.removeLock(user),time);
+            }
+            else {
+                time+=interval;
+                setTimeout(()=>{
+                    path.forEach(position=>map.revertTile(...position))
+                    user.knockBack(direction,path.length-2);
+                },time);
+            }
+        }
+        else {
+            path.reverse().forEach(position=>{
+                time+=interval;
+                setTimeout(()=>map.revertTile(...position),time);
+            });
+            time+=interval;
+            setTimeout(()=>actionQueue.removeLock(user),time);
+        }
     },range);
 };
 
@@ -145,11 +189,11 @@ const getItem = (type) => {
         case 'bigfood':
             return new Consumable("Bowl of chilli",'%','white',{heal:4,food:20},'eat');
         case 'weighted':
-            return new Armor('Stone armor','[','burlywood',2,40,5);
+            return new Armor('Stone armor','[','burlywood',2,60,10);
         case 'plate':
-            return new Armor('Plate armor','[','cyan',3,40,1);
+            return new Armor('Plate armor','[','cyan',3,120,1);
         case 'chain':
-            return new Armor('Chain armor','[','gray',2,30,0.5);
+            return new Armor('Chain armor','[','gray',2,60,0.5);
         case 'leather':
             return new Armor('Leather armor','[','brown',1,20,0.1);
         case 'sixela':
@@ -157,20 +201,29 @@ const getItem = (type) => {
             sixela.unique=true;
             return sixela;
         case 'rocket':
-            const rocket=new Weapon('Rocket launcher', '/','red',1,2,20);
+            const rocket=new Weapon('Rocket launcher', '/','red',1,2,200);
             rocket.special = {
                 name: 'Fire the rocket launcher.',
-                // that:rocket,
                 activate: (user,direction) => {
                     rocketSpecial(user,direction);
-                    rocket.damage(4);
+                    rocket.damage(40);
                 }
             }
             return rocket;
+        case 'hookshot':
+            const hookshot = new Weapon('Hook shooter','/','cyan',1,2,240);
+            hookshot.special = {
+                name: 'Fire the hoot shooter.',
+                activate: (user,direction) => {
+                    hookSpecial(user,direction,2,8);
+                    hookshot.damage(10);
+                }
+            }
+            return hookshot;
         case 'sonic mallet':
             return new Weapon('Sonic mallet','/','pink',2,10,100);
         case 'golf club':
-            return new Weapon('Golf club','/','cyan',1,6,60);
+            return new Weapon('Golf club','/','gray',1,6,60);
         case 'sword':
             return new Weapon('Sword','/','white',4,0,60);
         case 'bat':

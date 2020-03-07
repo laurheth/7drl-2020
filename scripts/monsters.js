@@ -6,6 +6,7 @@ import map from './map.js';
 
 const ai = {
     CHASE:'CHASE',
+    ROOMBA:'ROOMBA',
 }
 
 const directions = [[0,1],[0,-1],[1,0],[-1,0]];
@@ -13,6 +14,18 @@ const directions = [[0,1],[0,-1],[1,0],[-1,0]];
 class Monster extends Entity {
     constructor(startPosition, type) {
         switch(type) {
+            case 'roomba':
+                super(startPosition,'r','black','white');
+                this.hitpoints = 5;
+                this.damage=1;
+                this.force=0.1;
+                this.mass=1;
+                this.explosive=true;
+                this.blastMultiplier=5;
+                this.blastRadius=5;
+                this.name='robo vacuum';
+                this.ai=ai.ROOMBA;
+                break;
             case 'splodey':
                 super(startPosition,'s','black','orange');
                 this.hitpoints = 5;
@@ -86,8 +99,20 @@ class Monster extends Entity {
     act() {
         this.active--;
         if (this.awake) {
-            if (this.active > 0 && map.player && this.position[2] === map.player.position[2] && this.ai in ai) {
+            if ((this.active > 0 && map.player && this.position[2] === map.player.position[2] && this.ai in ai) || this.ai === ai.ROOMBA) {
                 switch(this.ai) {
+                    case ai.ROOMBA:
+                        if (!this.currentDirection || random.random()>0.95) {
+                            this.currentDirection = random.selection(directions);
+                        }
+                        if (!this.validStep(this.currentDirection) || !this.step(this.currentDirection[0],this.currentDirection[1],0)) {
+                            let breaker=5;
+                            while (breaker>0 && (!this.validStep(this.currentDirection) || !this.step(this.currentDirection[0],this.currentDirection[1],0))) {
+                                breaker--;
+                                this.currentDirection = random.selection(directions);
+                            }
+                        }
+                        break;
                     default:
                     case ai.CHASE:
                         let getBest = (random.random()>0.25);
@@ -102,6 +127,7 @@ class Monster extends Entity {
                                 }
                             }
                         }
+                        break;
                 }
             }
             else {
@@ -109,7 +135,7 @@ class Monster extends Entity {
                 let breaker=10;
                 let dx=0;
                 let dy=0;
-                while (breaker>0 && !this.step(dx,dy,0)) {
+                while (breaker>0 && !this.validStep([dx,dy,0]) && !this.step(dx,dy,0)) {
                     dx = random.range(-1,1);
                     dy = random.range(-1,1);
                     breaker--;

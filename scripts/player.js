@@ -41,10 +41,14 @@ class Player extends Entity {
         this.armorElement = document.getElementById('armor');
         this.actionElement = document.getElementById('actions');
 
+        this.levelElement = document.getElementById('level');
+
         this.armorElement.addEventListener('click',(event)=>{
             event.preventDefault();
             this.removeArmor();
         });
+
+        this.winItem=null;
 
         this.equipedElement.addEventListener('click',(event)=>{
             event.preventDefault();
@@ -56,7 +60,7 @@ class Player extends Entity {
     }
     handleEvent(event) {
         // console.log(event);
-        if (this.playerTurn && this.alive) {
+        if (this.playerTurn && this.alive && !this.won) {
             let eventCaptured = true;
             let acted=false;
             switch(event.key) {
@@ -87,9 +91,7 @@ class Player extends Entity {
                     break;
                 case 'g':
                     if(map.getTile(this.position) && map.getTile(this.position).item) {
-                        this.inventory.push(map.getItemFromTile(this.position));
-                        map.revertTile(this.position[0],this.position[1]);
-                        this.updateInventory();
+                        this.pickUp(false);
                         acted=true;
                     }
                 default:
@@ -103,7 +105,7 @@ class Player extends Entity {
             if (acted) {
                 this.endTurn();
             }
-        } else {
+        } else if (this.alive && !this.won) {
             event.preventDefault();
         }
     }
@@ -124,12 +126,20 @@ class Player extends Entity {
                 mapGenerator.populateLevel(map.levels[this.position[2]],this.position[2]);
             }
             map.display(this.position[2]);
+            this.updateLevel();
         }
         map.vision(this.position);
         gameBoard.setViewPosition(this.position);
+        if (this.winItem) {
+            if (this.position[2]===0 && (this.position[0]<=1 || this.position[1]<=1 || this.position[0] >= mapGenerator.dimensions[0]-2 || this.position[1] >= mapGenerator.dimensions[1]-2)) {
+                gameBoard.sendMessage("You have escaped alive with the Legendary Hammer of Sixela, and won the game! Congratulations!",['good','important'],true);
+                actionQueue.stop();
+                this.won=true;
+            }
+        }
     }
     act() {
-        if (this.alive) {
+        if (this.alive && !this.won) {
             this.turnCount++;
             if (this.turnCount % this.healRate === 0 && this.healRate < 20) {
                 if (this.hitpoints < this.maxHp) {
@@ -180,6 +190,10 @@ class Player extends Entity {
         }
     }
 
+    updateLevel() {
+        this.levelElement.textContent=`Level ${Math.round(this.position[2]+1)} of the Tower`;
+    }
+
     updateInventory() {
         this.updateInventoryElement(this.armor, this.armorElement);
         this.updateInventoryElement(this.wielded, this.equipedElement);
@@ -201,16 +215,19 @@ class Player extends Entity {
                 });
                 equipButton.textContent = 'Use item';
 
-                const dropButton = document.createElement('button');
-                dropButton.addEventListener('click',(event)=>{
-                    event.preventDefault();
-                    this.dropItem(i);
-                });
-                dropButton.textContent = 'Drop item';
-
+                
                 newElement.appendChild(nameElement);
                 newElement.appendChild(equipButton);
-                newElement.appendChild(dropButton);
+
+                if (item !== this.winItem) {
+                    const dropButton = document.createElement('button');
+                    dropButton.addEventListener('click',(event)=>{
+                        event.preventDefault();
+                        this.dropItem(i);
+                    });
+                    dropButton.textContent = 'Drop item';
+                    newElement.appendChild(dropButton);
+                }
                 this.inventoryElement.appendChild(newElement);
             }
         });
@@ -239,6 +256,22 @@ class Player extends Entity {
         }
     }
 
+    pickUp(endturn=true) {
+        const tile = map.getTile(this.position);
+        if (tile && tile.item) {
+            if (tile.item.name === 'Legendary Hammer of Sixela') {
+                gameBoard.sendMessage('You have found the Legendary Hammer of Sixela! You have what you came for, it is time to leave this place!',['good','important']);
+                this.winItem=tile.item;
+            }
+            this.inventory.push(map.getItemFromTile(this.position));
+            map.revertTile(this.position[0],this.position[1]);
+            this.updateInventory();
+            if (endturn) {
+                this.endTurn();
+            }
+        }
+    }
+
     updateActions() {
         const tile = map.getTile(this.position);
         while(this.actionElement.firstChild) {
@@ -259,10 +292,7 @@ class Player extends Entity {
             }
             if (tile.item) {
                 this.addAction(`Pick up ${tile.item.getName(false)}.`,()=>{
-                    this.inventory.push(map.getItemFromTile(this.position));
-                    map.revertTile(this.position[0],this.position[1]);
-                    this.updateInventory();
-                    this.endTurn();
+                    this.pickUp();
                 });
             }
             if (this.wielded && this.wielded.special) {

@@ -36,6 +36,7 @@ class Animation {
 
         let frame = this.frames.shift();
         if (!frame) {
+            map.display(map.player.position[2]);
             return false;
         }
 
