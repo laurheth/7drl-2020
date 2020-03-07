@@ -8,6 +8,7 @@ const map = {
     currentLevel: null,
     levelBelow: null,
     player: null,
+    firstDisplay:true,
     addLevel(level) {
         this.levels.push(level);
     },
@@ -18,8 +19,10 @@ const map = {
         this.currentLevel = (levelIndex >= 0 && levelIndex < this.levels.length) ? this.levels[levelIndex] : mapGenerator.emptyLevel();
 
         this.levelBelow = (levelIndex-1 >= 0 && levelIndex-1 < this.levels.length) ? this.levels[levelIndex-1] : mapGenerator.emptyLevel();
-
-        gameBoard.setDimensions([this.currentLevel[0].length, this.currentLevel.length]);
+        if (this.firstDisplay) {
+            this.firstDisplay=false;
+            gameBoard.setDimensions([this.currentLevel[0].length, this.currentLevel.length]);
+        }
         this.currentLevel.forEach((row,j) => {
             row.forEach((tile,i) => {
                 this.updateTile(tile,i,j,levelIndex);

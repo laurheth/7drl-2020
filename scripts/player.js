@@ -30,6 +30,10 @@ class Player extends Entity {
         this.inventory=[];
         this.inventory.push(getItem('bat'));
 
+        // Infinite jetpack, developer cheat
+        // this.inventory.push(getItem('jetpack'));
+        // this.inventory[1].durability=Infinity;
+
         this.wielded=this.inventory[0];
 
         this.visitedLevels=[0];
@@ -84,6 +88,9 @@ class Player extends Entity {
                     break;
                 case '<':
                     if (this.canAscend()) {
+                        if (!tile.isUpStair() && this.canFly()) {
+                            this.jetpack(2);
+                        }
                         acted=this.step(0,0,1);
                     }
                     break;
@@ -273,6 +280,15 @@ class Player extends Entity {
         }
     }
 
+    canFly() {
+        if (this.armor && this.armor.flying) {
+            return true;
+        }
+        else {
+            super.canFly();
+        }
+    }
+
     updateActions() {
         const tile = map.getTile(this.position);
         while(this.actionElement.firstChild) {
@@ -311,6 +327,22 @@ class Player extends Entity {
         }
     }
 
+    jetpack(fuelFactor=1) {
+        if (this.alive && this.canFly()) {
+            if(!this.armor.damage(fuelFactor*this.armor.fuelCost)) {
+                gameBoard.sendMessage('Your '+this.armor.getName(false)+' runs out of fuel!');
+                this.inventory.splice(this.inventory.indexOf(this.armor),1);
+                this.armor=null;
+            }
+            this.updateInventoryElement(this.armor,this.armorElement);
+        }
+        return this.canFly();
+    }
+
+    fall() {
+        super.fall(()=>this.jetpack());
+    }
+
     addAction(text,callback) {
         const actionItem = document.createElement('li');
         const actionButton = document.createElement('button');
@@ -327,6 +359,7 @@ class Player extends Entity {
 
     removeArmor() {
         this.armor=null;
+        this.fall();
         this.updateInventory();
     }
 
@@ -413,6 +446,7 @@ class Player extends Entity {
         this.updateStatus();
     }
     die() {
+        this.setArt('@', 'darkred', 'white');
         this.alive=false;
         this.updateStatus();
     }

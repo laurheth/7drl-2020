@@ -72,7 +72,7 @@ class Entity {
     }
 
     // Consider falling, and then do so if necessary
-    fall() {
+    fall(avoidFalling=null) {
         if (!this.alive || this.flying) {
             return;
         }
@@ -81,16 +81,16 @@ class Entity {
         if (map.getTile(this.position) && map.getTile(this.position).isEmpty()) {
             const downPosition = [...this.position];
             if (map.getTile([downPosition[0],downPosition[1],downPosition[2]-1]) && map.getTile([downPosition[0],downPosition[1],downPosition[2]-1]).isPassable(true)) {
+                if (avoidFalling && avoidFalling()) {
+                    return;
+                }
                 let fallDistance=0;
                 while(map.getTile(downPosition) && map.getTile(downPosition).isEmpty()) {
                     downPosition[2]-=1;
                     fallDistance++;
                 }
                 if (map.getTile(downPosition)) {
-                    if (map.getTile(downPosition).isPassable()) {
-                        this.hurt(Math.max(0,2*(fallDistance-1)));
-                    }
-                    else if (map.getTile(downPosition).entity) {
+                    if (map.getTile(downPosition).entity) {
                         splatMessage=true;
                         map.getTile(downPosition).entity.hurt(2*map.getTile(downPosition).entity.hitpoints);
                     }
@@ -98,7 +98,7 @@ class Entity {
                 else {
                     downPosition[2]+=1;
                     fallDistance--;
-                    this.hurt(Math.max(0,this.getMass()*(fallDistance-1)));
+                    // 
                 }
                 if (this === map.player) {
                     gameBoard.sendMessage('You fall down '+fallDistance+' floor' + (fallDistance>1 ? 's' : '') + '...');
@@ -118,7 +118,24 @@ class Entity {
                 //     map.vision(this.position);
                 //     gameBoard.setViewPosition(this.position);
                 // }
-                this.setPosition(downPosition);
+                const currentPosition = [...this.position];
+                let time=0;
+                let interval=50;
+                if (this === map.player) {
+                    interval=200;
+                }
+                actionQueue.addLock(this);
+                while (currentPosition[2]>downPosition[2]) {
+                    currentPosition[2]--;
+                    const thisPosition=[...currentPosition];
+                    setTimeout(()=>this.setPosition(thisPosition),time)
+                    time+=interval;
+                }
+                setTimeout(()=>{
+                    this.setPosition(downPosition);
+                    actionQueue.removeLock(this);
+                    this.hurt(Math.max(0,this.getMass()*(fallDistance-1)));
+                },time);
             }
         }
     }
@@ -251,7 +268,7 @@ class Entity {
         if (tile && tile.isDownStair()) {
             return true;
         }
-        if (this.flying) {
+        if (this.canFly()) {
             const tileBelow = map.getTile([this.position[0],this.position[1],this.position[2]-1]);
             return tile.isEmpty() && tileBelow && tileBelow.isPassable();
         }
@@ -263,11 +280,15 @@ class Entity {
         if (tile && tile.isUpStair()) {
             return true;
         }
-        if (this.flying) {
+        if (this.canFly()) {
             const tileAbove = map.getTile([this.position[0],this.position[1],this.position[2]+1]);
             return tileAbove && tileAbove.isEmpty() && tileAbove.isPassable();
         }
         return false;
+    }
+
+    canFly() {
+        return this.flying;
     }
 
     hurt(dmg) {

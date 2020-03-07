@@ -13,6 +13,7 @@ const directions = [[0,1],[0,-1],[1,0],[-1,0]];
 
 class Monster extends Entity {
     constructor(startPosition, type) {
+        let persistence=10;
         switch(type) {
             case 'roomba':
                 super(startPosition,'r','black','white');
@@ -38,6 +39,17 @@ class Monster extends Entity {
                 this.name='splodey boi';
                 this.ai=ai.CHASE;
                 break;
+            case 'spikemom':
+                super(startPosition,'&','black','yellow');
+                this.hitpoints = 100;
+                this.damage=8;
+                this.force=3;
+                this.mass=10;
+                this.name='Spike Mom';
+                this.pronoun=true;
+                this.ai=ai.CHASE;
+                persistence=Infinity;
+                break;
             case 'spikeman':
                 super(startPosition,'X','black','hotpink');
                 this.hitpoints = 30;
@@ -54,6 +66,16 @@ class Monster extends Entity {
                 this.force=0.1;
                 this.mass=0.5;
                 this.name='spikey boi';
+                this.ai=ai.CHASE;
+                break;
+            case 'drone':
+                super(startPosition,'d','black','cyan');
+                this.hitpoints = 7;
+                this.damage=1;
+                this.force=1;
+                this.mass=0.5;
+                this.name='drone';
+                this.flying=true;
                 this.ai=ai.CHASE;
                 break;
             case 'large orb':
@@ -76,6 +98,7 @@ class Monster extends Entity {
                 this.ai=ai.CHASE;
                 break;
         }
+        this.persistence=persistence;
         this.awake=false;
         this.target=null;
         this.active = -1;
@@ -85,7 +108,7 @@ class Monster extends Entity {
             direction.push(0);
         }
         let testPosition = this.position.map((x,i)=>x+direction[i]);
-        if (map.getTile(testPosition) && !map.getTile(testPosition).isEmpty()) {
+        if (map.getTile(testPosition) && (this.canFly() || !map.getTile(testPosition).isEmpty())) {
             return true;
         }
         else {
@@ -152,7 +175,7 @@ class Monster extends Entity {
     }
     show(force) {
         super.show(force);
-        this.active = 10;
+        this.active = this.persistence;
         if (map.player) {
             this.target=[...map.player.position];
         }

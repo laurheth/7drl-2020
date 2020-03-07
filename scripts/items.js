@@ -195,6 +195,11 @@ const getItem = (type) => {
             return new Armor('Chain armor','[','gray',2,60,0.5);
         case 'leather':
             return new Armor('Leather armor','[','brown',1,20,0.1);
+        case 'jetpack':
+            const jetpack = new Armor('Jetpack','[','pink',0,101,0.1);
+            jetpack.flying=true;
+            jetpack.fuelCost=5;
+            return jetpack;
         case 'sixela':
             const sixela = new Weapon('Legendary Hammer of Sixela','/','yellow',3,20,Infinity);
             sixela.unique=true;
