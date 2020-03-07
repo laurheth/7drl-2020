@@ -120,7 +120,7 @@ class Entity {
                 // }
                 const currentPosition = [...this.position];
                 let time=0;
-                let interval=50;
+                let interval=10;
                 if (this === map.player) {
                     interval=200;
                 }
