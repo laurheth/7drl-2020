@@ -26,6 +26,8 @@ class Entity {
         this.noDirectDamage=false;
         this.dropLoot=null;
 
+        this.flying=false;
+
         this.dieVerb='dies';
 
         this.character = character;
@@ -71,7 +73,7 @@ class Entity {
 
     // Consider falling, and then do so if necessary
     fall() {
-        if (!this.alive) {
+        if (!this.alive || this.flying) {
             return;
         }
         // Falling?
@@ -242,6 +244,30 @@ class Entity {
         }
         this.push(entity);
         return true;
+    }
+
+    canDescend() {
+        const tile = map.getTile(this.position);
+        if (tile && tile.isDownStair()) {
+            return true;
+        }
+        if (this.flying) {
+            const tileBelow = map.getTile([this.position[0],this.position[1],this.position[2]-1]);
+            return tile.isEmpty() && tileBelow && tileBelow.isPassable();
+        }
+        return false;
+    }
+
+    canAscend() {
+        const tile = map.getTile(this.position);
+        if (tile && tile.isUpStair()) {
+            return true;
+        }
+        if (this.flying) {
+            const tileAbove = map.getTile([this.position[0],this.position[1],this.position[2]+1]);
+            return tileAbove && tileAbove.isEmpty() && tileAbove.isPassable();
+        }
+        return false;
     }
 
     hurt(dmg) {

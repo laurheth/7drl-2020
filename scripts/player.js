@@ -59,10 +59,11 @@ class Player extends Entity {
         this.updateInventory();
     }
     handleEvent(event) {
-        // console.log(event);
+
         if (this.playerTurn && this.alive && !this.won) {
             let eventCaptured = true;
             let acted=false;
+            const tile=map.getTile(this.position);
             switch(event.key) {
                 case 'ArrowRight':
                     acted=this.step(1,0,0);
@@ -77,12 +78,12 @@ class Player extends Entity {
                     acted=this.step(0,1,0);
                     break;
                 case '>':
-                    if (map.getTile(this.position) && map.getTile(this.position).isDownStair()) {
+                    if (this.canDescend()) {
                         acted=this.step(0,0,-1);
                     }
                     break;
                 case '<':
-                    if (map.getTile(this.position) && map.getTile(this.position).isUpStair()) {
+                    if (this.canAscend()) {
                         acted=this.step(0,0,1);
                     }
                     break;
@@ -90,7 +91,7 @@ class Player extends Entity {
                     acted=true;
                     break;
                 case 'g':
-                    if(map.getTile(this.position) && map.getTile(this.position).item) {
+                    if(tile && tile.item) {
                         this.pickUp(false);
                         acted=true;
                     }
@@ -278,13 +279,13 @@ class Player extends Entity {
             this.actionElement.lastChild.remove();
         }
         if (!this.specialActive) {
-            if (tile.isUpStair()) {
+            if (this.canAscend()) {
                 this.addAction('Ascend.',()=>{
                     this.step(0,0,1)
                     this.endTurn();
                 });
             }
-            else if (tile.isDownStair()) {
+            if (this.canDescend()) {
                 this.addAction('Descend.',()=>{
                     this.step(0,0,-1)
                     this.endTurn();
@@ -346,7 +347,6 @@ class Player extends Entity {
             this.wielded = item;
         }
         else {
-            console.log(index, item);
             gameBoard.sendMessage('You '+item.getVerb() +' the '+item.getName(false)+'.');
             if ('heal' in item.effect) {
                 this.hitpoints += item.effect.heal;
@@ -384,7 +384,6 @@ class Player extends Entity {
         if (!forced) {
             gameBoard.sendMessage(this.getName() + ' attack ' + entity.getName(false) + '!');
             if (this.wielded) {
-                console.log(this.wielded);
                 if(!this.wielded.damage(1)) {
                     gameBoard.sendMessage('Your '+this.wielded.getName(false)+' breaks!');
                     this.inventory.splice(this.inventory.indexOf(this.wielded),1);
@@ -402,7 +401,6 @@ class Player extends Entity {
     hurt(dmg) {
         if (this.armor) {
             let protection = this.armor.protect(dmg);
-            console.log(dmg, protection,this.armor.getDurability());
             dmg -= protection;
             if (!this.armor.damage(protection)) {
                 gameBoard.sendMessage('Your '+this.armor.getName(false)+' was destroyed!');

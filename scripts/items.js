@@ -23,7 +23,6 @@ class Item {
         return this.durability;
     }
     getDurabilityFraction() {
-        console.log(this.durability, this.maxDurability);
         if (isFinite(this.durability)) {
             return this.durability / this.maxDurability;
         }
@@ -215,7 +214,7 @@ const getItem = (type) => {
             hookshot.special = {
                 name: 'Fire the hoot shooter.',
                 activate: (user,direction) => {
-                    hookSpecial(user,direction,2,8);
+                    hookSpecial(user,direction,2,8,12);
                     hookshot.damage(10);
                 }
             }

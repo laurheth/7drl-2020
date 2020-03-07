@@ -351,6 +351,7 @@ const mapGenerator = {
                         else if (!fullMap[z-1][j][i].isDefault()) {
                             fullMap[z][j][i].makeFloor();
                         }
+                        fullMap[z][j][i].exterior=true;
                     }
                     else if (fullMap[z][j][i].isExterior() && !fullMap[z][j][i].isPassable(true)) {
                         if (random.random()>(0.99 - z * 0.005)) {
@@ -363,36 +364,51 @@ const mapGenerator = {
     },
     populateLevel(level,z) {
         const availableTiles=[];
+        const availableItemTiles=[]; // I want to be stricter about where items spawn; no items on roofs!
         level.forEach((row,j)=>{
             row.forEach((tile,i)=> {
-                if (tile.isFloor() && tile.isPassable() && !tile.isExterior()) {
-                    availableTiles.push([i,j,z]);
-                    if (random.random()>0.99) {
-                        new Doodad([i,j,z],this.addDoodad(z));
+                if (tile.isFloor() && tile.isPassable()) {
+                    if (!tile.isExterior()) {
+                        availableTiles.push([i,j,z]);
+                        availableItemTiles.push([i,j,z]);
+                        if (random.random()>0.99) {
+                            new Doodad([i,j,z],this.addDoodad(z));
+                        }
+                    }
+                    else if (z>=1) {
+                        availableTiles.push([i,j,z]);
                     }
                 }
             });
         });
         const podsToAdd = Math.ceil(availableTiles.length / 200);
-        console.log('pods',podsToAdd);
-        for (let i=0;i<podsToAdd;i++) {
-            this.addPod(random.selection(availableTiles),this.choosePod(z,3+z));
-        }
-        for (let i=0;i<Math.min(10,2*podsToAdd);i++) {
-            const position = random.selection(availableTiles);
-            if (z === this.towerHeight-2 && i===0) {
-                level[position[1]][position[0]].item = getItem('sixela');
-            }
-            else if (z===4 && i===0) {
-                if (random.random()>0.5) {
-                    level[position[1]][position[0]].item = getItem('rocket');
+        if (availableTiles.length) {
+            for (let i=0;i<podsToAdd;i++) {
+                if (i>=(podsToAdd/2) && availableItemTiles.length>0) {
+                    this.addPod(random.selection(availableItemTiles),this.choosePod(z,3+z));
                 }
                 else {
-                    level[position[1]][position[0]].item = getItem('hookshot');
+                    this.addPod(random.selection(availableTiles),this.choosePod(z,3+z));
                 }
             }
-            else {
-                level[position[1]][position[0]].item = getItem(this.addItem(z));
+        }
+        if (availableItemTiles.length > 0) {
+            for (let i=0;i<Math.min(10,2*podsToAdd);i++) {
+                const position = random.selection(availableItemTiles);
+                if (z === this.towerHeight-2 && i===0) {
+                    level[position[1]][position[0]].item = getItem('sixela');
+                }
+                else if (z===4 && i===0) {
+                    if (random.random()>0.5) {
+                        level[position[1]][position[0]].item = getItem('rocket');
+                    }
+                    else {
+                        level[position[1]][position[0]].item = getItem('hookshot');
+                    }
+                }
+                else {
+                    level[position[1]][position[0]].item = getItem(this.addItem(z));
+                }
             }
         }
     },
@@ -423,7 +439,6 @@ const mapGenerator = {
             'sword':1,
             'bat':2,
         }
-        console.log(weights);
         return random.weighted(weights);
     },
     addPod(position,composition) {
@@ -436,7 +451,7 @@ const mapGenerator = {
             for (i=-breaker;i<breaker;i++) {
                 for (j=-breaker;j<breaker;j++) {
                     tile = map.getTile([position[0]+i, position[1]+j,position[2]]);
-                    if (composition.length>0 && tile && tile.isFloor() && tile.isPassable() && !tile.isExterior()) {
+                    if (composition.length>0 && tile && tile.isFloor() && tile.isPassable() && (!tile.isExterior() || position[2]>=1)) {
                         new Monster([position[0]+i, position[1]+j,position[2]],composition.pop());
                     }
                 }
@@ -457,7 +472,7 @@ const mapGenerator = {
             'spike':this.probabilityFunction(level,0,10,6,2,30),
             'large orb':this.probabilityFunction(level,6,20,3),
             'spikeman':this.probabilityFunction(level,10,20,3),
-            'splodey':this.probabilityFunction(level,5,15,4,1,24),
+            'splodey':this.probabilityFunction(level,5,15,3,1,24),
             'roomba':this.probabilityFunction(level,10,15,3,1,20),
         }
         const pod=[];

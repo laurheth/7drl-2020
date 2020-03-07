@@ -111,10 +111,12 @@ class Tile {
             if (up) {
                 this.setProperties('<','black','white',true);
                 this.name='upwards stairs';
+                this.upstair=true;
             }
             else {
                 this.setProperties('>','black','white',true);
                 this.name='downwards stairs';
+                this.downstair=true;
             }
             this.noOverwrite = true
             return true;
@@ -129,10 +131,10 @@ class Tile {
         this.id=id;
     }
     isUpStair() {
-        return (this.character === '<');
+        return this.upstair;
     }
     isDownStair() {
-        return (this.character === '>');
+        return this.downstair;
     }
     isVisible() {
         return this.visible;

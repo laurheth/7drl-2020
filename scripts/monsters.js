@@ -18,12 +18,12 @@ class Monster extends Entity {
                 super(startPosition,'r','black','white');
                 this.hitpoints = 5;
                 this.damage=1;
-                this.force=0.1;
+                this.force=1;
                 this.mass=1;
                 this.explosive=true;
                 this.blastMultiplier=5;
                 this.blastRadius=5;
-                this.name='robo vacuum';
+                this.name='roambo';
                 this.ai=ai.ROOMBA;
                 break;
             case 'splodey':
@@ -98,7 +98,7 @@ class Monster extends Entity {
     }
     act() {
         this.active--;
-        if (this.awake) {
+        if (this.awake && Math.abs(this.position[2] - map.player.position[2]) < 3) {
             if ((this.active > 0 && map.player && this.position[2] === map.player.position[2] && this.ai in ai) || this.ai === ai.ROOMBA) {
                 switch(this.ai) {
                     case ai.ROOMBA:
