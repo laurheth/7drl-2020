@@ -42,8 +42,8 @@ class Monster extends Entity {
             case 'spikemom':
                 super(startPosition,'&','black','yellow');
                 this.hitpoints = 100;
-                this.damage=8;
-                this.force=3;
+                this.damage=10;
+                this.force=6;
                 this.mass=10;
                 this.name='Spike Mom';
                 this.pronoun=true;
@@ -140,7 +140,13 @@ class Monster extends Entity {
                     case ai.CHASE:
                         let getBest = (random.random()>0.25);
                         let direction = this.getDirection(this.target,getBest);
-                        if (!this.validStep(direction) || !this.step(direction[0],direction[1],0)) {
+                        if (this.position[2] > map.player.position[2] && this.canDescend()) {
+                            this.step([0,0,-1]);
+                        }
+                        else if (this.position[2] < map.player.position[2] && this.canAscend()) {
+                            this.step([0,0,1]);
+                        }
+                        else if (!this.validStep(direction) || !this.step(direction[0],direction[1],0)) {
                             direction = this.getDirection(this.target,!getBest);
                             if (!this.validStep(direction) || !this.step(direction[0],direction[1],0)) {
                                 let breaker=5;

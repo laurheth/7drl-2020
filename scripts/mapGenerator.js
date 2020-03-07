@@ -387,7 +387,7 @@ const mapGenerator = {
                 if (z === this.towerHeight-2 && i===0) {
                     const position = random.selection(availableItemTiles);
                     level[position[1]][position[0]].item = getItem('sixela');
-                    this.addPod(position,['spikemom','spikeman','spikeman','spike','spike','spike','spike']);
+                    this.addPod(position,['spikemom','spikeman','spikeman','spikeman','spike','spike','spike','spike','spike']);
                 }
                 else if (i>=(podsToAdd/2) && availableItemTiles.length>0) {
                     this.addPod(random.selection(availableItemTiles),this.choosePod(z,3+z));
@@ -436,13 +436,13 @@ const mapGenerator = {
             'plate':this.probabilityFunction(level,18,26,3),
             'chain':this.probabilityFunction(level,10,20,3,1,23),
             'leather':this.probabilityFunction(level,3,15,3,1,19),
-            'sonic mallet':this.probabilityFunction(level,18,26,2),
+            'sonic mallet':this.probabilityFunction(level,16,26,2),
             'golf club':this.probabilityFunction(level,5,20,2),
             'rocket':this.probabilityFunction(level,4,20,3),
             'hookshot':this.probabilityFunction(level,4,20,5),
             'jetpack':this.probabilityFunction(level,10,20,2),
             'sword':1,
-            'bat':2,
+            'bat':this.probabilityFunction(level,0,0,3,1,10),
         }
         return random.weighted(weights);
     },
