@@ -6,13 +6,22 @@ const actionQueue = {
     detectErrors: 0,
     stopped: false,
     locks:[],
+    resolve:null,
+    async run() {
+        while(1===1) {
+            await new Promise((resolve)=>{
+                this.resolve=resolve;
+                if (this.index >= this.list.length) {
+                    this.index=0;
+                }
+                this.act();
+            });
+            this.index++;
+        }
+    },
     advance() {
         if (!this.stopped) {
-            this.index++;
-            if (this.index >= this.list.length) {
-                this.index=0;
-            }
-            this.act();
+            this.resolve();
         }
     },
     act() {

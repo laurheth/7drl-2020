@@ -16,6 +16,6 @@ const player = new Player([Math.round(mapGenerator.dimensions[0]/2),Math.round(m
 map.player=player;
 
 
-actionQueue.act();
+actionQueue.run();
 
 gameBoard.toggleAnimateView();
