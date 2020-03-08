@@ -17,7 +17,26 @@ class Player extends Entity {
         this.playerTurn=false;
         this.name='You';
         this.nameElement = document.getElementById('name');
-        this.nameElement.textContent='Lauren';
+
+        const vowels='aeiouy'.split('');
+        const consonants='qwrtypsdfghjklzxcvbnm'.split('');
+        let name='';
+        for (let i=0;i<6;i++) {
+            if (i%2 === 0) {
+                name += random.selection(consonants);
+            }
+            else {
+                name += random.selection(vowels);
+            }
+            if (i===0) {
+                name = name.toUpperCase();
+            }
+        }
+
+        const titles = ['Brave','Witty','Heroic','Anxious','Gamer','Hammerer','Batter','Strong','Stout','Adventurer','Exciting','Tall','Mysterious','Short','Hammerseeker','Stonehearted','Honest','Courageous','Quick','Rogue','Bold','Italic','Noble','Fierce','Red','Agile','Nimble','Kid','Wise','Cunning','Sufficient','Adequate','Intrepid'];
+
+
+        this.nameElement.textContent=name + ' the '+random.selection(titles);
 
         this.touchHandler = new touchHandler(document.getElementById('gameWindow'),this);
 
@@ -34,8 +53,8 @@ class Player extends Entity {
         this.inventory.push(getItem('bat'));
 
         // Infinite jetpack, developer cheat
-        this.inventory.push(getItem('jetpack'));
-        this.inventory[1].durability=Infinity;
+        // this.inventory.push(getItem('jetpack'));
+        // this.inventory[1].durability=Infinity;
         // this.inventory.push(getItem('hookshot'));
         // this.inventory.push(getItem('rocket'));
 

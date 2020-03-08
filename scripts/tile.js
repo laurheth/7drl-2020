@@ -74,7 +74,7 @@ class Tile {
     makeFloor(preserveFloor=false) {
         this.setProperties('.','black','white',true);
         this.noOverwrite = preserveFloor;
-        this.hitpoints=5;
+        this.hitpoints=10;
         this.name='floor';
         this.floor=true;
     }

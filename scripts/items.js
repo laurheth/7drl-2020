@@ -139,7 +139,8 @@ const hookSpecial = (user,direction,damage=1,force=8,range=8) => {
         setTimeout(()=>{
             gameBoard.setTile([thisPosition[0],thisPosition[1]],'*','black','gray')
         },time);
-        return !(map.getTile(position) && map.getTile(position).isPassable());
+        const tile = map.getTile(position);
+        return !(tile && tile.isPassable() && !tile.isUpStair() && !tile.isDownStair());
     },direction,(user,path,hit)=>{
         if (hit) {
             const tile = map.getTile(path[path.length-1]);
@@ -161,13 +162,15 @@ const hookSpecial = (user,direction,damage=1,force=8,range=8) => {
                 setTimeout(()=>actionQueue.removeLock(user),time);
             }
             else {
-                console.log(path.length);
-                console.log(direction);
                 time+=interval;
+                let hookDistance = path.length-2;
+                const lastTile=map.getTile(path[path.length-1]);
+                if (lastTile && (lastTile.isUpStair() || lastTile.isDownStair())) {
+                    hookDistance++;
+                }
                 setTimeout(()=>{
-                    console.log('?');
                     path.forEach(position=>map.revertTile(...position))
-                    user.knockBack(direction,path.length-2);
+                    user.knockBack(direction,hookDistance);
                 },time);
             }
         }

@@ -74,7 +74,8 @@ const mapGenerator = {
     // Build exterior. Maxes a shell of a map by placing a bunch of towers and mashing them together
     buildExterior(fullMap) {
         this.tower(fullMap,this.towerHeight-1,0.9);
-        while (this.numberOfTiles < this.targetTiles) {
+        const startTime = (new Date()).getTime();
+        while (this.numberOfTiles < this.targetTiles && ((new Date()).getTime()-startTime) < 10000) {
             this.tower(fullMap,random.range(0,this.towerHeight-1),random.random());
         }
     },
@@ -95,7 +96,9 @@ const mapGenerator = {
             this.possibleStairs[z][this.towerNumber]=[];
 
             if (this.towerNumber !== Math.min(...connectedTowers)) {
-                while (Math.min(...connectedTowers) in this.connectedTowers[z] && Math.min(...connectedTowers) !== this.connectedTowers[z][Math.min(...connectedTowers)]) {
+                let breaker=20
+                while (Math.min(...connectedTowers) in this.connectedTowers[z] && Math.min(...connectedTowers) !== this.connectedTowers[z][Math.min(...connectedTowers)] && breaker>0) {
+                    breaker--;
                     connectedTowers.push(this.connectedTowers[z][Math.min(...connectedTowers)]);
                 }
             }
@@ -309,7 +312,7 @@ const mapGenerator = {
                         breaker++;
                         const towerChosen = random.selection(connections[z][keys[i]]);
                         const stairRange = this.possibleStairs[z][towerChosen][0];
-                        // // Add stairs
+                        // Add stairs
                         if (z>0) {
                             const stairPos = [random.range(stairRange[0][0]+1, stairRange[1][0]-1), random.range(stairRange[0][1]+1, stairRange[1][1]-1)];
                             if (fullMap[z][stairPos[1]][stairPos[0]].canOverwrite() && fullMap[z][stairPos[1]][stairPos[0]].isPassable() && fullMap[z-1][stairPos[1]][stairPos[0]].canOverwrite() && fullMap[z-1][stairPos[1]][stairPos[0]].isPassable()) {
@@ -318,6 +321,7 @@ const mapGenerator = {
                                 success=true;
                             }
                         }
+                        // Ground level doors to the outside
                         else {
                             const startPosition = [random.range(stairRange[0][0]+2, stairRange[1][0]-2), random.range(stairRange[0][1]+2, stairRange[1][1]-2)];
                             const directions = [[0,1],[0,-1],[1,0],[-1,0]];
@@ -404,7 +408,7 @@ const mapGenerator = {
             for (let i=0;i<Math.min(10,2*podsToAdd);i++) {
                 const position = random.selection(availableItemTiles);
                 if (!level[position[1]][position[0]].item) {
-                    if (z===4 && i===0) {
+                    if ((z===4 || z===5) && i===0) {
                         if (random.random()>0.5) {
                             level[position[1]][position[0]].item = getItem('rocket');
                         }
@@ -482,7 +486,7 @@ const mapGenerator = {
             'drone':this.probabilityFunction(level,8,20,3),
             'large orb':this.probabilityFunction(level,6,20,3),
             'spikeman':this.probabilityFunction(level,10,20,3),
-            'splodey':this.probabilityFunction(level,5,15,3,1,24),
+            'splodey':this.probabilityFunction(level,6,15,3,1,24),
             'roambo':this.probabilityFunction(level,10,15,3,1,20),
         }
         const pod=[];

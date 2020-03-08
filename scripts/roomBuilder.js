@@ -101,7 +101,9 @@ const roomBuilder = {
         if (this.validPosition(level, start[0], start[1]) && this.validPosition(level, end[0], end[1])) {
             const direction = [0, 0];
             let position = [...start];
-            while (Math.abs(end[0] - position[0]) > 0 || Math.abs(end[1] - position[1]) > 0) {
+            let breaker=80;
+            while (Math.abs(end[0] - position[0]) > 0 || Math.abs(end[1] - position[1]) > 0 && breaker>=0) {
+                breaker--;
                 if (Math.abs(position[0] - end[0]) > Math.abs(position[1] - end[1])) {
                     direction[1] = 0;
                     direction[0] = Math.sign(-position[0] + end[0]);

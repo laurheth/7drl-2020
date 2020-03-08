@@ -58,7 +58,7 @@ const map = {
         }
         return false;
     },
-    damageTile(position, dmg, dz=0,spread=true) {
+    damageTile(position, dmg,spread=true) {
         const tile = this.getTile(position);
         if (!tile || tile.isEmpty() || (tile.isFloor() && position[2]===0)) {return;}
 
@@ -73,19 +73,9 @@ const map = {
             if (!isFinite(leftOver)) {leftOver=0;}
 
             if (!tile.isPassable(true)) {
-                if (dz>-1) {
-                    this.damageTile([position[0],position[1],position[2]+1],leftOver,1);
-                }
                 tile.makeFloor();
             }
             else if (position[2]>0) {
-                if (dz<1) {
-                    const belowPosition = [position[0],position[1],position[2]-1];
-                    const belowTile = this.getTile(belowPosition);
-                    if ( belowTile && !belowTile.isPassable() ) {
-                        this.damageTile(belowPosition,leftOver,-1);
-                    }
-                }
                 if (!tile.isDownStair() && !tile.isUpStair()) {
                     tile.makeEmpty();
                 }
@@ -94,7 +84,7 @@ const map = {
             if (spread) {
                 for (let i=-1; i<=1; i++) {
                     for (let j=-1; j<=1; j++) {
-                        this.damageTile([position[0]+i, position[1]+j, position[2]],leftOver,0,false);
+                        this.damageTile([position[0]+i, position[1]+j, position[2]],leftOver,false);
                     }
                 }
             }

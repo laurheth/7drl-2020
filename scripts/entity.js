@@ -117,12 +117,6 @@ class Entity {
                 if (splatMessage) {
                     gameBoard.sendMessage('Splat! Death from above!');
                 }
-                // this.updateTile(map.getTile(this.position));
-                // if (this === map.player) {
-                //     map.display(this.position[2]);
-                //     map.vision(this.position);
-                //     gameBoard.setViewPosition(this.position);
-                // }
                 const currentPosition = [...this.position];
                 let time=0;
                 let interval=10;
@@ -414,7 +408,7 @@ class Entity {
                                         entity: tile.entity,
                                         damage: damageToDeal,
                                         force: forceToPush,
-                                        direction:[Math.sign(i),Math.sign(j)]
+                                        direction:(Math.abs(j)>Math.abs(i)) ? [0,Math.sign(j)] : [Math.sign(i),0],
                                     });
                                 }
                             }

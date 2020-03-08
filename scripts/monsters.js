@@ -144,11 +144,23 @@ class Monster extends Entity {
                     default:
                     case ai.CHASE:
                         if (this.omniscient) {
-                            if (this.position[2] > map.player.position[2] && this.target && !map.getTile(this.target).isDownStair()) {
-                                this.target = this.findTile('isDownStair');
+                            if (this.position[2] - map.player.position[2] > 3) {
+                                const newPosition = this.findTile('isUpStair',map.player.position,12,32);
+                                if (newPosition !== map.player.position) {
+                                    this.setPosition(newPosition);
+                                }
+                            }
+                            else if (this.position[2] - map.player.position[2] < -3) {
+                                const newPosition = this.findTile('isDownStair',map.player.position,12,32);
+                                if (newPosition !== map.player.position) {
+                                    this.setPosition(newPosition);
+                                }
+                            }
+                            else if (this.position[2] > map.player.position[2] && this.target && !map.getTile(this.target).isDownStair()) {
+                                this.target = this.findTile('isDownStair',this.position,0,20);
                             }
                             else if (this.position[2] < map.player.position[2] && this.target && !map.getTile(this.target).isUpStair()) {
-                                this.target = this.findTile('isUpStair');
+                                this.target = this.findTile('isUpStair',this.position,0,20);
                             }
                             else if (this.position[2] === map.player.position[2] && this.target.every((x,i)=>x===this.position[i])) {
                                 this.target = [...map.player.position];
@@ -195,23 +207,23 @@ class Monster extends Entity {
         
         actionQueue.advance();
     }
-    findTile(method) {
-        let distance=0;
-        while (distance<20) {
+    findTile(method, startPoint=null, minDistance=0, maxDistance=40) {
+        let distance=minDistance;
+        while (distance<maxDistance) {
             for (let i=-distance;i<distance;i++) {
                 for (let j=-distance;j<distance;j++) {
                     if (Math.abs(i)!==distance && Math.abs(j) !== distance) {
                         continue;
                     }
-                    const tile = map.getTile([this.position[0]+i,this.position[1]+j,this.position[2]]);
+                    const tile = map.getTile([startPoint[0]+i,startPoint[1]+j,startPoint[2]]);
                     if (tile && tile[method]()) {
-                        return [this.position[0]+i,this.position[1]+j,this.position[2]];
+                        return [startPoint[0]+i,startPoint[1]+j,startPoint[2]];
                     }
                 }
             }
             distance++;
         }
-        return [...this.position];
+        return startPoint;
     }
     show(force) {
         if (this.omniscient) {
