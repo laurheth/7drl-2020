@@ -6,7 +6,7 @@ import map from './map.js';
 
 const ai = {
     CHASE:'CHASE',
-    ROOMBA:'ROOMBA',
+    ROAMBO:'ROAMBO',
 }
 
 const directions = [[0,1],[0,-1],[1,0],[-1,0]];
@@ -15,7 +15,7 @@ class Monster extends Entity {
     constructor(startPosition, type) {
         let persistence=10;
         switch(type) {
-            case 'roomba':
+            case 'roambo':
                 super(startPosition,'r','black','white');
                 this.hitpoints = 5;
                 this.damage=1;
@@ -25,7 +25,7 @@ class Monster extends Entity {
                 this.blastMultiplier=5;
                 this.blastRadius=5;
                 this.name='roambo';
-                this.ai=ai.ROOMBA;
+                this.ai=ai.ROAMBO;
                 break;
             case 'splodey':
                 super(startPosition,'s','black','orange');
@@ -94,7 +94,7 @@ class Monster extends Entity {
                 this.damage=2;
                 this.force=2;
                 this.mass=1;
-                this.name='robo hamster ball';
+                this.name='orb';
                 this.ai=ai.CHASE;
                 break;
         }
@@ -122,9 +122,9 @@ class Monster extends Entity {
     act() {
         this.active--;
         if (this.awake && Math.abs(this.position[2] - map.player.position[2]) < Math.max(2,this.active)) {
-            if ((this.active > 0 && map.player && this.ai in ai) || this.ai === ai.ROOMBA) {
+            if ((this.active > 0 && map.player && this.ai in ai) || this.ai === ai.ROAMBO) {
                 switch(this.ai) {
-                    case ai.ROOMBA:
+                    case ai.ROAMBO:
                         if (!this.currentDirection || random.random()>0.95) {
                             this.currentDirection = random.selection(directions);
                         }

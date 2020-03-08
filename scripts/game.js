@@ -15,6 +15,13 @@ actionQueue.add(animator);
 const player = new Player([Math.round(mapGenerator.dimensions[0]/2),Math.round(mapGenerator.dimensions[1]-mapGenerator.border/2),0]);
 map.player=player;
 
+const statsButton=document.getElementById('statsButton');
+const statsHolder=document.getElementById('statsHolder');
+statsButton.addEventListener('click',(event)=>{
+    event.preventDefault();
+    statsButton.classList.toggle('clicked');
+    statsHolder.classList.toggle('open');
+});
 
 actionQueue.run();
 

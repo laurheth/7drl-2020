@@ -470,7 +470,7 @@ const mapGenerator = {
             'splodey':3,
             'large orb':6,
             'spikeman':6,
-            'roomba':2,
+            'roambo':2,
             'drone':1,
         }
         const options = {
@@ -480,7 +480,7 @@ const mapGenerator = {
             'large orb':this.probabilityFunction(level,6,20,3),
             'spikeman':this.probabilityFunction(level,10,20,3),
             'splodey':this.probabilityFunction(level,5,15,3,1,24),
-            'roomba':this.probabilityFunction(level,10,15,3,1,20),
+            'roambo':this.probabilityFunction(level,10,15,3,1,20),
         }
         const pod=[];
         let breaker=10;

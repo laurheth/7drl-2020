@@ -197,7 +197,9 @@ h1, h2, h3, p {
 .container {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
   justify-content: stretch;
   position: relative;
 }
@@ -221,6 +223,7 @@ h1, h2, h3, p {
   flex-direction: column;
   max-height: calc(100vh - 5.5rem);
   width: 25%;
+  min-width: 10rem;
 }
 .statsHolder p, .statsHolder h2, .statsHolder h3 {
   font-size: 1rem;
@@ -356,4 +359,73 @@ h1, h2, h3, p {
 }
 .tile.memory, .entity.memory {
   filter: grayscale(100%) brightness(0.5);
+}
+
+.hamburger {
+  display: none;
+}
+
+@media (max-width: 400px) {
+  .hamburger {
+    display: block;
+    position: absolute;
+    z-index: 60;
+    top: 6px;
+    right: 6px;
+    background: transparent;
+    padding: 5px;
+    border: none;
+    height: 30px;
+  }
+  .hamburger .bars {
+    position: relative;
+    background: white;
+    height: 3px;
+    width: 21px;
+    transition: 0.3s;
+    transform: rotateZ(0deg);
+  }
+  .hamburger .bars::before, .hamburger .bars::after {
+    content: "";
+    position: absolute;
+    background: white;
+    height: 3px;
+    width: 21px;
+    transition: 0.3s;
+    transform: rotateZ(0deg);
+  }
+  .hamburger .bars::before {
+    top: -7px;
+    left: 0;
+  }
+  .hamburger .bars::after {
+    bottom: -7px;
+    left: 0;
+  }
+
+  .hamburger.clicked .bars {
+    transform: rotateZ(45deg);
+  }
+  .hamburger.clicked .bars::before {
+    top: 0;
+  }
+  .hamburger.clicked .bars::after {
+    bottom: 0;
+    transform: rotateZ(-90deg);
+  }
+
+  .statsHolder {
+    position: absolute;
+    top: 0;
+    z-index: 40;
+    background: black;
+    padding: 0 0 1rem 1rem;
+    bottom: 0;
+    width: 100%;
+    transform: translateX(100%);
+    transition: transform 0.3s;
+  }
+  .statsHolder.open {
+    transform: translateX(0);
+  }
 }

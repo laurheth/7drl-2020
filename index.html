@@ -7,14 +7,24 @@
     <link rel="stylesheet" href="styles/styles.css">
 </head>
 <body>
+    <!-- Main game container -->
     <div class="container">
+        <!-- Level label -->
         <div class="level" id="level">Level 1 of the Tower</div>
+        <!-- Row with grid + starts -->
         <div class="row">
+            <!-- Main game window -->
             <div id="gameWindow" class="game">
-                <div id="grid" class="grid">
+                <!-- The grid where the magic happens -->
+                <div id="grid" class="grid" aria-hidden="true">
                 </div>
             </div>
-            <div class="statsHolder">
+            <!-- Mobile button to show stats holder -->
+            <button id="statsButton" class="hamburger">
+                <div class="bars"></div>
+            </button>
+            <!-- Stats holder -->
+            <div class="statsHolder" id="statsHolder">
                 <h2 id="name">name</h2>
                 <p><span class="special">HP:</span> <span id="hp">10/10</span></p>
                 <h3>Armor:</h3>
@@ -32,6 +42,7 @@
                 </div>
             </div>
         </div>
+        <!-- Game messages displayed here -->
         <div class="messages" id="messages">
         </div>
     </div>
