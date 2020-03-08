@@ -5,6 +5,7 @@ import actionQueue from './actionQueue.js';
 import mapGenerator from './mapGenerator.js';
 import getItem from './items.js';
 import random from './random.js';
+import touchHandler from './touchHandler.js';
 
 // const player = new entity([15,15],'@');
 class Player extends Entity {
@@ -17,6 +18,8 @@ class Player extends Entity {
         this.name='You';
         this.nameElement = document.getElementById('name');
         this.nameElement.textContent='Lauren';
+
+        this.touchHandler = new touchHandler(document.getElementById('gameWindow'),this);
 
         this.hitpoints=20;
         this.maxHp=20;
