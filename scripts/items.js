@@ -5,7 +5,7 @@ import gameBoard from './gameBoard.js';
 // import map from './map.js';
 
 class Item {
-    constructor(name,character,color,type,durability=Infinity) {
+    constructor(name,character,color,type,durability=Infinity,useVerb='use') {
         this.name=name;
         this.character=character;
         this.color=color;
@@ -14,6 +14,7 @@ class Item {
         this.maxDurability=durability;
         this.unique=false;
         this.special=null;
+        this.useVerb=useVerb;
     }
     damage(damage) {
         this.durability -= damage;
@@ -38,11 +39,14 @@ class Item {
             return this.name.toLowerCase();
         }
     }
+    getVerb() {
+        return this.useVerb;
+    }
 }
 
 class Weapon extends Item {
     constructor(name,character,color,damage,force,durability) {
-        super(name,character,color,'tool',durability);
+        super(name,character,color,'tool',durability,'equip');
         this.dmg=damage;
         this.force=force;
     }
@@ -56,7 +60,7 @@ class Weapon extends Item {
 
 class Armor extends Item {
     constructor(name,character,color,armor,durability,mass) {
-        super(name,character,color,'armor',durability);
+        super(name,character,color,'armor',durability,'wear');
         this.armor=armor;
         this.mass=mass;
     }
@@ -75,15 +79,11 @@ class Armor extends Item {
 
 class Consumable extends Item {
     constructor(name,character,color,effect,verb) {
-        super(name,character,color,'consumable');
+        super(name,character,color,'consumable',verb);
         this.effect = effect;
-        this.useVerb=verb;
     }
     consume() {
         return this.effect;
-    }
-    getVerb() {
-        return this.useVerb;
     }
 }
 
@@ -146,7 +146,9 @@ const hookSpecial = (user,direction,damage=1,force=8,range=8) => {
             const direction = [path[1][0]-path[0][0], path[1][1]-path[0][1],0];
             if (tile && tile.entity) {
                 setTimeout(()=>{
-                    tile.entity.hurt(damage);
+                    if (!tile.entity.noDirectDamage) {
+                        tile.entity.hurt(damage);
+                    }
                     if (tile.entity) {
                         tile.entity.knockBack(direction,Math.ceil(force/tile.entity.getMass()));
                     }
@@ -159,8 +161,11 @@ const hookSpecial = (user,direction,damage=1,force=8,range=8) => {
                 setTimeout(()=>actionQueue.removeLock(user),time);
             }
             else {
+                console.log(path.length);
+                console.log(direction);
                 time+=interval;
                 setTimeout(()=>{
+                    console.log('?');
                     path.forEach(position=>map.revertTile(...position))
                     user.knockBack(direction,path.length-2);
                 },time);
@@ -199,6 +204,7 @@ const getItem = (type) => {
             const jetpack = new Armor('Jetpack','[','pink',0,101,0.1);
             jetpack.flying=true;
             jetpack.fuelCost=5;
+            jetpack.message = "This jetpack enables flight! Wear it to be able to fly across holes, hover, or ascend and descend at will. Be mindful of your fuel, though.";
             return jetpack;
         case 'sixela':
             const sixela = new Weapon('Legendary Hammer of Sixela','/','yellow',3,20,Infinity);
@@ -213,16 +219,18 @@ const getItem = (type) => {
                     rocket.damage(40);
                 }
             }
+            rocket.message = "This rocket launcher fires rockets! Equip it then select 'Fire the rocket launcher' or press 'f' to fire!";
             return rocket;
         case 'hookshot':
             const hookshot = new Weapon('Hook shooter','/','cyan',1,2,240);
             hookshot.special = {
-                name: 'Fire the hoot shooter.',
+                name: 'Fire the hook shooter.',
                 activate: (user,direction) => {
                     hookSpecial(user,direction,2,8,12);
                     hookshot.damage(10);
                 }
             }
+            hookshot.message = "The hook shooter fires hooks! Equip it then select 'Fire the hook shooter' or press 'f' to grapple onto distant walls!";
             return hookshot;
         case 'sonic mallet':
             return new Weapon('Sonic mallet','/','pink',2,10,100);

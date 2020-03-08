@@ -34,9 +34,10 @@ class Player extends Entity {
         this.inventory.push(getItem('bat'));
 
         // Infinite jetpack, developer cheat
-        // this.inventory.push(getItem('jetpack'));
+        this.inventory.push(getItem('jetpack'));
         // this.inventory[1].durability=Infinity;
-        // this.inventory.push(getItem('hookshot'));
+        this.inventory.push(getItem('hookshot'));
+        this.inventory.push(getItem('rocket'));
 
 
         this.wielded=this.inventory[0];
@@ -115,7 +116,9 @@ class Player extends Entity {
                     }
                     break;
                 case 'f':
-                    this.activateSpecial(true);
+                    if (this.wielded && this.wielded.special) {
+                        this.activateSpecial(true);
+                    }
                     break;
                 case 'Esc':
                 case 'Escape':
@@ -172,7 +175,7 @@ class Player extends Entity {
                 gameBoard.sendMessage("*** LOW HITPOINT WARNING ***",'bad');
                 this.warningSent=true;
             }
-            else if (this.hitPoints > this.maxHp/3) {
+            else if (this.hitpoints > this.maxHp/3) {
                 this.warningSent=false;
             }
             if (this.turnCount % this.healRate === 0 && this.healRate < 20) {
@@ -247,7 +250,7 @@ class Player extends Entity {
                     event.preventDefault();
                     this.useItem(i);
                 });
-                equipButton.textContent = 'Use item';
+                equipButton.textContent = item.getVerb();
 
                 
                 newElement.appendChild(nameElement);
@@ -259,7 +262,7 @@ class Player extends Entity {
                         event.preventDefault();
                         this.dropItem(i);
                     });
-                    dropButton.textContent = 'Drop item';
+                    dropButton.textContent = 'Drop';
                     newElement.appendChild(dropButton);
                 }
                 this.inventoryElement.appendChild(newElement);
@@ -280,7 +283,7 @@ class Player extends Entity {
                     this.wielded=null;
                 }
                 this.specialActive=false;
-                this.updateInventoryElement(this.wielded,this.equipedElement);
+                this.updateInventory();
                 this.updateActions();
                 return true;
             }
@@ -295,7 +298,7 @@ class Player extends Entity {
             gameBoard.sendMessage('Nevermind; cancelled.');
         }
         else if (!this.specialActive && setTo) {
-            gameBoard.sendMessage('Step a direction to fire.');
+            gameBoard.sendMessage('Step in a direction to fire.');
         }
         this.specialActive=setTo;
         this.updateActions();
@@ -310,6 +313,9 @@ class Player extends Entity {
             }
             else {
                 gameBoard.sendMessage(`You pick up the ${tile.item.getName(false)}.`,'good');
+                if (tile.item.message) {
+                    gameBoard.sendMessage(tile.item.message,'good');
+                }
             }
             this.inventory.push(map.getItemFromTile(this.position));
             map.revertTile(this.position[0],this.position[1]);
@@ -337,34 +343,43 @@ class Player extends Entity {
         }
         if (!this.specialActive) {
             if (this.canAscend()) {
-                gameBoard.sendMessage('You see here a staircase upwards.');
+                if (tile.isUpStair()) {
+                    gameBoard.sendMessage('You see here a staircase upwards.');
+                }
                 this.addAction('Ascend.',()=>{
                     this.step(0,0,1);
+                    gameBoard.setMenu(false);
                     this.endTurn();
                 });
             }
             if (this.canDescend()) {
-                gameBoard.sendMessage('You see here a staircase downwards.');
+                if (tile.isDownStair()) {
+                    gameBoard.sendMessage('You see here a staircase downwards.');
+                }
                 this.addAction('Descend.',()=>{
                     this.step(0,0,-1);
+                    gameBoard.setMenu(false);
                     this.endTurn();
                 });
             }
             if (tile.item) {
                 gameBoard.sendMessage(`You see here a ${tile.item.getName(false)}.`);
                 this.addAction(`Pick up ${tile.item.getName(false)}.`,()=>{
+                    gameBoard.setMenu(false);
                     this.pickUp();
                 });
             }
             if (this.wielded && this.wielded.special) {
                 this.addAction(this.wielded.special.name,()=>{
                     this.activateSpecial();
+                    gameBoard.setMenu(false);
                 });
             }
         }
         else {
             this.addAction('Cancel.',()=>{
                 this.activateSpecial(false);
+                gameBoard.setMenu(false);
             });
         }
     }
@@ -372,9 +387,12 @@ class Player extends Entity {
     jetpack(fuelFactor=1) {
         if (this.alive && this.canFly()) {
             if(!this.armor.damage(fuelFactor*this.armor.fuelCost)) {
-                gameBoard.sendMessage('Your '+this.armor.getName(false)+' runs out of fuel!');
+                gameBoard.sendMessage('Your '+this.armor.getName(false)+' runs out of fuel!','bad');
                 this.inventory.splice(this.inventory.indexOf(this.armor),1);
                 this.armor=null;
+            }
+            else if (this.armor.getDurabilityFraction()<0.25) {
+                gameBoard.sendMessage('Your jetpack is nearly out of fuel!','bad');
             }
             this.updateInventoryElement(this.armor,this.armorElement);
         }
@@ -443,7 +461,6 @@ class Player extends Entity {
             }
             this.inventory.splice(index,1);
         }
-        this.endTurn();
         this.updateInventory();
         this.updateStatus();
         this.updateActions();
@@ -468,7 +485,7 @@ class Player extends Entity {
                     this.inventory.splice(this.inventory.indexOf(this.wielded),1);
                     this.wielded=null;
                 }
-                this.updateInventoryElement(this.wielded,this.equipedElement);
+                this.updateInventory();
             }
         }
         else {
@@ -486,7 +503,7 @@ class Player extends Entity {
                 this.inventory.splice(this.inventory.indexOf(this.armor),1);
                 this.armor=null;
             }
-            this.updateInventoryElement(this.armor,this.armorElement);
+            this.updateInventory();
         }
         super.hurt(dmg);
         this.updateStatus();

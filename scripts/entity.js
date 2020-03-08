@@ -200,6 +200,7 @@ class Entity {
                 if (i===0) {
                     this.step(direction[0],direction[1],0,true,Math.ceil(this.getMass()));
                     if (tiles===1) {
+                        actionQueue.removeLock(this);
                         this.fall();
                     }
                 }
@@ -337,6 +338,14 @@ class Entity {
         if (this.explosive) {
             this.explosive=false;
             this.detonate();
+        }
+        else {
+            const tile = map.getTile(this.position);
+            if (tile && tile.isFloor()) {
+                tile.character = ',';
+                tile.foreground = this.foreground;
+                map.updateTile(tile,...this.position);
+            }
         }
         actionQueue.remove(this);
         actionQueue.removeLock(this);
