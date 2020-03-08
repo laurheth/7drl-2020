@@ -33,6 +33,8 @@ class Player extends Entity {
         // Infinite jetpack, developer cheat
         // this.inventory.push(getItem('jetpack'));
         // this.inventory[1].durability=Infinity;
+        // this.inventory.push(getItem('hookshot'));
+
 
         this.wielded=this.inventory[0];
 
@@ -69,15 +71,19 @@ class Player extends Entity {
             let acted=false;
             const tile=map.getTile(this.position);
             switch(event.key) {
+                case 'Right':
                 case 'ArrowRight':
                     acted=this.step(1,0,0);
                     break;
+                case 'Left':
                 case 'ArrowLeft':
                     acted=this.step(-1,0,0);
                     break;
+                case 'Up':
                 case 'ArrowUp':
                     acted=this.step(0,-1,0);
                     break;
+                case 'Down':
                 case 'ArrowDown':
                     acted=this.step(0,1,0);
                     break;
@@ -102,6 +108,14 @@ class Player extends Entity {
                         this.pickUp(false);
                         acted=true;
                     }
+                    break;
+                case 'f':
+                    this.activateSpecial(true);
+                    break;
+                case 'Esc':
+                case 'Escape':
+                    this.activateSpecial(false);
+                    break;
                 default:
                     // Don't change anything
                     eventCaptured=false;
@@ -264,6 +278,17 @@ class Player extends Entity {
         }
     }
 
+    activateSpecial(setTo=true) {
+        if (this.specialActive && !setTo) {
+            gameBoard.sendMessage('Nevermind; cancelled.');
+        }
+        else if (!this.specialActive && setTo) {
+            gameBoard.sendMessage('Step a direction to fire.');
+        }
+        this.specialActive=setTo;
+        this.updateActions();
+    }
+
     pickUp(endturn=true) {
         const tile = map.getTile(this.position);
         if (tile && tile.item) {
@@ -314,15 +339,13 @@ class Player extends Entity {
             }
             if (this.wielded && this.wielded.special) {
                 this.addAction(this.wielded.special.name,()=>{
-                    this.specialActive=true;
-                    this.updateActions();
+                    this.activateSpecial();
                 });
             }
         }
         else {
             this.addAction('Cancel.',()=>{
-                this.specialActive=false;
-                this.updateActions();
+                this.activateSpecial(false);
             });
         }
     }
@@ -369,7 +392,7 @@ class Player extends Entity {
     }
 
     useItem(index) {
-        this.specialActive=false;
+        this.activateSpecial(false);
         const item = this.inventory[index];
         if (item.type === 'armor') {
             gameBoard.sendMessage('You put on the '+item.getName(false)+'.');
