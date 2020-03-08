@@ -178,6 +178,8 @@ const map = {
             gameBoard.seeTile(startPosition);
         }
 
+        const seen=[];
+
         const rayCast = (start,end,range)=> {
             if (Math.pow(end[0]-start[0],2) + Math.pow(end[1]-start[1],2) > range**2) {
                 return;
@@ -192,7 +194,8 @@ const map = {
                 current[0] += direction[0];
                 current[1] += direction[1];
                 const thisTile = this.getTile(current.map(x=>Math.round(x)));
-                if (thisTile) {
+                // DOM manipulation is expensive; minimize it where possible
+                if (thisTile && (seen.indexOf(thisTile)<0)) {
                     thisTile.see();
                     gameBoard.seeTile(current.map(x=>Math.round(x)));
                 }
