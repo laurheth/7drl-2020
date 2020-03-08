@@ -365,7 +365,18 @@ h1, h2, h3, p {
   display: none;
 }
 
-@media (max-width: 400px) {
+@keyframes pulse {
+  0% {
+    background: white;
+  }
+  50% {
+    background: lime;
+  }
+  100% {
+    background: white;
+  }
+}
+@media (max-width: 500px) {
   .hamburger {
     display: block;
     position: absolute;
@@ -403,6 +414,10 @@ h1, h2, h3, p {
     left: 0;
   }
 
+  .hamburger.actionExists .bars, .hamburger.actionExists .bars::before, .hamburger.actionExists .bars::after {
+    animation: pulse 1.5s linear infinite;
+  }
+
   .hamburger.clicked .bars {
     transform: rotateZ(45deg);
   }
@@ -424,8 +439,20 @@ h1, h2, h3, p {
     width: 100%;
     transform: translateX(100%);
     transition: transform 0.3s;
+    max-height: 100vh;
+    overflow-y: scroll;
   }
   .statsHolder.open {
     transform: translateX(0);
+  }
+}
+@media (max-width: 400px) {
+  html {
+    font-size: 100%;
+  }
+}
+@media (max-height: 400px) {
+  html {
+    font-size: 100%;
   }
 }

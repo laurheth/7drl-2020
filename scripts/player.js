@@ -50,6 +50,8 @@ class Player extends Entity {
         this.armorElement = document.getElementById('armor');
         this.actionElement = document.getElementById('actions');
 
+        this.statsButton = document.getElementById('statsButton');
+
         this.levelElement = document.getElementById('level');
 
         this.armorElement.addEventListener('click',(event)=>{
@@ -319,6 +321,7 @@ class Player extends Entity {
 
     updateActions() {
         const tile = map.getTile(this.position);
+        this.statsButton.classList.remove('actionExists');
         while(this.actionElement.firstChild) {
             this.actionElement.lastChild.remove();
         }
@@ -381,6 +384,7 @@ class Player extends Entity {
 
         actionItem.appendChild(actionButton);
         this.actionElement.appendChild(actionItem);
+        this.statsButton.classList.add('actionExists');
     }
 
     removeArmor() {

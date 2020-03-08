@@ -191,12 +191,24 @@ h1,h2,h3,p {
     display: none;
 }
 
+@keyframes pulse {
+    0% {
+        background: white;
+    }
+    50% {
+        background: rgb(0,255,0);
+    }
+    100% {
+        background: white;
+    }
+}
+
 $barHeight:3px;
 $barColor:white;
 $barWidth:21px;
 $barSpacing:7px;
 
-@media(max-width:400px) {
+@media(max-width:500px) {
     .hamburger {
         display: block;
         position: absolute;
@@ -233,6 +245,11 @@ $barSpacing:7px;
             }
         }
     }
+    .hamburger.actionExists {
+        .bars, .bars::before, .bars::after {
+            animation: pulse 1.5s linear infinite;
+        }
+    }
     .hamburger.clicked {
         .bars {
             transform: rotateZ(45deg);
@@ -256,8 +273,22 @@ $barSpacing:7px;
         width: 100%;
         transform: translateX(100%);
         transition: transform 0.3s;
+        max-height:100vh;
+        overflow-y: scroll;
         &.open {
             transform: translateX(0);
         }
+    }
+}
+
+@media(max-width:400px) {
+    html {
+        font-size: 100%;
+    }
+}
+
+@media(max-height:400px) {
+    html {
+        font-size: 100%;
     }
 }
