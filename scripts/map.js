@@ -198,6 +198,7 @@ const map = {
                 if (thisTile && (seen.indexOf(thisTile)<0)) {
                     thisTile.see();
                     gameBoard.seeTile(current.map(x=>Math.round(x)));
+                    map.revertTile(current.map(x=>Math.round(x)));
                 }
                 if (!thisTile || !thisTile.isSeeThrough()) {
                     return;

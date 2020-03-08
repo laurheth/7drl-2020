@@ -24,5 +24,4 @@ statsButton.addEventListener('click',(event)=>{
 });
 
 actionQueue.run();
-
-gameBoard.toggleAnimateView();
+gameBoard.sendMessage(`Welcome to the Torrential Tower! The Legendary Hammer of Sixela is at the top; your quest is to get it!`,['good','important']);

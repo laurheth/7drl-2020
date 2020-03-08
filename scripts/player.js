@@ -11,7 +11,7 @@ import touchHandler from './touchHandler.js';
 class Player extends Entity {
     constructor(startPosition) {
         super(startPosition,'@');
-        gameBoard.jumpToPosition(startPosition);
+        gameBoard.setViewPosition(startPosition);
         document.addEventListener('keydown',(event)=>this.handleEvent(event));
         map.vision(this.position);
         this.playerTurn=false;
@@ -35,9 +35,9 @@ class Player extends Entity {
 
         // Infinite jetpack, developer cheat
         this.inventory.push(getItem('jetpack'));
-        // this.inventory[1].durability=Infinity;
-        this.inventory.push(getItem('hookshot'));
-        this.inventory.push(getItem('rocket'));
+        this.inventory[1].durability=Infinity;
+        // this.inventory.push(getItem('hookshot'));
+        // this.inventory.push(getItem('rocket'));
 
 
         this.wielded=this.inventory[0];

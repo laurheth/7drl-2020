@@ -8,8 +8,8 @@ import Doodad from './doodad.js';
 import getItem from './items.js';
 
 const mapGenerator = {
-    dimensions: [50,50],
-    border: 6, // stay this far away from the map edge
+    dimensions: [40,40],
+    border: 4, // stay this far away from the map edge
     towerHeight: 26, // traditional roguelike depth
     numberOfTiles: 0,
     targetFraction: 0.5, // Fraction of the entire map to fill with towers
@@ -473,7 +473,7 @@ const mapGenerator = {
             'splodey':3,
             'large orb':6,
             'spikeman':6,
-            'roambo':2,
+            'roambo':-1, // lets be real, they are more of a threat to themselves than you
             'drone':1,
         }
         const options = {

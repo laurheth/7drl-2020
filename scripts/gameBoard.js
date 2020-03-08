@@ -100,6 +100,11 @@ const gameBoard = {
 
     // Set tile properties
     setTile(position,character='',background='',foreground='',below=false) {
+        if (position.length>2) {
+            if (position[2] !== this.currentLevel) {
+                return;
+            }
+        }
         const index = this.getIndex(position);
         if (index >= 0) {
             // Get the tile element
@@ -180,12 +185,6 @@ const gameBoard = {
             });
             this.gridElement.style.transform = `translate(${translation[0]}%,${translation[1]}%)`
         }
-    },
-
-    jumpToPosition(position) {
-        this.toggleAnimateView(false);
-        this.setViewPosition(position);
-        this.toggleAnimateView(true);
     },
 
     toggleAnimateView(animate=true) {

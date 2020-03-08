@@ -49,6 +49,7 @@ class Monster extends Entity {
                 this.pronoun=true;
                 this.ai=ai.CHASE;
                 persistence=Infinity;
+                this.omniscient=true;
                 break;
             case 'spikeman':
                 super(startPosition,'X','black','hotpink');
@@ -135,9 +136,24 @@ class Monster extends Entity {
                                 this.currentDirection = random.selection(directions);
                             }
                         }
+                        if (this.currentTile && this.currentTile.isFloor()) {
+                            this.currentTile.makeFloor();
+                            map.updateTile(this.currentTile,...this.position);
+                        }
                         break;
                     default:
                     case ai.CHASE:
+                        if (this.omniscient) {
+                            if (this.position[2] > map.player.position[2] && this.target && !map.getTile(this.target).isDownStair()) {
+                                this.target = this.findTile('isDownStair');
+                            }
+                            else if (this.position[2] < map.player.position[2] && this.target && !map.getTile(this.target).isUpStair()) {
+                                this.target = this.findTile('isUpStair');
+                            }
+                            else if (this.position[2] === map.player.position[2] && this.target.every((x,i)=>x===this.position[i])) {
+                                this.target = [...map.player.position];
+                            }
+                        }
                         let getBest = (random.random()>0.25);
                         let direction = this.getDirection(this.target,getBest);
                         if (this.position[2] > map.player.position[2] && this.canDescend()) {
@@ -179,7 +195,28 @@ class Monster extends Entity {
         
         actionQueue.advance();
     }
+    findTile(method) {
+        let distance=0;
+        while (distance<20) {
+            for (let i=-distance;i<distance;i++) {
+                for (let j=-distance;j<distance;j++) {
+                    if (Math.abs(i)!==distance && Math.abs(j) !== distance) {
+                        continue;
+                    }
+                    const tile = map.getTile([this.position[0]+i,this.position[1]+j,this.position[2]]);
+                    if (tile && tile[method]()) {
+                        return [this.position[0]+i,this.position[1]+j,this.position[2]];
+                    }
+                }
+            }
+            distance++;
+        }
+        return [...this.position];
+    }
     show(force) {
+        if (this.omniscient) {
+            console.log('??');
+        }
         super.show(force);
         this.active = this.persistence;
         if (map.player) {

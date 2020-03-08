@@ -2,6 +2,7 @@ import gameBoard from './gameBoard.js';
 import map from './map.js';
 import actionQueue from './actionQueue.js';
 import animator from './animator.js';
+import random from './random.js';
 
 class Entity {
     constructor(position,character, background='#000000', foreground='#FFFFFF',pseudoEntity=false) {
@@ -90,9 +91,13 @@ class Entity {
                     fallDistance++;
                 }
                 if (map.getTile(downPosition)) {
-                    if (map.getTile(downPosition).entity) {
+                    const landOn=map.getTile(downPosition).entity;
+                    if (landOn) {
                         splatMessage=true;
-                        map.getTile(downPosition).entity.hurt(2*map.getTile(downPosition).entity.hitpoints);
+                        landOn.hurt(Math.max(0,this.getMass()*(fallDistance-1)));                        
+                        while (map.getTile(downPosition).entity === landOn) {
+                            landOn.step(random.range(-1,1),random.range(-1,1),0,true,1);
+                        }
                     }
                 }
                 else {

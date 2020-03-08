@@ -89,6 +89,7 @@ class Tile {
         this.alternateState = new Tile();
         this.alternateState.setProperties('-','black','brown',true);
         this.alternateState.alternateState = this;
+        this.alternateState.door=true;
         this.door=true;
         this.hitpoints=1;
         this.name='door';
@@ -97,6 +98,7 @@ class Tile {
         this.setProperties('+','black','cyan',false, true);
         this.alternateState = new Tile();
         this.alternateState.setProperties('-','black','cyan',true);
+        this.alternateState.door=true;
         this.alternateState.alternateState = this;
         this.door=true;
         this.hitpoints=1;
