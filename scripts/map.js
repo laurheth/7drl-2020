@@ -29,7 +29,9 @@ const map = {
                 if (tile.hasBeenSeen()) {
                     gameBoard.setMemory([i,j]);
                 }
-                // gameBoard.seeTile([i,j]);
+                else {
+                    gameBoard.setAsUnseen([i,j]);
+                }
             });
         });
     },

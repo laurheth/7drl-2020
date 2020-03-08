@@ -139,6 +139,16 @@ const gameBoard = {
         }
     },
 
+    // Set as never been seen
+    setAsUnseen(position) {
+        const index = this.getIndex(position);
+        if (index >= 0) {
+            const tileElement = this.tiles[index];
+            tileElement.classList.remove('memory');
+            tileElement.classList.add('hidden');
+        }
+    },
+
     // Set vision position
     setViewPosition(position) {
         if (position && position.length >= 2) {

@@ -121,8 +121,8 @@ class Monster extends Entity {
     }
     act() {
         this.active--;
-        if (this.awake && Math.abs(this.position[2] - map.player.position[2]) < 3) {
-            if ((this.active > 0 && map.player && this.position[2] === map.player.position[2] && this.ai in ai) || this.ai === ai.ROOMBA) {
+        if (this.awake && Math.abs(this.position[2] - map.player.position[2]) < Math.max(2,this.active)) {
+            if ((this.active > 0 && map.player && this.ai in ai) || this.ai === ai.ROOMBA) {
                 switch(this.ai) {
                     case ai.ROOMBA:
                         if (!this.currentDirection || random.random()>0.95) {
@@ -141,10 +141,10 @@ class Monster extends Entity {
                         let getBest = (random.random()>0.25);
                         let direction = this.getDirection(this.target,getBest);
                         if (this.position[2] > map.player.position[2] && this.canDescend()) {
-                            this.step([0,0,-1]);
+                            this.step(0,0,-1);
                         }
                         else if (this.position[2] < map.player.position[2] && this.canAscend()) {
-                            this.step([0,0,1]);
+                            this.step(0,0,1);
                         }
                         else if (!this.validStep(direction) || !this.step(direction[0],direction[1],0)) {
                             direction = this.getDirection(this.target,!getBest);
@@ -161,7 +161,7 @@ class Monster extends Entity {
             }
             else {
                 // Wander
-                let breaker=10;
+                let breaker=5;
                 let dx=0;
                 let dy=0;
                 while (breaker>0 && !this.validStep([dx,dy,0]) && !this.step(dx,dy,0)) {
