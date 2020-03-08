@@ -32,7 +32,10 @@ const mapGenerator = {
         // Build the shell of the structure
         this.buildExterior(fullMap);
 
-        // Add some fancier rooms on top of the existing labyrinthe
+        // Add a front door in front of where the player will be
+        this.addFrontDoor(fullMap[0]);
+
+        // Add some fancier rooms to the space while it is still mostly empty
         this.addFancyRooms(fullMap);
 
         // Add some cool hallways
@@ -507,6 +510,20 @@ const mapGenerator = {
         }
         else {
             return peakValue;
+        }
+    },
+    addFrontDoor(level) {
+        const position = [Math.round(mapGenerator.dimensions[0]/2),Math.round(mapGenerator.dimensions[1]-mapGenerator.border/2),0];
+        for (let i=0;i<20;i++) {
+            for (let k=-1;k<2;k+=2) {
+                for (let j=0;j<10;j++) {
+                    const testPosition = [position[0]+k*j, position[1]-i];
+                    if (roomBuilder.validForDoor(level,testPosition[0],testPosition[1])) {
+                        level[testPosition[1]][testPosition[0]].makeDoor();
+                        return;
+                    }
+                }
+            }
         }
     }
 }

@@ -440,7 +440,7 @@ h1, h2, h3, p {
     transform: translateX(100%);
     transition: transform 0.3s;
     max-height: 100vh;
-    overflow-y: scroll;
+    overflow-y: auto;
   }
   .statsHolder.open {
     transform: translateX(0);

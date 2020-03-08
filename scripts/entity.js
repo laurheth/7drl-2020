@@ -159,6 +159,12 @@ class Entity {
                 return this.attack(targetTile.entity,forced);
             }
             else if (targetTile.isDoor() && !forced) {
+                if(this === map.player) {
+                    gameBoard.sendMessage('You open the '+targetTile.name+'.');
+                }
+                else if (targetTile.isVisible) {
+                    gameBoard.sendMessage(`The ${targetTile.name} opens!`);
+                }
                 map.alternateTile(targetPosition);
                 return true;
             }

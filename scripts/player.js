@@ -168,6 +168,13 @@ class Player extends Entity {
     act() {
         if (this.alive && !this.won) {
             this.turnCount++;
+            if (!this.warningSent && this.hitpoints < this.maxHp/3) {
+                gameBoard.sendMessage("*** LOW HITPOINT WARNING ***",'bad');
+                this.warningSent=true;
+            }
+            else if (this.hitPoints > this.maxHp/3) {
+                this.warningSent=false;
+            }
             if (this.turnCount % this.healRate === 0 && this.healRate < 20) {
                 if (this.hitpoints < this.maxHp) {
                     this.hitpoints++;
@@ -301,6 +308,9 @@ class Player extends Entity {
                 gameBoard.sendMessage('You have found the Legendary Hammer of Sixela! You have what you came for, it is time to leave this place!',['good','important']);
                 this.winItem=tile.item;
             }
+            else {
+                gameBoard.sendMessage(`You pick up the ${tile.item.getName(false)}.`,'good');
+            }
             this.inventory.push(map.getItemFromTile(this.position));
             map.revertTile(this.position[0],this.position[1]);
             this.updateInventory();
@@ -327,18 +337,21 @@ class Player extends Entity {
         }
         if (!this.specialActive) {
             if (this.canAscend()) {
+                gameBoard.sendMessage('You see here a staircase upwards.');
                 this.addAction('Ascend.',()=>{
-                    this.step(0,0,1)
+                    this.step(0,0,1);
                     this.endTurn();
                 });
             }
             if (this.canDescend()) {
+                gameBoard.sendMessage('You see here a staircase downwards.');
                 this.addAction('Descend.',()=>{
-                    this.step(0,0,-1)
+                    this.step(0,0,-1);
                     this.endTurn();
                 });
             }
             if (tile.item) {
+                gameBoard.sendMessage(`You see here a ${tile.item.getName(false)}.`);
                 this.addAction(`Pick up ${tile.item.getName(false)}.`,()=>{
                     this.pickUp();
                 });
@@ -388,12 +401,14 @@ class Player extends Entity {
     }
 
     removeArmor() {
+        gameBoard.sendMessage('You take off the '+this.armor.getName(false)+'.');
         this.armor=null;
         this.fall();
         this.updateInventory();
     }
 
     removeWeapon() {
+        gameBoard.sendMessage('You unequip the '+this.wielded.getName(false)+'.');
         this.wielded=null;
         this.updateInventory();
     }
@@ -402,21 +417,21 @@ class Player extends Entity {
         this.activateSpecial(false);
         const item = this.inventory[index];
         if (item.type === 'armor') {
-            gameBoard.sendMessage('You put on the '+item.getName(false)+'.');
+            gameBoard.sendMessage('You put on the '+item.getName(false)+'.','good');
             this.armor = item;
         }
         else if (item.type === 'tool') {
-            gameBoard.sendMessage('You equip the '+item.getName(false)+'.');
+            gameBoard.sendMessage('You equip the '+item.getName(false)+'.','good');
             this.wielded = item;
         }
         else {
-            gameBoard.sendMessage('You '+item.getVerb() +' the '+item.getName(false)+'.');
+            gameBoard.sendMessage('You '+item.getVerb() +' the '+item.getName(false)+'.','good');
             if ('heal' in item.effect) {
                 this.hitpoints += item.effect.heal;
                 if (this.hitpoints - item.effect.heal === this.maxHp && item.effect.heal > 15) {
                     if (random.random()>0.5) {
                         this.maxHp++;
-                        gameBoard.sendMessage('You feel your vitality permanently increase!');
+                        gameBoard.sendMessage('You feel your vitality permanently increase!','good');
                     }
                 }
                 if (this.hitpoints > this.maxHp) {
@@ -437,6 +452,7 @@ class Player extends Entity {
     dropItem(index) {
         const item = this.inventory[index];
         if (map.addItem(this.position,item)) {
+            gameBoard.sendMessage('You drop the '+item.getName(false)+'.');
             this.inventory.splice(index,1);
             this.updateInventory();
             this.updateActions();

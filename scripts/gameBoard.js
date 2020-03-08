@@ -8,11 +8,34 @@ const gameBoard = {
     lastMessageElement:null,
     repeats:0,
     messagesClosed:0,
+    menuOn:false,
+    statsButton:null,
+    statsMenu:null,
     // Initialize
     init() {
         this.gridElement = document.getElementById('grid');
         this.setDimensions([30,30]);
         this.messageElement = document.getElementById('messages');
+
+        this.statsButton=document.getElementById('statsButton');
+        this.statsHolder=document.getElementById('statsHolder');
+        statsButton.addEventListener('click',(event)=>{
+            event.preventDefault();
+            this.setMenu(!this.menuOn);
+        });
+
+    },
+
+    setMenu(open=true) {
+        this.menuOn=open;
+        if (open) {
+            this.statsButton.classList.add('clicked');
+            this.statsHolder.classList.add('open');
+        }
+        else {
+            this.statsButton.classList.remove('clicked');
+            this.statsHolder.classList.remove('open');
+        }
     },
 
     // Set new dimensions for the map
