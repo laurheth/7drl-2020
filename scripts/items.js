@@ -42,6 +42,9 @@ class Item {
     getVerb() {
         return this.useVerb;
     }
+    sortVal() {
+        return 0;
+    }
 }
 
 class Weapon extends Item {
@@ -55,6 +58,9 @@ class Weapon extends Item {
     }
     getForce() {
         return this.force;
+    }
+    sortVal() {
+        return 20 + parseInt(this.dmg) + parseInt(this.force) + parseInt((this.special) ? 10 : 0);
     }
 }
 
@@ -75,6 +81,9 @@ class Armor extends Item {
     getMass() {
         return this.mass;
     }
+    sortVal() {
+        return 10 + parseInt(this.armor) + parseInt((this.flying) ? 10 : 0);
+    }
 }
 
 class Consumable extends Item {
@@ -84,6 +93,9 @@ class Consumable extends Item {
     }
     consume() {
         return this.effect;
+    }
+    sortVal() {
+        return parseInt((this.effect.heal) ? this.effect.heal : 0 ) + parseInt((this.effect.food) ? this.effect.food : 0 ) - 30;
     }
 }
 

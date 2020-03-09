@@ -250,6 +250,10 @@ class Player extends Entity {
         while(this.inventoryElement.firstChild) {
             this.inventoryElement.lastChild.remove();
         }
+        // Sort things a bit
+        this.inventory.sort((a,b)=>{
+            return b.sortVal() - a.sortVal();
+        });
         this.inventory.forEach((item,i)=>{
             if (item !== this.armor && item !== this.wielded) {
                 const newElement = document.createElement('li');
