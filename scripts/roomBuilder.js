@@ -113,7 +113,6 @@ const roomBuilder = {
                     direction[1] = Math.sign(-position[1] + end[1]);
                 }
                 position = position.map((x, i) => x + direction[i]);
-                // console.log(position, end);
                 if (level[position[1]][position[0]].isExterior()) {
                     for (let i = -1; i < 2; i++) {
                         for (let j = -1; j < 2; j++) {

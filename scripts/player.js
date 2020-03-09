@@ -40,8 +40,8 @@ class Player extends Entity {
 
         this.touchHandler = new touchHandler(document.getElementById('gameWindow'),this);
 
-        this.hitpoints=20;
-        this.maxHp=20;
+        this.hitpoints=30;
+        this.maxHp=30;
         this.damage=1;
         this.force=0.1;
         this.mass=2;
@@ -51,13 +51,6 @@ class Player extends Entity {
 
         this.inventory=[];
         this.inventory.push(getItem('bat'));
-
-        // Infinite jetpack, developer cheat
-        // this.inventory.push(getItem('jetpack'));
-        // this.inventory[1].durability=Infinity;
-        // this.inventory.push(getItem('hookshot'));
-        // this.inventory.push(getItem('rocket'));
-
 
         this.wielded=this.inventory[0];
 

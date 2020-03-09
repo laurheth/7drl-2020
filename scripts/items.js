@@ -188,17 +188,17 @@ const hookSpecial = (user,direction,damage=1,force=8,range=8) => {
 const getItem = (type) => {
     switch(type) {
         case 'potion':
-            return new Consumable('Healing potion','!','red',{heal:20},'quaff');
+            return new Consumable('Healing potion','!','red',{heal:30},'quaff');
         case 'smallfood':
-            return new Consumable('Apple','%','red',{heal:2,food:5},'eat');
+            return new Consumable('Apple','%','red',{heal:3,food:5},'eat');
         case 'mediumfood':
-            return new Consumable('Sandwich','%','burlywood',{heal:3,food:10},'eat');
+            return new Consumable('Sandwich','%','burlywood',{heal:5,food:10},'eat');
         case 'bigfood':
-            return new Consumable("Bowl of chilli",'%','white',{heal:4,food:20},'eat');
+            return new Consumable("Bowl of chilli",'%','white',{heal:7,food:20},'eat');
         case 'weighted':
-            return new Armor('Stone armor','[','burlywood',2,60,10);
+            return new Armor('Stone armor','[','burlywood',3,60,10);
         case 'plate':
-            return new Armor('Plate armor','[','cyan',3,120,1);
+            return new Armor('Plate armor','[','cyan',4,120,1);
         case 'chain':
             return new Armor('Chain armor','[','gray',2,60,0.5);
         case 'leather':
@@ -210,7 +210,7 @@ const getItem = (type) => {
             jetpack.message = "This jetpack enables flight! Wear it to be able to fly across holes, hover, or ascend and descend at will. Be mindful of your fuel, though.";
             return jetpack;
         case 'sixela':
-            const sixela = new Weapon('Legendary Hammer of Sixela','/','yellow',3,20,Infinity);
+            const sixela = new Weapon('Legendary Hammer of Sixela','/','yellow',6,25,Infinity);
             sixela.unique=true;
             return sixela;
         case 'rocket':
@@ -233,14 +233,14 @@ const getItem = (type) => {
                     hookshot.damage(10);
                 }
             }
-            hookshot.message = "The hook shooter fires hooks! Equip it then select 'Fire the hook shooter' or press 'f' to grapple onto distant walls!";
+            hookshot.message = "The hook shooter fires hooks! Equip it then select 'Fire the hook shooter' or press 'f' to grapple onto distant walls, or stairs!";
             return hookshot;
         case 'sonic mallet':
-            return new Weapon('Sonic mallet','/','pink',2,10,100);
+            return new Weapon('Sonic mallet','/','pink',3,10,100);
         case 'golf club':
-            return new Weapon('Golf club','/','gray',1,6,60);
+            return new Weapon('Golf club','/','gray',2,6,60);
         case 'sword':
-            return new Weapon('Sword','/','white',4,0,60);
+            return new Weapon('Sword','/','white',5,0,60);
         case 'bat':
             return new Weapon('Baseball bat','/','brown',1,4,40);
         default:

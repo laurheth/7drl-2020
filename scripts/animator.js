@@ -27,7 +27,6 @@ class Animation {
     frame() {
         // Undo the last frame
         if (this.tieToEntity) {
-            // console.log('reveal');
             this.tieToEntity.show(true);
         }
         this.toRevert.forEach(position => {
@@ -41,7 +40,6 @@ class Animation {
         }
 
         if (this.tieToEntity) {
-            // console.log('hide');
             this.tieToEntity.hide(true);
         }
 

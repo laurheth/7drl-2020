@@ -130,7 +130,7 @@ const map = {
                         return true;
                     }
                     else if (tile && tile.isEmpty() && position[2]>0) {
-                        return this.addItem([position[0],position[1],position[2]-1]);
+                        return this.addItem([position[0],position[1],position[2]-1],item);
                     }
                 }
             }

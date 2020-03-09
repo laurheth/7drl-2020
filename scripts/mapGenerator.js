@@ -12,7 +12,7 @@ const mapGenerator = {
     border: 4, // stay this far away from the map edge
     towerHeight: 26, // traditional roguelike depth
     numberOfTiles: 0,
-    targetFraction: 0.5, // Fraction of the entire map to fill with towers
+    targetFraction: 0.4, // Fraction of the entire map to fill with towers
     targetTiles: 15000,
     towerNumber: -1,
     possibleStairs: [],
@@ -416,6 +416,9 @@ const mapGenerator = {
                             level[position[1]][position[0]].item = getItem('hookshot');
                         }
                     }
+                    else if (z===20 && i===0) {
+                        level[position[1]][position[0]].item = getItem('jetpack');
+                    }
                     else {
                         level[position[1]][position[0]].item = getItem(this.addItem(z));
                     }
@@ -427,7 +430,7 @@ const mapGenerator = {
         const weights = {
             'candle':4,
             'statue':5,
-            'chest':this.probabilityFunction(level,2,26,2),
+            'chest':this.probabilityFunction(level,2,26,5),
             'table':5,
             'barrel':this.probabilityFunction(level,0,12,8,2),
         }
@@ -440,16 +443,16 @@ const mapGenerator = {
             'mediumfood':this.probabilityFunction(level,0,12,8),
             'bigfood':this.probabilityFunction(level,0,26,10),
             'weighted':this.probabilityFunction(level,10,20,2),
-            'plate':this.probabilityFunction(level,18,26,3),
-            'chain':this.probabilityFunction(level,10,20,3,1,23),
-            'leather':this.probabilityFunction(level,3,15,3,1,19),
-            'sonic mallet':this.probabilityFunction(level,16,26,2),
-            'golf club':this.probabilityFunction(level,5,20,2),
+            'plate':this.probabilityFunction(level,5,26,4),
+            'chain':this.probabilityFunction(level,5,20,4,1,23),
+            'leather':this.probabilityFunction(level,0,15,3,1,19),
+            'sonic mallet':this.probabilityFunction(level,10,26,4),
+            'golf club':this.probabilityFunction(level,5,20,6),
             'rocket':this.probabilityFunction(level,4,20,3),
             'hookshot':this.probabilityFunction(level,4,20,5),
-            'jetpack':this.probabilityFunction(level,10,20,2),
+            'jetpack':this.probabilityFunction(level,5,20,3),
             'sword':1,
-            'bat':this.probabilityFunction(level,0,0,3,1,10),
+            'bat':1,
         }
         return random.weighted(weights);
     },
@@ -476,7 +479,7 @@ const mapGenerator = {
             'spike':1,
             'splodey':3,
             'large orb':6,
-            'spikeman':6,
+            'spikeman':8,
             'roambo':-1, // lets be real, they are more of a threat to themselves than you
             'drone':1,
         }

@@ -272,6 +272,7 @@ h1, h2, h3, p {
   text-transform: capitalize;
   padding: 0;
   border: none;
+  flex-shink: 0;
   text-align: left;
   border-radius: 2px;
   transition: 0.3s;

@@ -226,9 +226,6 @@ class Monster extends Entity {
         return startPoint;
     }
     show(force) {
-        if (this.omniscient) {
-            console.log('??');
-        }
         super.show(force);
         this.active = this.persistence;
         if (map.player) {

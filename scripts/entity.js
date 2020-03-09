@@ -249,9 +249,7 @@ class Entity {
     }
 
     show(force=false) {
-        // console.log(force, this.alive, !this.forceHidden);
         if (force || (this.alive && !this.forceHidden)) {
-            // console.log('reveal successful');
             this.element.classList.remove('hidden');
             this.forceHidden=false;
         }
